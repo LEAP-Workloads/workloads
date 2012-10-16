@@ -1,0 +1,10 @@
+
+[Global]
+CSN=CSN-mmm-0
+Version=1
+Buildorder=1000
+Lock=asim-mmm
+Prerelease=1
+Name=mmm
+Description=Description of mmm
+Tag=HEAD
