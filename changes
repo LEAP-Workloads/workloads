@@ -1,0 +1,184 @@
+
+----------
+kfleming    Date: Sun Oct 21 14:36:47 EDT 2012  CSN: CSN-mmm-2
+                  Sun Oct 21 18:36:47 UTC 2012
+
+
+Directory config/pm/mmm
+ mmm_exe.apm               Locally Added               0 
+
+Directory modules/mmm
+ software/                 Locally Added               0 
+
+Directory modules/mmm/software
+ Simulator/                Locally Added               0 
+
+Directory modules/mmm/software/Simulator
+ cLib.h                    Locally Added               0 
+ runTests.pl               Locally Added               0 
+ generateMatrices.c        Locally Added               0 
+ instructions.h            Locally Added               0 
+ cLibSimulator.c           Locally Added               0 
+ instructionParameters.h   Locally Added               0 
+ GoodAlgo.c                Locally Added               0 
+ README                    Locally Added               0 
+ Makefile                  Locally Added               0 
+ BrainDeadAlgo.c           Locally Added               0 
+ cLibReal.c                Locally Added               0 
+ matrixPointers.h          Locally Added               0 
+
+Directory modules/mmm/software
+ TestCPack.bsv             Locally Added               0 
+ storeLoad.c               Locally Added               0 
+
+Directory modules/mmm
+ hardware/                 Locally Added               0 
+
+Directory modules/mmm/hardware
+ Simulator/                Locally Added               0 
+
+Directory modules/mmm/hardware/Simulator
+ MultiplierFunctionalSimulator.bsv Locally Added               0 
+ SystemSimulatorBackup.bsv Locally Added               0 
+ SystemSimulator.bsv       Locally Added               0 
+
+Directory modules/mmm/hardware
+ FunctionalUnit/           Locally Added               0 
+
+Directory modules/mmm/hardware/FunctionalUnit
+ SimpleFunctionalUnit.bsv  Locally Added               0 
+ SFUTestBench.bsv          Locally Added               0 
+ FunctionalUnit.bsv        Locally Added               0 
+ mmm-functional-unit.awb   Locally Added               0 
+
+Directory modules/mmm/hardware
+ Controller/               Locally Added               0 
+
+Directory modules/mmm/hardware/Controller
+ mmm-controller.awb        Locally Added               0 
+ SimpleController.rrr      Locally Added               0 
+ SimpleController.bsv      Locally Added               0 
+
+Directory modules/mmm/hardware
+ FUNetwork/                Locally Added               0 
+
+Directory modules/mmm/hardware/FUNetwork
+ mmm-functional-unit-network.awb Locally Added               0 
+ SimpleFUNetwork.bsv       Locally Added               0 
+
+Directory modules/mmm/hardware
+ MCDBRAM/                  Locally Added               0 
+
+Directory modules/mmm/hardware/MCDBRAM
+ mcd_bram_interface.v      Locally Added               0 
+ mcd_bram.v                Locally Added               0 
+ MCDBRAM.bsv               Locally Added               0 
+ MCDBRAMTestBench.bsv      Locally Added               0 
+
+Directory modules/mmm/hardware
+ Common/                   Locally Added               0 
+
+Directory modules/mmm/hardware/Common
+ common.awb                Locally Added               0 
+ Common.bsv                Locally Added               0 
+ MultPrim.bsv              Locally Added               0 
+ mult.v                    Locally Added               0 
+ Complex16.bsv             Locally Added               0 
+ MultPrimSynth.bsv         Locally Added               0 
+ Utils.bsv                 Locally Added               0 
+ DebugFlags.bsv            Locally Added               0 
+ Parameters.bsv            Locally Added               0 
+ Interfaces.bsv            Locally Added               0 
+ Types.bsv                 Locally Added               0 
+
+Directory modules/mmm/hardware
+ BRAMTarget/               Locally Added               0 
+
+Directory modules/mmm/hardware/BRAMTarget
+ InstructionTranslator.bsv Locally Added               0 
+ BRAMModel.v               Locally Added               0 
+ BRAMInitiatorWires.bsv    Locally Added               0 
+ BRAMInitiator.v           Locally Added               0 
+ BRAMModel.bsv             Locally Added               0 
+ BRAMTargetWires.bsv       Locally Added               0 
+ PPCInterface.bsv          Locally Added               0 
+ BRAMInitiator.bsv         Locally Added               0 
+
+Directory modules/mmm/hardware
+ PLBMaster/                Locally Added               0 
+
+Directory modules/mmm/hardware/PLBMaster
+ PLBSlave.bsv              Locally Added               0 
+ PLBMaster.bsv             Locally Added               0 
+ PLBMasterMagic.bsv        Locally Added               0 
+ PLBModel.bsv              Locally Added               0 
+ PLBMasterBackup.bsv       Locally Added               0 
+ PLBMaster_backupPPC.bsv   Locally Added               0 
+ PLBMasterWires.bsv        Locally Added               0 
+ memory-unit.awb           Locally Added               0 
+
+Directory modules/mmm/hardware
+ Feeder/                   Locally Added               0 
+
+Directory modules/mmm/hardware/Feeder
+ refhw.v                   Locally Added               0 
+ BRAMFeeder.bsv            Locally Added               0 
+ PPCFeeder.bsv             Locally Added               0 
+ PPCModel.bsv              Locally Added               0 
+ SimpleFeeder.bsv          Locally Added               0 
+
+Directory modules/mmm/hardware
+ MemorySwitch/             Locally Added               0 
+
+Directory modules/mmm/hardware/MemorySwitch
+ mmm-memory-switch.awb     Locally Added               0 
+ memory.cpp                Locally Added               0 
+ memory.rrr                Locally Added               0 
+ SimpleMemorySwitch.bsv    Locally Added               0 
+ memory.h                  Locally Added               0 
+
+Directory modules/mmm/hardware
+ AlternateFuncUnit/        Locally Added               0 
+
+Directory modules/mmm/hardware/AlternateFuncUnit
+ bram_fu.v                 Locally Added               0 
+ Multiplier.bsv            Locally Added               0 
+ Feeder.bsv                Locally Added               0 
+ multiply.v                Locally Added               0 
+ multiplyAdder.v           Locally Added               0 
+ FuncUnit.bsv              Locally Added               0 
+ software/                 Locally Added               0 
+
+Directory modules/mmm/hardware/AlternateFuncUnit/software
+ cLib.h                    Locally Added               0 
+ algo.c                    Locally Added               0 
+ TestApp_Memory.c          Locally Added               0 
+ TestApp_Memory_LinkScr.ld Locally Added               0 
+ cLibReal.c                Locally Added               0 
+
+Directory modules/mmm/hardware/AlternateFuncUnit
+ Bram.bsv                  Locally Added               0 
+ DebugFlags.bsv            Locally Added               0 
+ Parameters.bsv            Locally Added               0 
+ Interfaces.bsv            Locally Added               0 
+ Types.bsv                 Locally Added               0 
+
+Directory modules/mmm/hardware
+ FPGA/                     Locally Added               0 
+
+Directory modules/mmm/hardware/FPGA
+ Multiplier.bsv            Locally Added               0 
+ connected-application-test.cpp Locally Added               0 
+ mkmultiplier.v            Locally Added               0 
+ MultiplierBackup.bsv      Locally Added               0 
+ connected-application-test.h Locally Added               0 
+ mkmultiplierbackup.v      Locally Added               0 
+ connected-application-test.awb Locally Added               0 
+ connected-application-test.bsv Locally Added               0 
+ instructions.h            Locally Added               0 
+ instructionParameters.h   Locally Added               0 
+ multiply.dic              Locally Added               0 
+ matrixPointers.h          Locally Added               0 
+
+
+First cut of matrix-multiply code.  Compiles, but does not completely work...
