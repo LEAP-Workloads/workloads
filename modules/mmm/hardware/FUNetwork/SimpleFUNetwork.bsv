@@ -75,7 +75,7 @@ module mkSimpleNetwork#(Vector#(FunctionalUnitNumber, FUNetworkLink) fus) (FUNet
   
   rule doTransfer (transferring);
   
-    //$display("FUNetwork: xfer from %d.%s to %d.%s", srcFU, showReg(srcR), dstFUs, showReg(dstR));
+    $display("FUNetwork: xfer from %d.%s to %d.%s", srcFU, showReg(srcR), dstFUs, showReg(dstR));
 
     //Get the packet from the srcQ
   

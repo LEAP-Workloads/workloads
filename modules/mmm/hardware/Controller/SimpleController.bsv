@@ -65,6 +65,7 @@ module [CONNECTED_MODULE] mkSimpleController (Controller);
   rule decode (True);
 
     let insRaw <- serverStub.acceptRequest_PutInstruction();
+    serverStub.sendResponse_PutInstruction(?);
     Instruction ins = unpack(truncate(insRaw));
     
     // Some debug

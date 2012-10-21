@@ -182,3 +182,23 @@ Directory modules/mmm/hardware/FPGA
 
 
 First cut of matrix-multiply code.  Compiles, but does not completely work...
+
+----------
+kfleming    Date: Sun Oct 21 15:37:49 EDT 2012  CSN: CSN-mmm-3
+                  Sun Oct 21 19:37:49 UTC 2012
+
+
+Directory modules/mmm/hardware/FunctionalUnit
+ FunctionalUnit.bsv        Locally Modified            2 
+
+Directory modules/mmm/hardware/Controller
+ SimpleController.bsv      Locally Modified            2 
+
+Directory modules/mmm/hardware/FUNetwork
+ SimpleFUNetwork.bsv       Locally Modified            2 
+
+Directory modules/mmm/hardware/Common
+ DebugFlags.bsv            Locally Modified            2 
+
+
+Fixed deadlock in control relay.

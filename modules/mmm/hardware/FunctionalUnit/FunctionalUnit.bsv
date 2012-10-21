@@ -220,13 +220,13 @@ module mkRegQ(RegQ#(n)) provisos (Mul#(m,n,TExp#(LineSize)),
 	 RColMajor:  begin
 			(brams[bankName(readAddr)]).readReq(bankAddr(readAddr));
 			lastBankQ.enq(bankName(readAddr));
-			//$display("reading from bank (col) %d at adder %h readAddr %h", bankName(readAddr), bankAddr(readAddr), readAddr);
+			$display("reading from bank (col) %d at adder %h readAddr %h", bankName(readAddr), bankAddr(readAddr), readAddr);
 		     end
 	 default: begin
 		     for(int i = 0; i < ival_n; i=i+1)
 			begin
 			   (brams[i]).readReq(bankAddr(readAddr));
-			   //$display("reading from bank %d at adder %h readAddr %h", i, bankAddr(readAddr), readAddr);
+			   $display("reading from bank %d at adder %h readAddr %h", i, bankAddr(readAddr), readAddr);
 			end
 		  end
       endcase
@@ -280,14 +280,14 @@ module mkRegQ(RegQ#(n)) provisos (Mul#(m,n,TExp#(LineSize)),
 		     for(int i = 0; i < ival_n; i=i+1)
 			begin
 			   (brams[i]).write(bankAddr(writeAddr), x[i]);
-			   //$display("writing to bank %d at adder %h writeAddr %h", i, bankAddr(writeAddr), writeAddr);
+			   $display("writing to bank %d at adder %h writeAddr %h", i, bankAddr(writeAddr), writeAddr);
 			end
 		  end
 
       endcase
       writePtr <= inc_writePtr;
       writeInProgress <= (inc_writePtr==0) ? False : True;
-      //if (inc_writePtr==0) $display("FuncUnit: write finished");
+      if (inc_writePtr==0) $display("FuncUnit: write finished");
    endmethod
    
    method Bool lastRead(); 
@@ -455,20 +455,20 @@ module mkRegQ_NEW(RegQ#(n)) provisos (Mul#(m,n,TExp#(LineSize)),
 	 RColMajor:  begin
 			(brams[bankName(readAddr)]).readReq(bankAddr(readAddr));
 			lastBankQ.enq(bankName(readAddr));
-			//$display("reading from bank (col) %d at adder %h readAddr %h", bankName(readAddr), bankAddr(readAddr), readAddr);
+			$display("reading from bank (col) %d at adder %h readAddr %h", bankName(readAddr), bankAddr(readAddr), readAddr);
 		     end
 	 default: begin
 		     for(int i = 0; i < ival_n; i=i+1)
 			begin
 			   (brams[i]).readReq(bankAddr(readAddr));
-			   //$display("reading from bank %d at adder %h readAddr %h", i, bankAddr(readAddr), readAddr);
+			   $display("reading from bank %d at adder %h readAddr %h", i, bankAddr(readAddr), readAddr);
 			end
 		  end
       endcase
       readPtr<=(inc_readPtr == max_readPtr) ? 0 : inc_readPtr;
       readInProgress <= (inc_readPtr == max_readPtr) ? False : True;
       lastReadQ.enq(inc_readPtr == max_readPtr);
-      //$display("mkRegQ_NEW: read readPtr %h, inc_readPtr %h, max_readPtr %h", readPtr, inc_readPtr, max_readPtr);
+      $display("mkRegQ_NEW: read readPtr %h, inc_readPtr %h, max_readPtr %h", readPtr, inc_readPtr, max_readPtr);
    endrule
 
    method Action startRead(x) if (!readInProgress);
@@ -516,13 +516,13 @@ module mkRegQ_NEW(RegQ#(n)) provisos (Mul#(m,n,TExp#(LineSize)),
 		     for(int i = 0; i < ival_n; i=i+1)
 			begin
 			   (brams[i]).write(bankAddr(writeAddr), x[i]);
-			   //$display("writing to bank %d at adder %h writeAddr %h", i, bankAddr(writeAddr), writeAddr);
+			   $display("writing to bank %d at adder %h writeAddr %h", i, bankAddr(writeAddr), writeAddr);
 			end
 		  end
 
       endcase
       writePtr <= inc_writePtr;
-      //$display("mkRegQ_NEW: write writePtr %h, inc_writePtr %h, max_writePtr %h", writePtr, inc_writePtr, max_writePtr);
+      $display("mkRegQ_NEW: write writePtr %h, inc_writePtr %h, max_writePtr %h", writePtr, inc_writePtr, max_writePtr);
       writeInProgress <= (inc_writePtr==max_writePtr) ? False : True;
    endmethod
    
@@ -744,13 +744,13 @@ module mkRegQ_STRIPPED(RegQ#(n)) provisos (Mul#(m,n,TExp#(LineSize)),
 		     for(int i = 0; i < ival_n; i=i+1)
 			begin
 			   (brams[i]).write(bankAddr(writeAddr), x[i]);
-			   //$display("writing to bank %d at adder %h writeAddr %h", i, bankAddr(writeAddr), writeAddr);
+			   $display("writing to bank %d at adder %h writeAddr %h", i, bankAddr(writeAddr), writeAddr);
 			end
 		  end
 	 
       endcase
       writePtr <= (inc_writePtr==max_writePtr) ? 0 : inc_writePtr;
-      //$display("mkRegQ_STRIPPED: write writePtr %h, inc_writePtr %h, max_writePtr %h", writePtr, inc_writePtr, max_writePtr);
+      $display("mkRegQ_STRIPPED: write writePtr %h, inc_writePtr %h, max_writePtr %h", writePtr, inc_writePtr, max_writePtr);
       writeInProgress <= (inc_writePtr==max_writePtr) ? False : True;
    endmethod
    
@@ -881,7 +881,7 @@ module mkFunctionalUnit_BLOAT (FunctionalUnit#(t)) provisos (Mul#(m,t,TExp#(Line
 			    SubAccumulate: return zipWith(sub, cc_val, a_val);
 			 endcase;
 	    
-	    //$display("compute cycle k=%h, row_iter=%h", k, row_iter);
+	    $display("compute cycle k=%h, row_iter=%h", k, row_iter);
 	    
 	    regQ_c.write(nc_val);
 	 endaction
@@ -1061,7 +1061,7 @@ module mkFunctionalUnit_BLOAT (FunctionalUnit#(t)) provisos (Mul#(m,t,TExp#(Line
    interface switchOutput    = interface Get;//fifoToGet(toMemQ);
 				  method get();
 				     actionvalue
-					//$display("FuncUnit: Sending %h", toMemQ.first());
+					$display("FuncUnit: Sending %h", toMemQ.first());
 					toMemQ.deq();
 					return toMemQ.first();
 				     endactionvalue
@@ -1603,7 +1603,7 @@ module mkFunctionalUnit_STRIPPED (FunctionalUnit#(t)) provisos (Mul#(m,t,TExp#(L
    // TODO: compute fsm is far too complicated.  it needs to be simplified (possibly broken apart) --mdk
    Stmt compute = 
    seq 
-      //$display("FuncUnit: start compute cycle_count=%d", cycle_cnt);
+      $display("FuncUnit: start compute cycle_count=%d", cycle_cnt);
       while (!regQ_c.doneWrite)
 	 action
 	    k <= k + fromInteger(valueOf(t));
@@ -1629,7 +1629,7 @@ module mkFunctionalUnit_STRIPPED (FunctionalUnit#(t)) provisos (Mul#(m,t,TExp#(L
 			function f(m, b) = m.doMult(a_scalar,b);
 			mul_reg <= zipWith(f, muls, b_val);
 			wrote_mul_reg <= True;
-			//$display("FuncUnit: compute fsm !last_compute_cycle, cycle_cnt=%d", cycle_cnt);
+			$display("FuncUnit: compute fsm !last_compute_cycle, cycle_cnt=%d", cycle_cnt);
 		     end
 		  
 		  if(wrote_mul_reg)
@@ -1638,7 +1638,7 @@ module mkFunctionalUnit_STRIPPED (FunctionalUnit#(t)) provisos (Mul#(m,t,TExp#(L
 			let m_val =  map(mul_second, mul_reg);
 			let cc_val = (cmd==Multiply)&&(row_iter==0) ? replicate(0) : c_val;   
 			regQ_c.write(zipWith(add, cc_val, m_val));
-			//$display("FuncUnit: compute writing regQ_c, cycle_cnt=%d", cycle_cnt);
+			$display("FuncUnit: compute writing regQ_c, cycle_cnt=%d", cycle_cnt);
 		     end
 		  last_compute_cycle <= k + fromInteger(valueOf(t)) == (64*64*64);
 	       end
@@ -1647,13 +1647,13 @@ module mkFunctionalUnit_STRIPPED (FunctionalUnit#(t)) provisos (Mul#(m,t,TExp#(L
 		     end
 	    endcase
 	 endaction
-      //$display("FuncUnit: done compute cycle_count=%d", cycle_cnt);
+      $display("FuncUnit: done compute cycle_count=%d", cycle_cnt);
    endseq; // end fsm   
    FSM compute_fsm <- mkFSM(compute);
    
    Stmt transferFromA = 
    seq
-      //$display("FuncUnit: start transferFromA cycle_count=%d", cycle_cnt);
+      $display("FuncUnit: start transferFromA cycle_count=%d", cycle_cnt);
       while(!doneARead)
 	 action
 	    let data <- regQ_a.read();
@@ -1661,13 +1661,13 @@ module mkFunctionalUnit_STRIPPED (FunctionalUnit#(t)) provisos (Mul#(m,t,TExp#(L
 	    doneARead <= regQ_a.lastRead(); 
 	 endaction
        toMemQ_InUse <= False;
-      //$display("FuncUnit: done transferFromA cycle_count=%d", cycle_cnt);
+      $display("FuncUnit: done transferFromA cycle_count=%d", cycle_cnt);
    endseq; // end fsm
    FSM transferFromA_fsm <- mkFSM(transferFromA);
    
    Stmt transferFromB = 
    seq
-      //$display("FuncUnit: start transferFromB cycle_count=%d", cycle_cnt);
+      $display("FuncUnit: start transferFromB cycle_count=%d", cycle_cnt);
       while(!doneBRead)
 	 action
 	    regQ_b_bank_sel <= regQ_b_bank_sel+1;
@@ -1676,13 +1676,13 @@ module mkFunctionalUnit_STRIPPED (FunctionalUnit#(t)) provisos (Mul#(m,t,TExp#(L
 	    doneBRead <= (regQ_b.lastRead);
 	 endaction
       toMemQ_InUse <= False;
-      //$display("FuncUnit: done transferFromB cycle_count=%d", cycle_cnt);
+      $display("FuncUnit: done transferFromB cycle_count=%d", cycle_cnt);
    endseq; // end fsm
    FSM transferFromB_fsm <- mkFSM(transferFromB);
 
    Stmt transferFromC = 
    seq
-      //$display("FuncUnit: start transferFromC cycle_count=%d", cycle_cnt);
+      $display("FuncUnit: start transferFromC cycle_count=%d", cycle_cnt);
       while(!doneCRead)
 	 action
 	    regQ_c_bank_sel <= regQ_c_bank_sel+1;
@@ -1691,46 +1691,46 @@ module mkFunctionalUnit_STRIPPED (FunctionalUnit#(t)) provisos (Mul#(m,t,TExp#(L
 	    doneCRead <= (regQ_c.lastRead);
 	 endaction
       toMemQ_InUse <= False;
-      //$display("FuncUnit: done transferFromC cycle_count=%d", cycle_cnt);
+      $display("FuncUnit: done transferFromC cycle_count=%d", cycle_cnt);
    endseq; // end fsm
    FSM transferFromC_fsm <- mkFSM(transferFromC);
    
    Stmt transferToA = 
    seq 
-      //$display("FuncUnit: start transferToA cycle_count=%d", cycle_cnt);
+      $display("FuncUnit: start transferToA cycle_count=%d", cycle_cnt);
       while(!regQ_a.doneWrite)
 	 action
 	    regQ_a.write(replicate(fromMemQ.first()));
 	    fromMemQ.deq();
 	 endaction
       fromMemQ_InUse <= False;
-      //$display("FuncUnit: done transferToA cycle_count=%d", cycle_cnt);
+      $display("FuncUnit: done transferToA cycle_count=%d", cycle_cnt);
    endseq; //end fsm
    FSM transferToA_fsm <- mkFSM(transferToA);
 
    Stmt transferToB = 
    seq 
-      //$display("FuncUnit: start transferToB cycle_count=%d", cycle_cnt);
+      $display("FuncUnit: start transferToB cycle_count=%d", cycle_cnt);
       while(!regQ_b.doneWrite)
 	 action
 	    regQ_b.write(replicate(fromMemQ.first()));
 	    fromMemQ.deq();
 	 endaction
       fromMemQ_InUse <= False;
-      //$display("FuncUnit: done transferToB cycle_count=%d", cycle_cnt);
+      $display("FuncUnit: done transferToB cycle_count=%d", cycle_cnt);
    endseq; //end fsm
    FSM transferToB_fsm <- mkFSM(transferToB);
    
    Stmt transferToC = 
    seq 
-      //$display("FuncUnit: start transferToCcycle_count=%d", cycle_cnt);
+      $display("FuncUnit: start transferToCcycle_count=%d", cycle_cnt);
       while(!regQ_c.doneWrite)
 	 action
 	    regQ_c.write(replicate(fromMemQ.first()));
 	    fromMemQ.deq();
 	 endaction
       fromMemQ_InUse <= False;
-      //$display("FuncUnit: done transferToC cycle_count=%d", cycle_cnt);
+      $display("FuncUnit: done transferToC cycle_count=%d", cycle_cnt);
    endseq; //end fsm   
    FSM transferToC_fsm <- mkFSM(transferToC);
 
@@ -1752,7 +1752,7 @@ module mkFunctionalUnit_STRIPPED (FunctionalUnit#(t)) provisos (Mul#(m,t,TExp#(L
       endcase
       fromMemQ_InUse <= True;
       instQ.deq();
-      //$display("FuncUnit: Load %s cycle=%d", showReg(rgdst), cycle_cnt);
+      $display("FuncUnit: Load %s cycle=%d", showReg(rgdst), cycle_cnt);
    endrule   
 
    let instQ_first_matches_Store = case(instQ.first()) matches 
@@ -1772,7 +1772,7 @@ module mkFunctionalUnit_STRIPPED (FunctionalUnit#(t)) provisos (Mul#(m,t,TExp#(L
 	       transferFromC_fsm.start();  regQ_c_bank_sel <= 0; end
       endcase
       toMemQ_InUse <= True; instQ.deq();
-      //$display("FuncUnit: Store %s, cycle=%d", showReg(rgsrc),cycle_cnt);
+      $display("FuncUnit: Store %s, cycle=%d", showReg(rgsrc),cycle_cnt);
       
    endrule
 
@@ -1801,7 +1801,7 @@ module mkFunctionalUnit_STRIPPED (FunctionalUnit#(t)) provisos (Mul#(m,t,TExp#(L
       begin
 	 last_compute_cycle <= False; wrote_mul_reg <= False;
 	 compute_fsm.start(); instQ.deq(); k <= 0; cmd <= op;
-	 //$display("FuncUnit: Op %h, cycle=%d", op, cycle_cnt);
+	 $display("FuncUnit: Op %h, cycle=%d", op, cycle_cnt);
       end
       
    endrule

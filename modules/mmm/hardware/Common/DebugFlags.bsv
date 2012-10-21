@@ -29,9 +29,9 @@ Author: Kermin Fleming
 // turn these off when you check in files
 
 // Instruction Translation Flags
-Bool controllerDebug  = True;
+Bool controllerDebug  = False;
 Bool feederDebug = False;
-Bool plbMasterDebug = True;
+Bool plbMasterDebug = False;
 Bool memorySwitchDebug = False;
 Bool ppcDebug = False;
 
