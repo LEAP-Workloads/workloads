@@ -28,6 +28,8 @@ Author: Kermin Fleming
 // Global Imports
 import GetPut::*;
 import FIFO::*;
+import FIFOLevel::*;
+import FIFOF::*;
 import RegFile::*;
 
 // Project Imports
@@ -43,7 +45,8 @@ import RegFile::*;
 `include "awb/provides/mem_services.bsh"
 `include "awb/provides/common_services.bsh"
 `include "awb/dict/VDEV_SCRATCH.bsh"
-
+`include "awb/provides/dynamic_parameters_service.bsh"
+`include "awb/dict/PARAMS_MMM_MEMORY_UNIT.bsh"
  
 
 typedef enum
@@ -66,9 +69,16 @@ typedef enum
 
 module [CONNECTED_MODULE] mkPLBMasterMagic (PLBMaster);
 
+  // some debug
+  STDIO#(Bit#(32))     stdio <- mkStdIO();
+
+  PARAMETER_NODE paramNode <- mkDynamicParameterNode();	
+  Param#(8) maxOps <- mkDynamicParameter(`PARAMS_MMM_MEMORY_UNIT_OPS_INFLIGHT,paramNode);
+
   // state for the actual magic memory hardware
   FIFO#(ComplexWord)       wordInfifo <- mkFIFO();
-  FIFO#(ComplexWord)       wordOutfifo <- mkFIFO();
+  FIFOF#(ComplexWord)       wordOutfifo <- mkSizedFIFOF(64);
+  FIFOF#(ComplexWord)       wordTokens  <- mkSizedFIFOF(64);
   FIFO#(PLBMasterCommand)  plbMasterCommandInfifo <- mkFIFO(); 
 
   MEMORY_IFC#(Bit#(20), ComplexWord) matrixA       <- mkScratchpad(`VDEV_SCRATCH_MATRIXA, SCRATCHPAD_CACHED);
@@ -76,7 +86,7 @@ module [CONNECTED_MODULE] mkPLBMasterMagic (PLBMaster);
   MEMORY_IFC#(Bit#(20), ComplexWord) matrixC       <- mkScratchpad(`VDEV_SCRATCH_MATRIXC, SCRATCHPAD_CACHED);
   MEMORY_IFC#(Bit#(20), ComplexWord) matrixScratch <- mkScratchpad(`VDEV_SCRATCH_SCRATCH, SCRATCHPAD_CACHED);
 
-  FIFO#(MatrixOrder) matrixOrder <- mkSizedFIFO(16);
+  FIFOCountIfc#(MatrixOrder, 64) matrixOrder <- mkFIFOCount();
 
   Reg#(Bit#(LogBlockElements)) elementCounter <- mkReg(0);
   Reg#(Bit#(LogBlockSize))     rowCounter <- mkReg(0);  // 0 -> blocksize
@@ -84,10 +94,32 @@ module [CONNECTED_MODULE] mkPLBMasterMagic (PLBMaster);
   Reg#(BlockAddr)             addressOffset <- mkReg(0);       
   
 
-  Reg#(Bit#(64))                   totalTicks <- mkReg(0);
+  Reg#(Bit#(32))                   totalTicks <- mkReg(0);
+  Reg#(Bit#(32))                   readsA <- mkReg(0);
+  Reg#(Bit#(32))                   readsB <- mkReg(0);
+  Reg#(Bit#(32))                   readsC <- mkReg(0);
+  Reg#(Bit#(32))                   readsS <- mkReg(0);
+  Reg#(Bit#(32))                   respsA <- mkReg(0);
+  Reg#(Bit#(32))                   respsB <- mkReg(0);
+  Reg#(Bit#(32))                   respsC <- mkReg(0);
+  Reg#(Bit#(32))                   respsS <- mkReg(0);
+  Reg#(Bit#(32))                   writesC <- mkReg(0);
+  Reg#(Bit#(32))                   writesS <- mkReg(0);
+
+  let statusMsg <-  getGlobalStringUID("readsA:%d:readsB:%d:readsC:%d:readsS:%d:writesC:%d:writesS:%d\n");
+  let statusMsg2 <-  getGlobalStringUID("respsA:%d:respsB:%d:respsC:%d:respsS:%d\n");
+
 
   rule tick(True);
     totalTicks <= totalTicks +1;
+    if(totalTicks[29:0] == 0)
+    begin
+        stdio.printf(statusMsg, list6(readsA, readsB, readsC, readsS, writesC, writesS));
+    end
+    else if(totalTicks[29:0] == 128)
+    begin
+        stdio.printf(statusMsg2, list4(respsA, respsB, respsC, respsS));
+    end
   endrule
 
   rule rowSize(plbMasterCommandInfifo.first() matches tagged RowSize .rs);   
@@ -96,7 +128,7 @@ module [CONNECTED_MODULE] mkPLBMasterMagic (PLBMaster);
     plbMasterCommandInfifo.deq();
   endrule
                           
-  rule loadPage(plbMasterCommandInfifo.first() matches tagged LoadPage .ba);
+  rule loadPage(plbMasterCommandInfifo.first() matches tagged LoadPage .ba &&& matrixOrder.count < unpack(truncate(maxOps)));
     $display("LoadPage %h element %d", ba, elementCounter);
     elementCounter <= elementCounter + 1;
     if(elementCounter == 0)
@@ -131,24 +163,28 @@ module [CONNECTED_MODULE] mkPLBMasterMagic (PLBMaster);
      //  2'b10:  begin $display("PLB: reading matC[%h] => %h"   ,addr[21:2], matrixC.sub(addr[21:2])); end
      //  2'b11:  begin $display("PLB: reading scratch[%h] => %h",addr[21:2], matrixScratch.sub(addr[21:2])); end
      //endcase
-
+     wordTokens.enq(?);
      case (addr[21:20]) 
        2'b00:  begin 
                    matrixA.readReq(addr[19:0]);  
                    matrixOrder.enq(A);
+		   readsA <= readsA + 1;
                end
 
        2'b01:  begin
                    matrixB.readReq(addr[19:0]);
                    matrixOrder.enq(B);
+		   readsB <= readsB + 1;
                end
        2'b10:  begin
                    matrixC.readReq(addr[19:0]);
                    matrixOrder.enq(C);
+		   readsC <= readsC + 1;
                end
        2'b11:  begin
                    matrixScratch.readReq(addr[19:0]);
                    matrixOrder.enq(Scratch);
+		   readsS <= readsS + 1;
                end
      endcase
 
@@ -158,24 +194,28 @@ module [CONNECTED_MODULE] mkPLBMasterMagic (PLBMaster);
       let data <- matrixA.readRsp;
       wordOutfifo.enq(data);
       matrixOrder.deq;
+      respsA <= respsA + 1;
   endrule 
 
   rule wordB(matrixOrder.first == B);
       let data <- matrixB.readRsp;
       wordOutfifo.enq(data);
       matrixOrder.deq;
+      respsB <= respsB + 1;
   endrule 
 
   rule wordC(matrixOrder.first == C);
       let data <- matrixC.readRsp;
       wordOutfifo.enq(data);
       matrixOrder.deq;
+      respsC <= respsC + 1;
   endrule 
 
   rule wordScratch(matrixOrder.first == Scratch);
       let data <- matrixScratch.readRsp;
       wordOutfifo.enq(data);
       matrixOrder.deq;
+      respsS <= respsS + 1;
   endrule 
 
   rule storePage(plbMasterCommandInfifo.first() matches tagged StorePage .ba);
@@ -216,11 +256,13 @@ module [CONNECTED_MODULE] mkPLBMasterMagic (PLBMaster);
 	      end
       2'b10:  begin
 		debug(plbMasterDebug,$display("PLB: writing to matC %h",addr[19:0]));
-		matrixC.write(addr[19:0],wordInfifo.first());		
+		matrixC.write(addr[19:0],wordInfifo.first());	
+		writesC <= writesC + 1;	
 	      end
       2'b11:  begin
 		debug(plbMasterDebug,$display("PLB: writing to scratch %h",addr[19:0]));
 		matrixScratch.write(addr[19:0],wordInfifo.first());
+		writesS <= writesS + 1;	
 	      end
     endcase
     wordInfifo.deq();
@@ -249,6 +291,7 @@ module [CONNECTED_MODULE] mkPLBMasterMagic (PLBMaster);
 	  actionvalue
             //$display("PLB: sending val %h", wordOutfifo.first());                        
 	    wordOutfifo.deq();
+	    wordTokens.deq();
 	    return wordOutfifo.first();
 	  endactionvalue
 	endmethod

@@ -47,10 +47,9 @@ module [CONNECTED_MODULE] mkConnectedApplication ();
   PLBMaster     plbMaster <- mkPLBMasterMagic();
 
   MemorySwitch  memorySwitch <- mkSimpleMemorySwitch();
-  Vector#(FunctionalUnitNumber, FunctionalUnit#(8)) fus <- replicateM(mkFunctionalUnit_STRIPPED8);
+
+  Vector#(FunctionalUnitNumber, FunctionalUnit) fus <- replicateM(mkFunctionalUnit);
   
-
-
 
 
   let fu_links = map(getLink, fus);
@@ -66,6 +65,7 @@ module [CONNECTED_MODULE] mkConnectedApplication ();
   mkConnection(controller.memorySwitchCommandOutput, memorySwitch.memorySwitchCommandInput);
 
   
+
   for (Integer x = 0; x < valueof(FunctionalUnitNumber); x = x + 1)
   begin
     mkConnection(controller.functionalUnitCommandOutputs[x], fus[x].functionalUnitCommandInput);

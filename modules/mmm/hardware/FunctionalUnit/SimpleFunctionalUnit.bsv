@@ -31,8 +31,14 @@ import StmtFSM::*;
 import RegFile::*;
 import GetPut::*;
 
+`include "awb/provides/fpga_components.bsh"
+`include "asim/provides/librl_bsv.bsh"
+`include "awb/provides/soft_connections.bsh"
+`include "awb/provides/soft_services.bsh"
+`include "awb/provides/soft_services_lib.bsh"
+`include "awb/provides/soft_services_deps.bsh"
+`include "awb/provides/mmm_common.bsh"
 
-/*
 typedef 1  NumLanes;
 typedef 12 LogBlockSize;
 typedef TAdd#(1, LogBlockSize) AddrSize; // Add a bit to handle overflow
@@ -41,7 +47,7 @@ typedef Bit#(AddrSize)	       Addr;
 Addr nn = fromInteger(valueof(BlockSize));
 Addr logN = fromInteger(log2(valueof(BlockSize)));
 
-module mkSimpleFunctionalUnit (FunctionalUnit#(1));
+module mkFunctionalUnit (FunctionalUnit);
 
     FIFO#(FunctionalUnitCommand) instQ <- mkFIFO();
 
@@ -332,4 +338,3 @@ module mkSimpleFunctionalUnit (FunctionalUnit#(1));
     endinterface
 
 endmodule
-*/

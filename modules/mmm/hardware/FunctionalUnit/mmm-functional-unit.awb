@@ -6,7 +6,7 @@
 %provides mmm_functional_unit
 
 %public  FunctionalUnit.bsv
-%public  SimpleFunctionalUnit.bsv
+
 
 
 

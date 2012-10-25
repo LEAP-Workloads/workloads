@@ -100,7 +100,7 @@ endfunction
 
 //This can be mapped across Vectors, etc.
 
-function FUNetworkLink getLink(FunctionalUnit#(t) f);
+function FUNetworkLink getLink(FunctionalUnit f);
   return f.link;
 endfunction
 

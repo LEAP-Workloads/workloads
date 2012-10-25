@@ -213,3 +213,42 @@ Directory config/pm/mmm
 
 
 Added a target for the acp.
+
+----------
+kfleming    Date: Thu Oct 25 19:03:41 EDT 2012  CSN: CSN-mmm-5
+                  Thu Oct 25 23:03:41 UTC 2012
+
+
+Directory modules/mmm/hardware/FunctionalUnit
+ SimpleFunctionalUnit.bsv  Locally Modified            4 
+ FunctionalUnit.bsv        Locally Modified            4 
+ mmm-functional-unit.awb   Locally Modified            4 
+
+Directory modules/mmm/hardware/Common
+ Utils.bsv                 Locally Modified            4 
+ DebugFlags.bsv            Locally Modified            4 
+ Types.bsv                 Locally Modified            4 
+
+Directory modules/mmm/hardware/PLBMaster
+ PLBMasterMagic.bsv        Locally Modified            4 
+ memory-unit.awb           Locally Modified            4 
+
+Directory modules/mmm/hardware/FPGA
+ Multiplier.bsv            Locally Modified            4 
+ connected-application-test.cpp Locally Modified            4 
+
+
+A few refinements to mmm.
+
+1) Removed spurious parameter to functional unit.
+2) Added printfs to assist in debugging.
+3) Added c code for multiple back-to-back runs.
+
+Currently the mmm code will deadlock if not 
+
+1) compiled with TRACE=1
+2) run with --tr=1
+
+This mode of execution slows the first run (100s of seconds), but
+subsequent runs will fit in cache.
+

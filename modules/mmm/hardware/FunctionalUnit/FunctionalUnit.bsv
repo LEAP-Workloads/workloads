@@ -770,12 +770,13 @@ endmodule
 
 
 
-module mkFunctionalUnit_BLOAT8(FunctionalUnit#(8));
-   let x <- mkFunctionalUnit_BLOAT;
+module mkFunctionalUnit_BLOAT8(FunctionalUnit);
+   NumTypeParam#(8) sizer = ?;
+   let x <- mkFunctionalUnit_BLOAT(sizer);
    return x;
 endmodule   
 
-module mkFunctionalUnit_BLOAT (FunctionalUnit#(t)) provisos (Mul#(m,t,TExp#(LineSize)),
+module mkFunctionalUnit_BLOAT#(NumTypeParam#(t) sizer) (FunctionalUnit) provisos (Mul#(m,t,TExp#(LineSize)),
 							     Log#(t, log_n),
 							     Add#(log_n, dont_use_me, LogBlockSize),
 							     Add#(1, dont_use_me_either, t));
@@ -1533,13 +1534,14 @@ endmodule
 
 
 
-module mkFunctionalUnit_STRIPPED8(FunctionalUnit#(8));
-   let x <- mkFunctionalUnit_STRIPPED;
+module mkFunctionalUnit(FunctionalUnit);
+   NumTypeParam#(8) sizer = ?;
+   let x <- mkFunctionalUnit_STRIPPED(sizer);
    return x;
 endmodule   
 
 
-module mkFunctionalUnit_STRIPPED (FunctionalUnit#(t)) provisos (Mul#(m,t,TExp#(LineSize)),
+module mkFunctionalUnit_STRIPPED#(NumTypeParam#(t) width) (FunctionalUnit) provisos (Mul#(m,t,TExp#(LineSize)),
 								Log#(t, log_n),
 								Add#(log_n, bank_addr_nbits, LogBlockSize),
 								Add#(1, dont_use_me_either, t));

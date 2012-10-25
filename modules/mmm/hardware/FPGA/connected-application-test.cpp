@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <sstream>
+#include <time.h>
 #include "awb/provides/stats_service.h"
 #include "awb/rrr/client_stub_MMMCONTROLRRR.h"
 #include "awb/provides/connected_application.h"
@@ -34,7 +35,7 @@ int
 CONNECTED_APPLICATION_CLASS::Main()
 {
     //int Size = 64;
-    int Size = 128;
+    int Size = 1<<10;
     int BlockSize = 64;
     UInt64 a = (UInt64)aMatrix;
     UInt64 b = (UInt64)bMatrix;
@@ -79,7 +80,10 @@ CONNECTED_APPLICATION_CLASS::Main()
     int j;
     int k;
     int f;
-
+    for(int iters = 0; iters < 4; iters++) {
+      clock_t begin, end;
+      double time_spent;
+      begin = clock();
     for(i = 0; i < BlockNum; i=i+1)
     {
         for(j = 0; j < BigBlockNum; j=j+1)
@@ -146,8 +150,10 @@ CONNECTED_APPLICATION_CLASS::Main()
             }
         }
     }
-
-
+      end = clock();
+      time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+      printf("Time %d: %f\n", iters, time_spent); 
+    }
     STARTER_DEVICE_SERVER_CLASS::GetInstance()->End(0);
   
     return 0;

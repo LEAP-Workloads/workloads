@@ -207,7 +207,7 @@ interface Controller;
 endinterface
 
 
-interface FunctionalUnit#(numeric type t);
+interface FunctionalUnit;
   interface Put#(FunctionalUnitCommand) functionalUnitCommandInput;
   interface FUNetworkLink               link;
   interface Put#(ComplexWord)           switchInput;
