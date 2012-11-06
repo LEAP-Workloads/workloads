@@ -1,5 +1,5 @@
-%name Matrix matrix controller
-%desc Matrix matrix multiplication
+%name Matrix matrix controller (Stored Program)
+%desc This controller stores a buffer of instructions 
 
 %attributes slave connected hybrid
 

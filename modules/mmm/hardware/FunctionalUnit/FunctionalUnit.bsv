@@ -1535,7 +1535,7 @@ endmodule
 
 
 module mkFunctionalUnit(FunctionalUnit);
-   NumTypeParam#(8) sizer = ?;
+   NumTypeParam#(64) sizer = ?;
    let x <- mkFunctionalUnit_STRIPPED(sizer);
    return x;
 endmodule   

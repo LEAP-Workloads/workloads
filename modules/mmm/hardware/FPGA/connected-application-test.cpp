@@ -4,7 +4,6 @@
 #include "awb/provides/stats_service.h"
 #include "awb/rrr/client_stub_MMMCONTROLRRR.h"
 #include "awb/provides/connected_application.h"
-#include "awb/provides/mmm_memory_switch.h"
 
 using namespace std;
 
@@ -35,7 +34,7 @@ int
 CONNECTED_APPLICATION_CLASS::Main()
 {
     //int Size = 64;
-    int Size = 1<<10;
+    int Size = 1<<6;
     int BlockSize = 64;
     UInt64 a = (UInt64)aMatrix;
     UInt64 b = (UInt64)bMatrix;
@@ -114,8 +113,8 @@ CONNECTED_APPLICATION_CLASS::Main()
               int i = 0;
               inst = createStoreInstruction(f, C, createSec(c, i, j, f));
 	      clientStub->PutInstruction(inst);
-              free(MEMORY_RRR_SERVER_CLASS::GetInstance()->getResponse());
-             
+              inst = createSyncInstruction(); 
+              clientStub->PutInstruction(inst);
             }
         }
         if(BigBlockRest != 0)
@@ -144,14 +143,14 @@ CONNECTED_APPLICATION_CLASS::Main()
               int i = 0;
               inst = createStoreInstruction(f, C, createPrim(c, i, j*FU_Number+f));
 	      clientStub->PutInstruction(inst);
-
-              free(MEMORY_RRR_SERVER_CLASS::GetInstance()->getResponse());
-
+              inst = createSyncInstruction(); 
+              clientStub->PutInstruction(inst);
             }
         }
     }
-      end = clock();
-      time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+      inst = createFinishInstruction(); 
+      clientStub->PutInstruction(inst);
+      time_spent = (float) clientStub->Execute(0);
       printf("Time %d: %f\n", iters, time_spent); 
     }
     STARTER_DEVICE_SERVER_CLASS::GetInstance()->End(0);

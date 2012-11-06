@@ -125,7 +125,8 @@ typedef union tagged
   } ForwardInstruction;     
 
   Bit#(LogRowSize) SetRowSizeInstruction;
-
+  void             SyncInstruction;
+  void             FinishInstruction;
 } Instruction
     deriving(Bits,Eq);
 

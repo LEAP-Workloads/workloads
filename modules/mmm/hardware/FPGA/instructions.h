@@ -37,7 +37,9 @@ typedef enum instruction {
     LoadInstruction,
     StoreInstruction,
     ForwardInstruction,
-    SetRowSizeInstruction
+    SetRowSizeInstruction,
+    SyncInstruction,
+    FinishInstruction
 } Instruction;
 
 typedef enum functionalUnitOp {
@@ -114,6 +116,14 @@ typedef long long UInt64;
     ((((UInt64)1)<<63) |\
      (SetRowSizeInstruction%ExpOpCodeSize)<<OpCodePosition |\
      (rowSize%ExpLogRowSize)<<RowSizePosition)
+
+#define createSyncInstruction() \
+    ((((UInt64)1)<<63) |\
+     ((SyncInstruction%ExpOpCodeSize)<<OpCodePosition))
+
+#define createFinishInstruction() \
+    ((((UInt64)1)<<63) |\
+     ((FinishInstruction%ExpOpCodeSize)<<OpCodePosition))
 
 #endif //_INSTRUCTIONS_H_
 

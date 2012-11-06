@@ -37,13 +37,11 @@ import Vector::*;
 `include "awb/provides/soft_services_lib.bsh"
 `include "awb/provides/soft_services_deps.bsh"
 `include "awb/provides/mmm_common.bsh"
-`include "asim/rrr/client_stub_MEMORY_RRR.bsh"
-
 
 
 module [CONNECTED_MODULE] mkSimpleMemorySwitch (MemorySwitch);
 
-  ClientStub_MEMORY_RRR client_stub <- mkClientStub_MEMORY_RRR();
+  CONNECTION_SEND#(Bit#(1)) sync <- mkConnectionSend("Sync");
 
   FIFO#(ComplexWord)             plbMasterComplexWordInfifo <- mkFIFO();
   FIFO#(ComplexWord)             plbMasterComplexWordOutfifo <- mkFIFO();
@@ -70,7 +68,7 @@ module [CONNECTED_MODULE] mkSimpleMemorySwitch (MemorySwitch);
       begin
         debug(memorySwitchDebug, $display("memorySwitch: finished processing StoreFromFU"));
         //What is this doing?
-        client_stub.makeRequest_MemResp(zeroExtend(ppcMessageVal));
+        sync.send(1);
         ppcMessageVal <= ppcMessageVal+1;
         memorySwitchCommandInfifo.deq();
       end

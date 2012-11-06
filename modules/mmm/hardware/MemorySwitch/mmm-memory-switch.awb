@@ -5,8 +5,5 @@
 
 %provides mmm_memory_switch
 
-%public  memory.rrr
-%public  memory.cpp
-%public  memory.h
 %public  SimpleMemorySwitch.bsv
 

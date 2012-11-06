@@ -252,3 +252,32 @@ Currently the mmm code will deadlock if not
 This mode of execution slows the first run (100s of seconds), but
 subsequent runs will fit in cache.
 
+
+----------
+kfleming    Date: Tue Nov  6 12:14:01 EST 2012  CSN: CSN-mmm-6
+                  Tue Nov  6 17:14:01 UTC 2012
+
+
+Directory modules/mmm/hardware/FunctionalUnit
+ FunctionalUnit.bsv        Locally Modified            5 
+
+Directory modules/mmm/hardware/Controller
+ mmm-controller.awb        Locally Modified            5 
+ StoredController.rrr      Locally Added               0 
+ StoredController.bsv      Locally Added               0 
+ mmm-stored-controller.awb Locally Added               0 
+
+Directory modules/mmm/hardware/Common
+ Types.bsv                 Locally Modified            5 
+
+Directory modules/mmm/hardware/MemorySwitch
+ mmm-memory-switch.awb     Locally Modified            5 
+ SimpleMemorySwitch.bsv    Locally Modified            5 
+
+Directory modules/mmm/hardware/FPGA
+ connected-application-test.cpp Locally Modified            5 
+ instructions.h            Locally Modified            5 
+
+
+
+Added a stored program version of the mmm engine. 
