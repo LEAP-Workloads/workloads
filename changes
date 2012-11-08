@@ -281,3 +281,17 @@ Directory modules/mmm/hardware/FPGA
 
 
 Added a stored program version of the mmm engine. 
+
+----------
+kfleming    Date: Thu Nov  8 09:35:29 EST 2012  CSN: CSN-mmm-7
+                  Thu Nov  8 14:35:29 UTC 2012
+
+
+Directory config/pm/mmm
+ mmm_ml605.apm             Locally Added               0 
+
+Directory modules/mmm/hardware/FunctionalUnit
+ FunctionalUnit.bsv        Locally Modified            6 
+
+
+Added mmm target for ml605.
