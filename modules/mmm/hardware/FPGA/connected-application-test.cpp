@@ -34,124 +34,130 @@ int
 CONNECTED_APPLICATION_CLASS::Main()
 {
     //int Size = 64;
-    int Size = 1<<6;
-    int BlockSize = 64;
-    UInt64 a = (UInt64)aMatrix;
-    UInt64 b = (UInt64)bMatrix;
-    UInt64 c = (UInt64)cMatrix;
+    int Size = 1<<9;
+    for(Size = 1<<6; Size < (1<<10); Size = Size << 1) {
+        int BlockSize = 64;
+        UInt64 a = (UInt64)aMatrix;
+	UInt64 b = (UInt64)bMatrix;
+	UInt64 c = (UInt64)cMatrix;
 
-    int FU_Number = (int) FunctionalUnitNumber;
+	int FU_Number = (int) FunctionalUnitNumber;
 
-    int BlockNum = Size/BlockSize;
-    int LogSize;
+	int BlockNum = Size/BlockSize;
+	int LogSize;
 
-    int BigBlockNum = BlockNum/FU_Number;
-    int BigBlockRest = BlockNum%FU_Number;
+	int BigBlockNum = BlockNum/FU_Number;
+	int BigBlockRest = BlockNum%FU_Number;
 
-    int response;
+	int response;
 
-    UInt64 inst;    
+	UInt64 inst;    
+        stringstream filename;
 
-    switch(Size)
-    {
-        case 64:
-            LogSize = 6;
-            break;
-        case 128:
-            LogSize = 7;
-            break;
-        case 256:
-            LogSize = 8;
-            break;
-        case 512:
-            LogSize = 9;
-            break;
-        default:
-            LogSize = 10;
-            break;
-    }
 
-    inst = createSetRowSizeInstruction(LogSize);  
+	switch(Size)
+	{
+            case 64:
+                LogSize = 6;
+                break;
+            case 128:
+                LogSize = 7;
+                break;
+            case 256:
+                LogSize = 8;
+                break;
+            case 512:
+                LogSize = 9;
+                break;
+            default:
+                LogSize = 10;
+                break;
+        }
 
-    clientStub->PutInstruction(inst);
+	inst = createSetRowSizeInstruction(LogSize);  
 
-    int i;
-    int j;
-    int k;
-    int f;
-    for(int iters = 0; iters < 4; iters++) {
-      clock_t begin, end;
-      double time_spent;
-      begin = clock();
-    for(i = 0; i < BlockNum; i=i+1)
-    {
-        for(j = 0; j < BigBlockNum; j=j+1)
-        {
-	    inst = createArithmeticInstruction(All_FU_Mask, Zero);
-            clientStub->PutInstruction(inst);
-            for(k = 0; k < BlockNum; k=k+1)
-            {
-                for(f = 0; f < FU_Number; f=f+1)
-                {
- 	 	   inst = createLoadInstruction((((int)1)<<f), B, createSec(b, k, j, f)); 
-		   clientStub->PutInstruction(inst);		  
-                }
-		   inst = createLoadInstruction(All_FU_Mask, A, createPrim(a, i, k));
-		   clientStub->PutInstruction(inst);
-		{ 
+	clientStub->PutInstruction(inst);
 
-                }
+	int i;
+	int j;
+	int k;
+	int f;
+	for(int iters = 0; iters < 4; iters++) {
+            clock_t begin, end;
+	    double time_spent;
+	    begin = clock();
+	    for(i = 0; i < BlockNum; i=i+1)
+	    {
+	        for(j = 0; j < BigBlockNum; j=j+1)
+		{
+		    inst = createArithmeticInstruction(All_FU_Mask, Zero);
+		    clientStub->PutInstruction(inst);
+		    for(k = 0; k < BlockNum; k=k+1)
+		    {
+		        for(f = 0; f < FU_Number; f=f+1)
+			{
+			    inst = createLoadInstruction((((int)1)<<f), B, createSec(b, k, j, f)); 
+			    clientStub->PutInstruction(inst);		  
+			}
+			inst = createLoadInstruction(All_FU_Mask, A, createPrim(a, i, k));
+			clientStub->PutInstruction(inst);
+			{ 
+
+			}
   
-                inst = createArithmeticInstruction(All_FU_Mask, MultiplyAddAccumulate); 
-                clientStub->PutInstruction(inst);
-		
+			inst = createArithmeticInstruction(All_FU_Mask, MultiplyAddAccumulate); 
+			clientStub->PutInstruction(inst);
+			
+		    }
+		    for(f = 0; f < FU_Number; f=f+1)
+		    {
+		        int i = 0;
+			inst = createStoreInstruction(f, C, createSec(c, i, j, f));
+			clientStub->PutInstruction(inst);
+			inst = createSyncInstruction(); 
+			clientStub->PutInstruction(inst);
+		    }
+		}
+		if(BigBlockRest != 0)
+		{
+		    inst = createArithmeticInstruction(All_FU_Mask, Zero);
+		    clientStub->PutInstruction(inst);
 
-		
-            }
-            for(f = 0; f < FU_Number; f=f+1)
-            {
-              int i = 0;
-              inst = createStoreInstruction(f, C, createSec(c, i, j, f));
-	      clientStub->PutInstruction(inst);
-              inst = createSyncInstruction(); 
-              clientStub->PutInstruction(inst);
-            }
-        }
-        if(BigBlockRest != 0)
-        {
-	  inst = createArithmeticInstruction(All_FU_Mask, Zero);
-	  clientStub->PutInstruction(inst);
-
-            for(k = 0; k < BlockNum; k=k+1)
-            {
-                for(f = 0; f < BigBlockRest; f=f+1)
-                {
-                  inst = createLoadInstruction(((int)1<<f), B, createPrim(b, k, j*FU_Number+f));
-		  clientStub->PutInstruction(inst);
+		    for(k = 0; k < BlockNum; k=k+1)
+		    {
+		        for(f = 0; f < BigBlockRest; f=f+1)
+			{
+			    inst = createLoadInstruction(((int)1<<f), B, createPrim(b, k, j*FU_Number+f));
+			    clientStub->PutInstruction(inst);
  
-                }
+			}
 
-                inst = createLoadInstruction(All_FU_Mask, A, createPrim(a, i, k));
-                clientStub->PutInstruction(inst);
+			inst = createLoadInstruction(All_FU_Mask, A, createPrim(a, i, k));
+			clientStub->PutInstruction(inst);
 
-                inst = createArithmeticInstruction(All_FU_Mask, MultiplyAddAccumulate);
-                clientStub->PutInstruction(inst);
+			inst = createArithmeticInstruction(All_FU_Mask, MultiplyAddAccumulate);
+			clientStub->PutInstruction(inst);
 
-            }
-            for(f = 0; f < BigBlockRest; f=f+1)
-            {
-              int i = 0;
-              inst = createStoreInstruction(f, C, createPrim(c, i, j*FU_Number+f));
-	      clientStub->PutInstruction(inst);
-              inst = createSyncInstruction(); 
-              clientStub->PutInstruction(inst);
-            }
-        }
-    }
-      inst = createFinishInstruction(); 
-      clientStub->PutInstruction(inst);
-      time_spent = (float) clientStub->Execute(0);
-      printf("Time %d: %f\n", iters, time_spent); 
+		    }
+		    for(f = 0; f < BigBlockRest; f=f+1)
+		    {
+		        int i = 0;
+			inst = createStoreInstruction(f, C, createPrim(c, i, j*FU_Number+f));
+			clientStub->PutInstruction(inst);
+			inst = createSyncInstruction(); 
+			clientStub->PutInstruction(inst);
+		    }
+		}
+	    }
+	    inst = createFinishInstruction(); 
+	    clientStub->PutInstruction(inst);
+	    time_spent = (float) clientStub->Execute(0);
+	    printf("Time %d: %f\n", iters, time_spent); 
+	    filename << "mmm_" << Size << "_" << iters << ".stats";
+	    STATS_SERVER_CLASS::GetInstance()->DumpStats();
+	    STATS_SERVER_CLASS::GetInstance()->EmitFile(filename.str());
+	    STATS_SERVER_CLASS::GetInstance()->ResetStatValues();
+	}
     }
     STARTER_DEVICE_SERVER_CLASS::GetInstance()->End(0);
   
