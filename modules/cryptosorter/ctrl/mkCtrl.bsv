@@ -342,7 +342,7 @@ module mkControl#(ExternalMemory extMem) (Control);
 	 debug_write_requests <= debug_write_requests+1;
 	 extMem.write.writeReq(write_addr);
 	 write_req_count <= write_req_count - rpmr;
-	 if(debug) $display("write_command %h",write_addr);
+	 if(debug) $display("write_command addr %h base %h count %d recwid %d recwid/32",write_addr, write_base_addr, write_req_count, recwid, recwid/32);
    endrule
    
    rule write_to_mem (True);
@@ -362,6 +362,9 @@ module mkControl#(ExternalMemory extMem) (Control);
 	   if(debug) $display("write_to_mem write_count %h, write_val %h",
 			       write_count,out_buff.first());      
         end
+
+      // This is a race condition.  Really, we should re-initialize only when both commands and data have been fully issued.
+      // This is fixed in the memory system, but it should really be fixed here. 
       if(write_count == 1)
 	 begin
             write_base_addr <= write_base_addr ^ truncate(bank_mask);

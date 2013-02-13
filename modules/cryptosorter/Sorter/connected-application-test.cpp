@@ -33,7 +33,13 @@ CONNECTED_APPLICATION_CLASS::Main()
     OUT_TYPE_ReadCycleCount result;
    
     // Send a start command down. 
-    clientStub->PutInstruction(12);
+    // First arg controls the size of the sort list (1 << size)
+    // Second controls the kind of list generated
+    // 0 - constant
+    // 1 - ascending order
+    // 2 - descending order
+    // 3 - random 
+    clientStub->PutInstruction(7,2);
 
     do {
         result = clientStub->ReadCycleCount(0);

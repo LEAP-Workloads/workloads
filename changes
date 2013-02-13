@@ -399,3 +399,35 @@ Added missing file (I somehow failed to add them previously).
 Fixed obvious token flow bug in the scratchpad memory wrapper.  With
 this fix, much larger sorts are now working (up to 2^12).  These sorts
 test the pass-based merge feature.
+
+----------
+kfleming    Date: Wed Feb 13 13:18:17 EST 2013  CSN: CSN-mmm-11
+                  Wed Feb 13 18:18:17 UTC 2013
+
+
+Directory modules/cryptosorter/ctrl
+ mkCtrl.bsv                Locally Modified           10 
+
+Directory modules/cryptosorter/Common
+ Parameters.bsv            Locally Modified           10 
+
+Directory modules/cryptosorter/ExternalMemory
+ ExternalMemory.bsv        Locally Modified           10 
+
+Directory modules/cryptosorter/Sorter
+ SimpleController.rrr      Locally Modified           10 
+ connected-application-test.cpp Locally Modified           10 
+ Sorter.bsv                Locally Modified           10 
+
+
+1) Fixed a handful of bugs in the memory system implementation.  Our
+memory system was not large enough and used the wrong word
+size. Additionally the core modules had a race condition wherein the
+decoupling of write address and data could yield writes to the wrong
+address if the memory system was too greedy in accepting data into its
+buffers.
+
+2) Added initialization routines so that we can change the data
+patterns.  This allows us to control the sort fetch pattern, which may
+have some effect on the prefetcher.
+

@@ -25,8 +25,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 Author: Kermin Fleming
 */
 
-`define AddrWidth 20
-typedef 20 AddrWidth;
+`define AddrWidth 26
+typedef 26 AddrWidth;
 typedef Bit#(`AddrWidth) Addr;
 
 `define RecordNum 8

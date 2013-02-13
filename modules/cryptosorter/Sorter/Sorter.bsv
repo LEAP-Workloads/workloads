@@ -25,14 +25,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 Author: Kermin Fleming
 */
 
-/* This is the top-level sorter module.  It interfaces to the PLB bus, the 
-   DSOCM, and the sorter core. Not much functionality, but it does have 
-   a cycle timer, and sends periodic messages back to the PPC over the 
-   DSOCM 
-*/ 
-
 import FIFO::*;
 import GetPut::*;
+import LFSR::*;
+import Vector::*;
 
 // Local Imports
 `include "asim/provides/librl_bsv.bsh"
@@ -48,7 +44,7 @@ import GetPut::*;
 
 
 typedef enum {
-// Initializing, We need to add some initialization at some point so as to test different operating points...
+  Init, 
   Idle,
   Waiting
 } TopState deriving (Bits,Eq);
@@ -58,17 +54,20 @@ module [CONNECTED_MODULE] mkConnectedApplication (Empty);
   ServerStub_CRYPTOSORTERCONTROLRRR serverStub <- mkServerStub_CRYPTOSORTERCONTROLRRR();
   ExternalMemory extMem <- mkExternalMemory();
   Control  controller <- mkControl(extMem);
-    
+  Reg#(Bit#(2)) style <- mkReg(0);  
   Reg#(Bit#(5)) size <- mkReg(0);
   Reg#(Bit#(3)) passes <- mkReg(1);
   Reg#(TopState) state <- mkReg(Idle);
   Reg#(Bit#(40)) counter <- mkReg(0);
+  Reg#(Bit#(32)) initCtrl <- mkReg(0);
+  Reg#(Bit#(32)) initData    <- mkReg(0);
+  LFSR#(Bit#(32)) lfsr <- mkLFSR_32(); 
 
   rule getfinished((state == Waiting) && controller.finished);
     state <= Idle;
   endrule
 
-  rule countUp(state != Idle);
+  rule countUp(state == Waiting);
     counter <= counter + 1;
   endrule
 
@@ -85,11 +84,45 @@ module [CONNECTED_MODULE] mkConnectedApplication (Empty);
   rule sendCommand(controller.finished && (state == Idle));    
     let inst <- serverStub.acceptRequest_PutInstruction();       
     serverStub.sendResponse_PutInstruction(?);
-    controller.doSort(truncate(pack(inst)));
-    size <= truncate(pack(inst));
-    state <= Waiting;
+    size <= truncate(pack(inst.size));
+    style <= truncate(pack(inst.style));
+    state <= Init;
     counter <= 0;
     passes <= 1;
+    initCtrl <= 0;
+    initData <= 0;
+    lfsr.seed(1);
+  endrule
+
+  rule doInitCtrl(state == Init && initCtrl < 1<<size);
+     initCtrl <= initCtrl + 1;
+     Bit#(TLog#(RecordsPerBlock)) burstCount = truncate(initCtrl);
+     if(burstCount == 0)
+     begin
+        extMem.write.writeReq(truncate(initCtrl << 2)); // This shift comes because of the interface expected by the sort tree.
+     end
+  endrule      
+
+  rule doInitData(state == Init && initData < 1<<size);
+     initData <= initData + 1;
+
+     let data =   case (style) matches 
+                      0: return 0;
+		      1: return initData;
+		      2: return maxBound - initData;
+		      3: return lfsr.value();     
+     endcase;
+
+     lfsr.next;
+
+     extMem.write.write(pack(replicate(data)));
+  endrule      
+
+  rule start(state == Init && initData == 1 << size && 
+             initCtrl == 1<<size && !extMem.writesPending());
+
+     state <= Waiting;
+     controller.doSort(size);
   endrule
 
   rule returnPass;

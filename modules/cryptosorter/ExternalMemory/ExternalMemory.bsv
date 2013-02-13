@@ -67,13 +67,17 @@ module [CONNECTED_MODULE] mkExternalMemory (ExternalMemory);
 
     // need some credit fifo for reads. 
     FIFOF#(Record) readRespFIFO   <- mkSizedFIFOF(128);
-    FIFOF#(Record) writeFIFO      <- mkSizedFIFOF(128);
-    FIFOF#(Bit#(1)) creditOutfifo <- mkSizedFIFOF(128);
+    FIFOF#(Addr) readAddrFIFO     <- mkSizedFIFOF(128);
+    FIFOF#(Record) writeDataFIFO  <- mkSizedFIFOF(128);
+    FIFOF#(Addr) writeAddrFIFO    <- mkSizedFIFOF(128/valueof(RecordsPerBlock));
+    FIFOF#(Addr) creditOutfifo    <- mkSizedFIFOF(128);
 
     rule doReads(readRespCount > 0);
+        let addr = readAddr + zeroExtend(readRespCount);
         readRespCount <= readRespCount + 1;
-        dataStore.readReq(readAddr + zeroExtend(readRespCount));
-        creditOutfifo.enq(0);
+        dataStore.readReq(addr);
+        creditOutfifo.enq(addr);
+	if(debug) $display("Mem Read Request %h", addr);
     endrule
 
     rule doResps;
@@ -83,8 +87,15 @@ module [CONNECTED_MODULE] mkExternalMemory (ExternalMemory);
 
     rule doWrites(writeCount < recordsPerMemRequest);
         writeCount <= writeCount + 1;
-        dataStore.write(writeAddr + zeroExtend(writeCount), writeFIFO.first);
-	writeFIFO.deq;
+        dataStore.write(writeAddr + zeroExtend(writeCount), writeDataFIFO.first);
+	writeDataFIFO.deq;
+	if(debug) $display("Mem Write Address %h %h", writeAddr + zeroExtend(writeCount), writeDataFIFO.first);
+    endrule
+
+    rule startWrite (writeCount == recordsPerMemRequest);
+        writeCount <= 0;
+        writeAddr  <= writeAddrFIFO.first >> 2;
+	writeAddrFIFO.deq;
     endrule
 
     // This is conservative...
@@ -93,21 +104,24 @@ module [CONNECTED_MODULE] mkExternalMemory (ExternalMemory);
     endmethod
 
     method Bool writesPending();
-        return  writeCount <  recordsPerMemRequest || writeFIFO.notEmpty;
+        return  writeCount <  recordsPerMemRequest || writeDataFIFO.notEmpty;
     endmethod
 
     interface Read read;
 
         method Action readReq(Addr addr) if(readRespCount == 0);
             readRespCount <= 1;
-            dataStore.readReq(addr);
-            creditOutfifo.enq(0);	
-	    readAddr <= addr;
+	    let adjustedAddr = addr >> 2; // Convert to word space.
+            dataStore.readReq(adjustedAddr);
+            creditOutfifo.enq(adjustedAddr);	
+	    readAddr <= adjustedAddr;
+  	    if(debug) $display("Mem Read Request %h", adjustedAddr);
         endmethod 
 
         method ActionValue#(Record) read();
            creditOutfifo.deq;
            readRespFIFO.deq;
+  	   if(debug) $display("Mem Read Response %h %h", creditOutfifo.first, readRespFIFO.first); 
            return readRespFIFO.first;
         endmethod
 
@@ -116,12 +130,9 @@ module [CONNECTED_MODULE] mkExternalMemory (ExternalMemory);
 
     interface Write write;
  
-        method Action writeReq(Addr addr) if(writeCount == recordsPerMemRequest);
-            writeCount <= 0;
-	    writeAddr  <= addr;
-        endmethod
+        method writeReq = writeAddrFIFO.enq;
 
-        method write = writeFIFO.enq;
+        method write = writeDataFIFO.enq;
 
     endinterface
 
