@@ -295,3 +295,59 @@ Directory modules/mmm/hardware/FunctionalUnit
 
 
 Added mmm target for ml605.
+
+----------
+kfleming    Date: Tue Feb 12 21:32:13 EST 2013  CSN: CSN-mmm-9
+                  Wed Feb 13 02:32:13 UTC 2013
+
+
+Directory config/pm
+ cryptosorter/             Locally Added               0 
+
+Directory config/pm/cryptosorter
+ cryptosorter_exe.apm      Locally Added               0 
+
+Directory modules
+ cryptosorter/             Locally Added               0 
+
+Directory modules/cryptosorter
+ ctrl/                     Locally Added               0 
+ SortTree/                 Locally Added               0 
+
+Directory modules/cryptosorter/SortTree
+ SynthRegFiles.bsv         Locally Added               0 
+ Sort.bsv                  Locally Added               0 
+ VLevelFIFOTester.bsv      Locally Added               0 
+ Level1Merger.bsv          Locally Added               0 
+ BRAMLevel1Merger.bsv      Locally Added               0 
+ BRAMLevel2Merger.bsv      Locally Added               0 
+ BRAMLevel3Merger.bsv      Locally Added               0 
+ BRAMLevel4Merger.bsv      Locally Added               0 
+ BRAMLevel5Merger.bsv      Locally Added               0 
+ BRAMLevel6Merger.bsv      Locally Added               0 
+ VLevelFIFO.bsv            Locally Added               0 
+ SortTree128.bsv           Locally Added               0 
+ BRAMLevel7Merger.bsv      Locally Added               0 
+ BRAMLevel8Merger.bsv      Locally Added               0 
+ readme                    Locally Added               0 
+ SortTree256.bsv           Locally Added               0 
+ SortTree16.bsv            Locally Added               0 
+ SortTree64.bsv            Locally Added               0 
+ sort_tree.awb             Locally Added               0 
+
+Directory modules/cryptosorter
+ readme.txt                Locally Added               0 
+ Sorter/                   Locally Added               0 
+
+Directory modules/cryptosorter/Sorter
+ SimpleController.rrr      Locally Added               0 
+ connected-application-test.cpp Locally Added               0 
+ connected-application-test.h Locally Added               0 
+ Sorter.bsv                Locally Added               0 
+ connected-application-test.awb Locally Added               0 
+ connected-application-test.bsv Locally Added               0 
+
+
+Added the cryptosorter module.  This module won the memocode design
+contest in 2008.  Some small sorts work, but large sorts are not yet
+debugged.  That's up next.
