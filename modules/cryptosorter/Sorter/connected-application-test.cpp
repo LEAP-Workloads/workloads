@@ -38,12 +38,23 @@ CONNECTED_APPLICATION_CLASS::Main()
     // 0 - constant
     // 1 - ascending order
     // 2 - descending order
-    // 3 - random 
-    clientStub->PutInstruction(7,2);
+    // 3 - random
+    // Third - a seed for random generation of lists 
+    int logSize = 7;
+    int style = 2;
+    int seed = 1;
 
-    do {
-        result = clientStub->ReadCycleCount(0);
-    }while(!result.done);
+    for(int logSize = 6; logSize < 9; logSize++) {
+        for(int style = 0; style < 4; style++) {
+            clientStub->PutInstruction(logSize,style,seed);
+
+            do {
+                result = clientStub->ReadCycleCount(0);
+            }while(!result.done);
+
+            printf("%d:%d:%llu\n", 1 << logSize, style, result.cycleCount); 
+	}
+    }
 
     STARTER_DEVICE_SERVER_CLASS::GetInstance()->End(0);
   

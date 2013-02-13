@@ -52,12 +52,18 @@ import GetPut::*;
 `include "awb/provides/common_services.bsh"
 `include "awb/dict/VDEV_SCRATCH.bsh"
 
+typedef enum {
+    BANK_A,
+    BANK_B
+} Bank deriving (Bits, Eq); 
+
 module [CONNECTED_MODULE] mkExternalMemory (ExternalMemory);
 
     let recordsPerMemRequest = fromInteger(valueof(RecordsPerMemRequest));
 
     // we might want to partition this into two address spaces at some point ...
-    MEMORY_IFC#(Addr, Record) dataStore <- mkScratchpad(`VDEV_SCRATCH_BANK_A, SCRATCHPAD_CACHED);
+    MEMORY_IFC#(Addr, Record) dataStoreA <- mkScratchpad(`VDEV_SCRATCH_BANK_A, SCRATCHPAD_CACHED);
+    MEMORY_IFC#(Addr, Record) dataStoreB <- mkScratchpad(`VDEV_SCRATCH_BANK_B, SCRATCHPAD_CACHED);
 
     Reg#(Bit#(TLog#(RecordsPerBlock))) readRespCount  <- mkReg(0);
     Reg#(Bit#(TAdd#(1,TLog#(RecordsPerBlock)))) writeCount <- mkReg(recordsPerMemRequest);
@@ -70,26 +76,59 @@ module [CONNECTED_MODULE] mkExternalMemory (ExternalMemory);
     FIFOF#(Addr) readAddrFIFO     <- mkSizedFIFOF(128);
     FIFOF#(Record) writeDataFIFO  <- mkSizedFIFOF(128);
     FIFOF#(Addr) writeAddrFIFO    <- mkSizedFIFOF(128/valueof(RecordsPerBlock));
-    FIFOF#(Addr) creditOutfifo    <- mkSizedFIFOF(128);
+    FIFOF#(Addr) creditOutfifo    <- mkSizedFIFOF(128);	
+    FIFOF#(Bank) bankDirection    <- mkSizedFIFOF(128);
+        
+    Addr bank_mask  = fromInteger(valueOf(MemBankSelector))>>6;
+
 
     rule doReads(readRespCount > 0);
         let addr = readAddr + zeroExtend(readRespCount);
         readRespCount <= readRespCount + 1;
-        dataStore.readReq(addr);
+
+	if(addr < bank_mask)
+        begin 
+            dataStoreA.readReq(addr);
+            bankDirection.enq(BANK_A);
+        end
+        else
+        begin 
+            dataStoreB.readReq(addr);
+            bankDirection.enq(BANK_B);
+        end
+
         creditOutfifo.enq(addr);
 	if(debug) $display("Mem Read Request %h", addr);
     endrule
 
-    rule doResps;
-        let data <- dataStore.readRsp();
+    rule doRespsA(bankDirection.first == BANK_A);
+        let data <- dataStoreA.readRsp();
 	readRespFIFO.enq(data);
+        bankDirection.deq;
+    endrule 
+
+    rule doRespsB(bankDirection.first == BANK_B);
+        let data <- dataStoreB.readRsp();
+	readRespFIFO.enq(data);
+        bankDirection.deq;
     endrule 
 
     rule doWrites(writeCount < recordsPerMemRequest);
         writeCount <= writeCount + 1;
-        dataStore.write(writeAddr + zeroExtend(writeCount), writeDataFIFO.first);
+	let addr = writeAddr + zeroExtend(writeCount);
+
+	if(addr < bank_mask)
+        begin
+            dataStoreA.write(addr, writeDataFIFO.first);
+        end
+        else
+        begin
+            dataStoreB.write(addr, writeDataFIFO.first);
+        end
+
 	writeDataFIFO.deq;
-	if(debug) $display("Mem Write Address %h %h", writeAddr + zeroExtend(writeCount), writeDataFIFO.first);
+
+	if(debug) $display("Mem Write Address %h %h", addr, writeDataFIFO.first);
     endrule
 
     rule startWrite (writeCount == recordsPerMemRequest);
@@ -112,7 +151,18 @@ module [CONNECTED_MODULE] mkExternalMemory (ExternalMemory);
         method Action readReq(Addr addr) if(readRespCount == 0);
             readRespCount <= 1;
 	    let adjustedAddr = addr >> 2; // Convert to word space.
-            dataStore.readReq(adjustedAddr);
+
+            if(adjustedAddr < bank_mask)
+            begin 
+                dataStoreA.readReq(adjustedAddr);
+                bankDirection.enq(BANK_A);
+            end
+            else
+            begin 
+                dataStoreB.readReq(adjustedAddr);
+                bankDirection.enq(BANK_B);
+            end
+
             creditOutfifo.enq(adjustedAddr);	
 	    readAddr <= adjustedAddr;
   	    if(debug) $display("Mem Read Request %h", adjustedAddr);

@@ -91,7 +91,7 @@ module [CONNECTED_MODULE] mkConnectedApplication (Empty);
     passes <= 1;
     initCtrl <= 0;
     initData <= 0;
-    lfsr.seed(1);
+    lfsr.seed(inst.seed);
   endrule
 
   rule doInitCtrl(state == Init && initCtrl < 1<<size);

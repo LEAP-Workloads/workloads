@@ -431,3 +431,32 @@ buffers.
 patterns.  This allows us to control the sort fetch pattern, which may
 have some effect on the prefetcher.
 
+
+----------
+kfleming    Date: Wed Feb 13 16:34:10 EST 2013  CSN: CSN-mmm-12
+                  Wed Feb 13 21:34:10 UTC 2013
+
+
+Directory config/pm/cryptosorter
+ cryptosorter_banked_exe.apm Locally Added               0 
+ cryptosorter_banked_ml605.apm Locally Added               0 
+ cryptosorter_ml605.apm    Locally Added               0 
+
+Directory modules/cryptosorter/ExternalMemory
+ ExternalMemory.bsv        Locally Modified           11 
+ memory.dic                Locally Modified           11 
+ external_memory_banked.awb Locally Added               0 
+ ExternalMemoryBanked.bsv  Locally Added               0 
+
+Directory modules/cryptosorter/Sorter
+ SimpleController.rrr      Locally Modified           11 
+ connected-application-test.cpp Locally Modified           11 
+ Sorter.bsv                Locally Modified           11 
+
+
+1) Improved software test scaffolding
+
+2) Added ML605 targets
+
+3) The cryptosorter uses a ping-pong buffer for sorting.  Added a
+banked version of the memory system to handle this case.
