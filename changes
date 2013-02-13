@@ -351,3 +351,51 @@ Directory modules/cryptosorter/Sorter
 Added the cryptosorter module.  This module won the memocode design
 contest in 2008.  Some small sorts work, but large sorts are not yet
 debugged.  That's up next.
+
+----------
+kfleming    Date: Tue Feb 12 22:09:58 EST 2013  CSN: CSN-mmm-10
+                  Wed Feb 13 03:09:58 UTC 2013
+
+
+Directory modules/cryptosorter/ctrl
+ mkCtrl.bsv                Locally Added               0 
+ gen_test_array.c          Locally Added               0 
+ control.awb               Locally Added               0 
+ Four2OneMerger.bsv        Locally Added               0 
+ ref_pc/                   Locally Added               0 
+
+Directory modules/cryptosorter/ctrl/ref_pc
+ aes_core.c                Locally Added               0 
+ main.c                    Locally Added               0 
+ timer.h                   Locally Added               0 
+ aes_core.h                Locally Added               0 
+ recordio.c                Locally Added               0 
+ recordio.h                Locally Added               0 
+
+Directory modules/cryptosorter
+ Common/                   Locally Added               0 
+
+Directory modules/cryptosorter/Common
+ common.awb                Locally Added               0 
+ DebugFlags.bsv            Locally Added               0 
+ Parameters.bsv            Locally Added               0 
+
+Directory modules/cryptosorter
+ ExternalMemory/           Locally Added               0 
+
+Directory modules/cryptosorter/ExternalMemory
+ external_memory.awb       Locally Added               0 
+ ExternalMemory.bsv        Locally Added               0 
+ memory.dic                Locally Added               0 
+ ExternalMemoryTester.bsv  Locally Added               0 
+
+Directory modules/cryptosorter/Sorter
+ connected-application-test.cpp Locally Modified            9 
+
+
+Added missing file (I somehow failed to add them previously). 
+
+
+Fixed obvious token flow bug in the scratchpad memory wrapper.  With
+this fix, much larger sorts are now working (up to 2^12).  These sorts
+test the pass-based merge feature.

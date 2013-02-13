@@ -33,7 +33,7 @@ CONNECTED_APPLICATION_CLASS::Main()
     OUT_TYPE_ReadCycleCount result;
    
     // Send a start command down. 
-    clientStub->PutInstruction(6);
+    clientStub->PutInstruction(12);
 
     do {
         result = clientStub->ReadCycleCount(0);
