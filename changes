@@ -460,3 +460,104 @@ Directory modules/cryptosorter/Sorter
 
 3) The cryptosorter uses a ping-pong buffer for sorting.  Added a
 banked version of the memory system to handle this case.
+
+----------
+kfleming    Date: Wed Feb 13 21:07:35 EST 2013  CSN: CSN-mmm-13
+                  Thu Feb 14 02:07:35 UTC 2013
+
+
+Directory modules
+ cartpol/                  Locally Added               0 
+
+Directory modules/cartpol
+ cache/                    Locally Added               0 
+
+Directory modules/cartpol/cache
+ CacheTesterFPGA.bsv       Locally Added               0 
+ GetPutExt.bsv             Locally Added               0 
+ mkMemArb.bsv              Locally Added               0 
+ mkCacheTesterCore.bsv     Locally Added               0 
+ mkDataCacheBlockingBramDoublePump.bsv Locally Added               0 
+ mkDataCacheBlocking.bsv   Locally Added               0 
+ PLBShim.bsv               Locally Added               0 
+ mkDataCacheBlockingBram.bsv Locally Added               0 
+ cartpol_cache_base.awb    Locally Added               0 
+ CacheTesterSim.bsv        Locally Added               0 
+ MemTypes.bsv              Locally Added               0 
+ CacheWrapper.bsv          Locally Added               0 
+ mkDataCacheBlockingBramDoublePumpOverlappedSkinny.bsv Locally Added               0 
+ IMemArb.bsv               Locally Added               0 
+ ICache.bsv                Locally Added               0 
+ mkDataCacheBlockingBramDoublePumpOverlappedGang.bsv Locally Added               0 
+ CacheWrapperSplitDoublePump.bsv Locally Added               0 
+ BRAMGang.bsv              Locally Added               0 
+ CacheWrapperSplit.bsv     Locally Added               0 
+ mkDataCacheBlockingBramDoublePumpOverlappedSkinnyXUPV5.bsv Locally Added               0 
+ Makefile                  Locally Added               0 
+
+Directory modules/cartpol
+ system/                   Locally Added               0 
+
+Directory modules/cartpol/system
+ CartPolTesterFPGA.bsv     Locally Added               0 
+ system.awb                Locally Added               0 
+ CartPolTesterCore.bsv     Locally Added               0 
+
+Directory modules/cartpol
+ core/                     Locally Added               0 
+
+Directory modules/cartpol/core
+ Multiplier.bsv            Locally Added               0 
+ computeTopTest.c          Locally Added               0 
+ Core.bsv                  Locally Added               0 
+ lutInvTop.txt             Locally Added               0 
+ InverseN.bsv              Locally Added               0 
+ cartpol_core.awb          Locally Added               0 
+ NewLutInv.bsv             Locally Added               0 
+ MultiplierInstances.bsv   Locally Added               0 
+ ComputeTop.bsv            Locally Added               0 
+ MultiplierNew.bsv         Locally Added               0 
+ ComputeTypes.bsv          Locally Added               0 
+ CComputeTop.bsv           Locally Added               0 
+ Types.bsv                 Locally Added               0 
+ CartPol.bsv               Locally Added               0 
+ LutInv.txt                Locally Added               0 
+ InvN.bsv                  Locally Added               0 
+ genInverseN.cpp           Locally Added               0 
+ MultiplierSynth.bsv       Locally Added               0 
+ Compute.bsv               Locally Added               0 
+ .gitignore                Locally Added               0 
+ lib/                      Locally Added               0 
+
+Directory modules/cartpol/core/lib
+ CORDICTrigonometry.bsv    Locally Added               0 
+ MultLData.bsv             Locally Added               0 
+ CORDICDivision.bsv        Locally Added               0 
+ MultDataTData.bsv         Locally Added               0 
+ ComplexLibrary.bsv        Locally Added               0 
+ cartpol_cordic_lib.awb    Locally Added               0 
+ float.c                   Locally Added               0 
+ FPComplex.bsv             Locally Added               0 
+ FixedPointLibrary.bsv     Locally Added               0 
+ FloatToFixedPoint.bsv     Locally Added               0 
+ CORDIC.bsv                Locally Added               0 
+ FixedPointNew.bsv         Locally Added               0 
+ Float.bsv                 Locally Added               0 
+ Pipeline.bsv              Locally Added               0 
+
+Directory modules/cartpol/core
+ MultiplierTD.bsv          Locally Added               0 
+ ComputeCore.bsv           Locally Added               0 
+
+Directory modules/cartpol
+ common/                   Locally Added               0 
+
+Directory modules/cartpol/common
+ common.awb                Locally Added               0 
+ CartPolTesterTypes.bsv    Locally Added               0 
+
+
+Added the code and awb skeleton structure of the 2009 memocode design
+contest problem.  This is not close to compiling, but should be code
+complete.
+

@@ -1,0 +1,8 @@
+%name CartPol Core
+%desc memory unit
+
+%provides cartpol_core
+%requires cartpol_cordic
+
+%public CComputeTop.bsv  Compute.bsv ComputeTop.bsv  Core.bsv  InverseN.bsv  Multiplier.bsv  MultiplierNew.bsv    MultiplierTD.bsv  Types.bsv CartPol.bsv  ComputeCore.bsv  ComputeTypes.bsv  InvN.bsv    MultiplierInstances.bsv  MultiplierSynth.bsv  NewLutInv.bsv  
+
