@@ -668,3 +668,15 @@ Directory modules/cartpol/system
 
 1) Added a better,iterative test bench 
 2) Added an initializer for the scratchpad storage
+
+----------
+kfleming    Date: Fri Feb 15 13:45:52 EST 2013  CSN: CSN-mmm-17
+                  Fri Feb 15 18:45:52 UTC 2013
+
+
+Directory config/pm/cartpol
+ cartpol_ml605.apm         Locally Added               0 
+
+
+Added ML605 target. The convertor works on the ML605.
+
