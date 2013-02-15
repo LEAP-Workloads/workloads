@@ -496,13 +496,13 @@ instance Bitwise#( FixedPoint#(i,f) )
            );
 
    function FixedPoint#(i,f) \>> (FixedPoint#(i,f) in1, ix sftamt ) 
-      provisos(PrimIndex#(ix, dx));
+      provisos(PrimIndex#(ix, dx),PrimShiftIndex#(ix, a__));
       Int#(b) bitsin = _toInternal(in1) ;
       return _fromInternal ( bitsin >> sftamt );
    endfunction
 
    function FixedPoint#(i,f) \<< (FixedPoint#(i,f) in1, ix sftamt ) 
-      provisos(PrimIndex#(ix, dx));
+      provisos(PrimIndex#(ix, dx), PrimShiftIndex#(ix, a__));
       Int#(b) ini = _toInternal(in1);
       return _fromInternal ( ini << sftamt );
    endfunction

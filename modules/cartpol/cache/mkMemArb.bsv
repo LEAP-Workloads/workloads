@@ -24,35 +24,36 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
+`include "awb/provides/librl_bsv.bsh"
+`include "awb/provides/soft_connections.bsh"
+`include "awb/provides/soft_services.bsh"
+`include "awb/provides/soft_services_lib.bsh"
+`include "awb/provides/soft_services_deps.bsh"
+`include "awb/provides/cartpol_common.bsh"
+`include "awb/provides/cartpol_cordic.bsh"
 
-package mkMemArb;
 
-
-import MemTypes::*;
-import IMemArb::*;
 import FIFOF::*;
 import FIFO::*;
-import BFIFO::*;
 import ClientServer::*;
 import GetPut::*;
 import GetPutExt::*;
 
 typedef enum { REQ0, REQ1 } ReqPtr deriving(Eq,Bits);
 
-(* synthesize *)
 module mkMemArb( IMemArb );
 
   //-----------------------------------------------------------
   // State
 
-  FIFOF#(MainMemReq) req0Q  <- mkBFIFOF1();
-  FIFO#(MainMemResp) resp0Q <- mkBFIFO1();
+  FIFOF#(MainMemReq) req0Q  <- mkFIFOF();
+  FIFO#(MainMemResp) resp0Q <- mkFIFO();
 
-  FIFOF#(MainMemReq) req1Q  <- mkBFIFOF1();
-  FIFO#(MainMemResp) resp1Q <- mkBFIFO1();
+  FIFOF#(MainMemReq) req1Q  <- mkFIFOF();
+  FIFO#(MainMemResp) resp1Q <- mkFIFO();
 
-  FIFO#(MainMemReq)  mreqQ  <- mkBFIFO1();
-  FIFO#(MainMemResp) mrespQ <- mkBFIFO1();
+  FIFO#(MainMemReq)  mreqQ  <- mkFIFO();
+  FIFO#(MainMemResp) mrespQ <- mkFIFO();
 
   Reg#(ReqPtr) nextReq <- mkReg(REQ0);
 
@@ -131,4 +132,4 @@ module mkMemArb( IMemArb );
 
 endmodule
 
-endpackage
+

@@ -3,6 +3,6 @@
 
 %provides cartpol_cordic
 
-%public CORDIC.bsv          CORDICTrigonometry.bsv  FPComplex.bsv          FixedPointNew.bsv  FloatToFixedPoint.bsv  MultLData.bsv  cartpol_core.awb  CORDICDivision.bsv  ComplexLibrary.bsv   FixedPointLibrary.bsv  Float.bsv   MultDataTData.bsv      Pipeline.bsv 
+%public CORDIC.bsv  CORDICTrigonometry.bsv  FPComplex.bsv  FixedPointNew.bsv  FloatToFixedPoint.bsv  CORDICDivision.bsv  ComplexLibrary.bsv   FixedPointLibrary.bsv  Float.bsv   Pipeline.bsv 
 
 

@@ -561,3 +561,75 @@ Added the code and awb skeleton structure of the 2009 memocode design
 contest problem.  This is not close to compiling, but should be code
 complete.
 
+
+----------
+kfleming    Date: Thu Feb 14 23:37:17 EST 2013  CSN: CSN-mmm-14
+                  Fri Feb 15 04:37:17 UTC 2013
+
+
+Directory config/pm
+ cartpol/                  Locally Added               0 
+
+Directory config/pm/cartpol
+ cartpol_exe.apm           Locally Added               0 
+
+Directory modules/cartpol/cache
+ GetPutExt.bsv             Locally Modified           13 
+ mkMemArb.bsv              Locally Modified           13 
+ mkDataCacheBlockingBramDoublePump.bsv Locally Modified           13 
+ PLBShim.bsv               Locally Modified           13 
+ mkDataCacheBlocking.bsv   Locally Modified           13 
+ cartpol_cache_base.awb    Locally Modified           13 
+ mkDataCacheBlockingBram.bsv Locally Modified           13 
+ MemTypes.bsv              Locally Removed            13 
+ CacheWrapper.bsv          Locally Modified           13 
+ mkDataCacheBlockingBramDoublePumpOverlappedSkinny.bsv Locally Modified           13 
+ ICache.bsv                Locally Modified           13 
+ IMemArb.bsv               Locally Modified           13 
+ mkDataCacheBlockingBramDoublePumpOverlappedGang.bsv Locally Modified           13 
+ CacheWrapperSplitDoublePump.bsv Locally Modified           13 
+ memory.dic                Locally Added               0 
+ CacheWrapperSplit.bsv     Locally Modified           13 
+ mkDataCacheBlockingBramDoublePumpOverlappedSkinnyXUPV5.bsv Locally Modified           13 
+
+Directory modules/cartpol/system
+ connected-application-test.cpp Locally Added               0 
+ Control.rrr               Locally Added               0 
+ connected-application-test.h Locally Added               0 
+ system.awb                Locally Modified           13 
+ CartPolTesterCore.bsv     Locally Modified           13 
+
+Directory modules/cartpol/core
+ Multiplier.bsv            Locally Modified           13 
+ Core.bsv                  Locally Modified           13 
+ cartpol_core.awb          Locally Modified           13 
+ ComputeTop.bsv            Locally Modified           13 
+ MultiplierNew.bsv         Locally Modified           13 
+ Types.bsv                 Locally Removed            13 
+ CartPol.bsv               Locally Modified           13 
+ MultiplierSynth.bsv       Locally Modified           13 
+
+Directory modules/cartpol/core/lib
+ CORDICTrigonometry.bsv    Locally Modified           13 
+ MultLData.bsv             Locally Modified           13 
+ CORDICDivision.bsv        Locally Modified           13 
+ MultDataTData.bsv         Locally Modified           13 
+ ComplexLibrary.bsv        Locally Modified           13 
+ cartpol_cordic_lib.awb    Locally Modified           13 
+ CORDIC.bsv                Locally Modified           13 
+ FixedPointNew.bsv         Locally Modified           13 
+
+Directory modules/cartpol/core
+ MultiplierTD.bsv          Locally Modified           13 
+ ComputeCore.bsv           Locally Modified           13 
+
+Directory modules/cartpol/common
+ ClientServerUtils.bsv     Locally Added               0 
+ common.awb                Locally Modified           13 
+ CartPolTesterTypes.bsv    Locally Modified           13 
+ PLBMasterDefaultParameters.bsv Locally Added               0 
+ MemTypes.bsv              Locally Added               - 
+ Types.bsv                 Locally Added               - 
+
+
+A complete cartesian-polar convertor now compiles.

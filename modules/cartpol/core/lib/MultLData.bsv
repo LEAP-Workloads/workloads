@@ -50,8 +50,8 @@ typedef Bit#(TAdd#(DoubleILWidth, DoubleFLWidth)) DoubleLDataBit;
 typedef 5 PipeDepthLD;
 typedef TAdd#(PipeDepthLD, 1) PipeDepthLD1;
 typedef TAdd#(PipeDepthLD, 2) PipeDepthLD2;
-typedef TAdd#(PipeDepthLD2, 2) Quota;
-typedef TAdd#(TLog#(Quota), 1) LogQuota;
+typedef TAdd#(PipeDepthLD2, 2) QuotaL;
+typedef TAdd#(TLog#(QuotaL), 1) LogQuotaL;
 
 interface MultiplierLData;
     method Action put(LData x, LData y);
@@ -60,12 +60,12 @@ endinterface
 
 (*synthesize*)
 module mkMultLData (MultiplierLData);
-    Vector#(4,MultRaw)                 mult <- replicateM(mkMultRaw);
+    Vector#(4,MultRawL)                 mult <- replicateM(mkMultRawL);
     FIFO#(Tuple2#(LData,LData))          in <- mkFIFO;
-    FIFO#(LData)                        out <- mkSizedFIFO(valueOf(Quota));
+    FIFO#(LData)                        out <- mkSizedFIFO(valueOf(QuotaL));
     Reg#(DoubleLDataBit)                 t1 <- mkRegU();
     Reg#(DoubleLDataBit)                 t2 <- mkRegU();
-    Counter#(LogQuota)                token <- mkCounter(fromInteger(valueOf(Quota)));
+    Counter#(LogQuotaL)                token <- mkCounter(fromInteger(valueOf(QuotaL)));
     Reg#(Vector#(PipeDepthLD2,Bool)) vldchk <- mkReg(replicate(False)); 
     RWire#(Bit#(0))                   sfin1 <- mkRWire;
 
@@ -115,12 +115,12 @@ module mkMultLData (MultiplierLData);
     endmethod
 endmodule
 
-interface MultRaw;
+interface MultRawL;
     method Action put(HalfLDataBit _x, HalfLDataBit _y);
     method LDataBit get();
 endinterface
 
-module mkMultRaw (MultRaw);
+module mkMultRawL (MultRawL);
     Reg#(HalfLDataBit) x <- mkRegU();
     Reg#(HalfLDataBit) y <- mkRegU();
 

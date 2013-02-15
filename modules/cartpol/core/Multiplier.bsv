@@ -27,6 +27,14 @@
 //
 //----------------------------------------------------------------------//
 
+`include "awb/provides/librl_bsv.bsh"
+`include "awb/provides/soft_connections.bsh"
+`include "awb/provides/soft_services.bsh"
+`include "awb/provides/soft_services_lib.bsh"
+`include "awb/provides/soft_services_deps.bsh"
+`include "awb/provides/cartpol_common.bsh"
+`include "awb/provides/cartpol_cordic.bsh"
+
 import Types::*;
 import FIFOF::*;
 import FixedPointNew::*;
@@ -45,7 +53,6 @@ typedef TMul#(IntegralWidth, 2) DoubleIWidth;
 typedef TMul#(FractionWidth, 2) DoubleFWidth;
 typedef FixedPoint#(DoubleIWidth, DoubleFWidth) DoubleData;
 
-(*synthesize*)
 module mkMultiplier (Multiplier);
     FIFOF#(Tuple2#(Data,Data)) in <- mkFIFOF;
     FIFOF#(Data)              out <- mkFIFOF;

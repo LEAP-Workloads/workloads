@@ -55,7 +55,7 @@ endfunction
 // Begin of Modules
 
 // divison based on cordic, all x, y values are allowed
-module [Module] mkCORDICDivision_Pipe#(Integer numStages, 
+module  mkCORDICDivision_Pipe#(Integer numStages, 
                                        Integer steps)
    (Division#(FixedPoint#(i,f)))
    provisos (Add#(xxA,2,i), // i >= 2
@@ -104,7 +104,7 @@ module [Module] mkCORDICDivision_Pipe#(Integer numStages,
 endmodule
 
 // divison based on cordic, all x, y values are allowed
-module [Module] mkCORDICDivision_Circ#(Integer numStages, 
+module  mkCORDICDivision_Circ#(Integer numStages, 
                                        Integer steps)
    (Division#(FixedPoint#(i,f)))
    provisos (Add#(xxA,2,i), // i >= 2

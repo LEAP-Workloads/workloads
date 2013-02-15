@@ -24,16 +24,23 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-import MemTypes::*;
-import ICache::*;
+`include "awb/provides/librl_bsv.bsh"
+`include "awb/provides/fpga_components.bsh"
+`include "awb/provides/librl_bsv_storage.bsh"
+`include "awb/provides/soft_connections.bsh"
+`include "awb/provides/soft_services.bsh"
+`include "awb/provides/soft_services_lib.bsh"
+`include "awb/provides/soft_services_deps.bsh"
+`include "awb/provides/cartpol_common.bsh"
+`include "awb/provides/cartpol_cordic.bsh"
+
+
 import RegFile::*;
 import GetPut::*;
 import ClientServer::*;
 import FIFO::*;
 import FIFOF::*;
-import PLBMasterDefaultParameters::*;
 import Vector::*;
-import BRAMLegacy::*;
 
 //----------------------------------------------------------------------
 // Cache Types
@@ -142,7 +149,6 @@ endfunction
 // Main module
 //----------------------------------------------------------------------
 
-(* synthesize *)
 (* descending_urgency = "accessReq, refillResp"*)
 module mkDataCacheBlockingBramDoublePumpOverlappedSkinny#(int cache_id) (ICache#(DataReq,DoublePumpDataResp));
 
@@ -154,8 +160,8 @@ module mkDataCacheBlockingBramDoublePumpOverlappedSkinny#(int cache_id) (ICache#
    RegFile#(CacheLineIndex,Maybe#(CacheLineTag)) cacheTagRamHiFuture   <- mkRegFileFull();
    
    // Long, skinny reg file, with width equal to busword.
-   BRAM#(SkinnyCacheIndex,CacheWord)           cacheDataRamHi  <- mkBRAM_Full();
-   BRAM#(SkinnyCacheIndex,CacheWord)           cacheDataRamLo  <- mkBRAM_Full();
+   MEMORY_IFC#(SkinnyCacheIndex,CacheWord)           cacheDataRamHi  <- mkBRAM();
+   MEMORY_IFC#(SkinnyCacheIndex,CacheWord)           cacheDataRamLo  <- mkBRAM();
    
    // Below FIFO may be reduced to index only at some point
    FIFO#(CacheLineIndex) reqRefillQ      <- mkSizedFIFO(valueof(OutstandingReqs)); 
@@ -218,13 +224,13 @@ module mkDataCacheBlockingBramDoublePumpOverlappedSkinny#(int cache_id) (ICache#
 	    
 	    if (ctrl.blockIndexLo[0] == 1'b0)
 	       begin
-		  cacheDataRamLo.read_req(skinnyIndexLo);
-		  cacheDataRamHi.read_req(skinnyIndexHi);
+		  cacheDataRamLo.readReq(skinnyIndexLo);
+		  cacheDataRamHi.readReq(skinnyIndexHi);
 	       end
 	    else
 	       begin
-		  cacheDataRamLo.read_req(skinnyIndexHi);
-		  cacheDataRamHi.read_req(skinnyIndexLo);
+		  cacheDataRamLo.readReq(skinnyIndexHi);
+		  cacheDataRamHi.readReq(skinnyIndexLo);
 	       end
 	    
 	    
@@ -354,8 +360,8 @@ module mkDataCacheBlockingBramDoublePumpOverlappedSkinny#(int cache_id) (ICache#
    endrule
    
    rule accessResp (cacheStage == Access);
-      let dataLo <- cacheDataRamLo.read_resp();
-      let dataHi <- cacheDataRamHi.read_resp();
+      let dataLo <- cacheDataRamLo.readRsp();
+      let dataHi <- cacheDataRamHi.readRsp();
       let t <- $time;
       $display("CacheID(%d)final: %h %h", cache_id,dataLo,dataHi);
       respQ.enq( LoadResp {tag: in_flight.first.tag, 

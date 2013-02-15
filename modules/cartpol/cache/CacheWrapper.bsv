@@ -25,13 +25,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 Author: Myron King.
 */
 
-import mkDataCacheBlocking::*;
-import ICache::*;
-import MemTypes::*;
+`include "awb/provides/librl_bsv.bsh"
+`include "awb/provides/soft_connections.bsh"
+`include "awb/provides/soft_services.bsh"
+`include "awb/provides/soft_services_lib.bsh"
+`include "awb/provides/soft_services_deps.bsh"
+`include "awb/provides/cartpol_common.bsh"
+`include "awb/provides/cartpol_cordic.bsh"
+
+
 import ClientServer::*;
 import Connectable::*;
-import ClientServerUtils::*;
 import FIFO::*;
+import FIFOF::*;
 import GetPut::*;
 import Vector::*;
 
@@ -101,7 +107,7 @@ module mkCacheWrapper#(ICache#(DataReq,DataResp) cache) (CacheWrapper);
    endrule
  
    method Action reset() = cache.reset();
-   interface mmem_server = putGetToServer(fifoToPut(req_fifo),fifoToGet(resp_fifo));
+   interface mmem_server = putGetToServer(toPut(req_fifo),toGet(resp_fifo));
    interface mmem_client = cache.mmem_client;
  
 

@@ -27,23 +27,21 @@
 //
 //----------------------------------------------------------------------//
 
+`include "awb/provides/librl_bsv.bsh"
+`include "awb/provides/soft_connections.bsh"
+`include "awb/provides/soft_services.bsh"
+`include "awb/provides/soft_services_lib.bsh"
+`include "awb/provides/soft_services_deps.bsh"
+`include "awb/provides/cartpol_common.bsh"
+`include "awb/provides/cartpol_cordic.bsh"
+
 import FIFOF::*;
-import Types::*;
-import FixedPointNew::*;
-import Core::*;
-import CORDICTrigonometry::*;
-import CORDICDivision::*;
 import Vector::*;
-//import InverseN::*;
-import MultiplierNew::*;
 import Clocks::*;
 import Connectable::*;
-import FIFOUtility::*;
 import GetPut::*;
-import MultiplierSynth::*;
 import Float::*;
 import FloatToFixedPoint::*;
-import NewLutInv::*;
 
 interface ComputeTop;
    method Action setParam(Float _rad, Float _ang, Index _n);
@@ -63,8 +61,10 @@ typedef enum {
   RunResp
 } Stage deriving (Bits, Eq);
 
-(*synthesize*)
-module mkComputeTop#(Clock slowClock, Reset slowReset) (ComputeTop);
+module [CONNECTED_MODULE] mkComputeTop (ComputeTop);
+
+   let slowClock <- exposeCurrentClock;
+   let slowReset <- exposeCurrentReset;
 
    FIFOF#(Index)         maxN <- mkFIFOF;
    FIFOF#(Data)           rad <- mkFIFOF;
@@ -96,8 +96,8 @@ module mkComputeTop#(Clock slowClock, Reset slowReset) (ComputeTop);
    cordic <- mkCORDICCosAndSin_Circ(cordicCosSinIters, cordicCosSinStages, 
                                     clocked_by slowClock, reset_by slowReset);
 
-   mkConnection(cordic.getCosSinPair ,syncFifoToPut(cosAndSinSlowToFast).put);
-   mkConnection(syncFifoToGet(cosAndSinFastToSlow).get, cordic.putAngle);
+   mkConnection(cordic.getCosSinPair ,toPut(cosAndSinSlowToFast).put);
+   mkConnection(toGet(cosAndSinFastToSlow).get, cordic.putAngle);
    
    let divFastToSlow <- mkSyncFIFOFromCC(2,slowClock); 
    let divSlowToFast <- mkSyncFIFOToCC(2,slowClock,slowReset); 
@@ -105,7 +105,7 @@ module mkComputeTop#(Clock slowClock, Reset slowReset) (ComputeTop);
    Division#(LData) divider <- mkCORDICDivision_Circ(cordicDivIters, cordicDivStages, 
                                                     clocked_by slowClock, reset_by slowReset);
 
-   mkConnection(divider.getQuotient ,syncFifoToPut(divSlowToFast).put);
+   mkConnection(divider.getQuotient , toPut(divSlowToFast).put);
 
    (* mutually_exclusive = "reqDTheta,       rayGenerate_compute1" *)
 //   (* mutually_exclusive = "respInv,         rayGenerate_compute1" *)

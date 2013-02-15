@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2009 MIT
+Copyright (c) 2008 MIT
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
@@ -24,24 +24,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-`include "awb/provides/librl_bsv.bsh"
-`include "awb/provides/soft_connections.bsh"
-`include "awb/provides/soft_services.bsh"
-`include "awb/provides/soft_services_lib.bsh"
-`include "awb/provides/soft_services_deps.bsh"
-`include "awb/provides/cartpol_common.bsh"
-`include "awb/provides/cartpol_cordic.bsh"
 
-import ClientServer::*;
-import GetPut::*;
-
-interface ICache#( type req_t, type resp_t );
-   // Interface from processor to cache
-   interface Server#(req_t,resp_t) proc_server;
-   // Interface from cache to main memory
-   interface Client#(MainMemReq,MainMemResp) mmem_client;
-   // initiate reset of tag bank
-   method    Action reset();
-endinterface
-
-
+typedef 32 PLBAddrSize;
+typedef Bit#(PLBAddrSize) PLBAddr;
+typedef 2 WordsPerBeat;  // PLB bandwidth
+typedef 16 BurstSize;  // number of beats per burst
+typedef 16 BeatsPerBurst;
+typedef Bit#(64) BusWord;
+typedef 64 BusWordSize;
+typedef 4 BytesPerWord;
+typedef TDiv#(BusWordSize,8) BytesPerBusWord;
+typedef TMul#(WordsPerBeat,BeatsPerBurst) WordsPerBurst;
+typedef TMul#(BeatsPerBurst,BusWordSize) BitsPerBurst;
+typedef TMul#(BeatsPerBurst,BytesPerBusWord) BytesPerBurst; 

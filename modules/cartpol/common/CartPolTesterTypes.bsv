@@ -25,7 +25,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 
 import Real::*;
-import MemTypes::*;
+
+
 // Kinda lame, oh well
 typedef  TMul#(2,BufferSz) OutputBufferBase; // (1024 * 1024 * 4) * 2
 Integer maxTests = 64000;

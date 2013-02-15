@@ -27,9 +27,16 @@
 //
 //----------------------------------------------------------------------//
 
+`include "awb/provides/librl_bsv.bsh"
+`include "awb/provides/soft_connections.bsh"
+`include "awb/provides/soft_services.bsh"
+`include "awb/provides/soft_services_lib.bsh"
+`include "awb/provides/soft_services_deps.bsh"
+`include "awb/provides/cartpol_common.bsh"
+`include "awb/provides/cartpol_cordic.bsh"
+
 import Counter::*;
 import FIFO::*;
-import FixedPointNew::*;
 import RWire::*;
 import Vector::*;
 

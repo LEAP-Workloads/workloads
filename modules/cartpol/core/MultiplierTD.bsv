@@ -45,14 +45,13 @@ typedef TMul#(IntWidthTheta, 2) DoubleIWidth;
 typedef TMul#(FracWidthTheta, 2) DoubleFWidth;
 typedef FixedPoint#(DoubleIWidth, DoubleFWidth) DoubleTData;
 
-(*synthesize*)
 module mkMultiplierTD (MultiplierTD);
     FIFOF#(Tuple2#(TData,TData)) in <- mkFIFOF;
     FIFOF#(TData)              out <- mkFIFOF;
 
     Counter#(LogPipeDepth)  count <- mkCounter(0);
 
-    MultRaw                  mult <- mkMultRaw;
+    MultRaw                  mult <- mkMultRawTD;
 
     Bit#(LogPipeDepth) maxCount = 2;
 
@@ -83,13 +82,12 @@ module mkMultiplierTD (MultiplierTD);
     endmethod
 endmodule
 
-interface MultRaw;
+interface MultRawTD;
     method Action put(Bool _valid, TData _x, TData _y);
     method Tuple2#(Bool, TData) get();
 endinterface
 
-(*synthesize*)
-module mkMultRaw (MultRaw);
+module mkMultRawTD (MultRawTD);
 
     Reg#(TData) x <- mkRegU();
     Reg#(TData) y <- mkRegU();

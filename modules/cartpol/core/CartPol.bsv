@@ -27,19 +27,10 @@ Author: Asif Khan
 
 import FIFOF::*;
 
-//`define COMPUTE_1
 
-`ifdef COMPUTE_1
-import ComputeTop::*;
-import Types::*;
 typedef TAdd#(IntWidthData, FracWidthData) DataWidth;
 typedef TAdd#(IntWidthTheta, FracWidthTheta) TDataWidth;
-`else
-import Compute::*;
-import ComputeTypes::*;
-typedef TAdd#(IntegralWidth, FractionWidth) DataWidth;
-typedef TAdd#(IntWidthTheta, FracWidthTheta) TDataWidth;
-`endif
+
 
 typedef struct {
     Bit#(1)  rnw;

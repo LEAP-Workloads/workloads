@@ -85,7 +85,7 @@ endfunction
 // Begin of Modules
 
 // CosAndSin, works only for 0<=angle<=pi/2
-module [Module] mkCORDICCosAndSin_Pipe#(Integer numStages,
+module  mkCORDICCosAndSin_Pipe#(Integer numStages,
                                         Integer steps)
    (CosAndSin#(i,f))
    provisos (Add#(xxA,2,i),
@@ -118,7 +118,7 @@ module [Module] mkCORDICCosAndSin_Pipe#(Integer numStages,
 
 endmodule
 
-module [Module] mkCORDICCosAndSin_Circ#(Integer numStages,
+module  mkCORDICCosAndSin_Circ#(Integer numStages,
                                         Integer steps)
    (CosAndSin#(i,f))
    provisos (Add#(xxA,2,i),
@@ -152,7 +152,7 @@ module [Module] mkCORDICCosAndSin_Circ#(Integer numStages,
 endmodule
 
 // Atan, works only for both x and y > 0
-module [Module] mkCORDICATan_Pipe#(Integer numStages,
+module  mkCORDICATan_Pipe#(Integer numStages,
                                    Integer steps)
    (ATan#(i,f))
    provisos (Add#(xxA,3,i), // at least 3 bits for -pi<=ans<=pi

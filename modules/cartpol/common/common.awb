@@ -3,6 +3,6 @@
 
 %provides cartpol_common
 
-%public CartPolTesterTypes.bsv
+%public CartPolTesterTypes.bsv PLBMasterDefaultParameters.bsv MemTypes.bsv ClientServerUtils.bsv Types.bsv
 
 

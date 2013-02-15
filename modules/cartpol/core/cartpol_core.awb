@@ -4,5 +4,5 @@
 %provides cartpol_core
 %requires cartpol_cordic
 
-%public CComputeTop.bsv  Compute.bsv ComputeTop.bsv  Core.bsv  InverseN.bsv  Multiplier.bsv  MultiplierNew.bsv    MultiplierTD.bsv  Types.bsv CartPol.bsv  ComputeCore.bsv  ComputeTypes.bsv  InvN.bsv    MultiplierInstances.bsv  MultiplierSynth.bsv  NewLutInv.bsv  
+%public ComputeTop.bsv  InverseN.bsv   MultiplierNew.bsv Core.bsv  MultiplierSynth.bsv  NewLutInv.bsv  
 

@@ -25,14 +25,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 Author: Myron King.
 */
 
-import PLBMaster::*;
-import PLBMasterDefaultParameters::*;
+`include "awb/provides/librl_bsv.bsh"
+`include "awb/provides/soft_connections.bsh"
+`include "awb/provides/soft_services.bsh"
+`include "awb/provides/soft_services_lib.bsh"
+`include "awb/provides/soft_services_deps.bsh"
+`include "awb/provides/cartpol_common.bsh"
+`include "awb/provides/mem_services.bsh"
+`include "awb/provides/common_services.bsh"
+`include "awb/dict/VDEV_SCRATCH.bsh"
+
 import FIFO::*;
 import GetPut::*;
-import MemTypes::*;
 import ClientServer::*;
 import Connectable::*;
-import ClientServerUtils::*;
 
 // this shim sits between the PLB and the cache.
 
@@ -41,40 +47,60 @@ interface PLBShim#(type mem_req_t, type mem_resp_t);
 endinterface
 
 
-module mkPLBShim#(PLBMaster plbMaster) (PLBShim#(MainMemReq,MainMemResp));
+module [CONNECTED_MODULE] mkPLBShim (PLBShim#(MainMemReq,MainMemResp));
    
-   Reg#(Bit#(TAdd#(1,TLog#(BeatsPerBurst))))  burstCnt <- mkReg(0);
-   FIFO#(Bit#(MainMemTagSz)) main_tags                 <- mkFIFO();
+   // We should add an initialization step. Since this workload is not data dependent, the actual values don't matter though.
+
+   MEMORY_IFC#(Bit#(TSub#(MainMemAddrSz,3)), Bit#(MainMemDataSz)) dataStore <- mkScratchpad(`VDEV_SCRATCH_BANK_A, SCRATCHPAD_CACHED);
+
+   Reg#(Bit#(TLog#(BeatsPerBurst)))     burstCnt <- mkReg(0);
+   FIFO#(Bit#(MainMemTagSz))            main_tags <- mkSizedFIFO(valueof(BeatsPerBurst));
 
    FIFO#(MainMemReq)  cache_to_plb <- mkFIFO();
-   FIFO#(MainMemResp) plb_to_cache <- mkFIFO();
+   FIFO#(MainMemResp) plb_to_cache <- mkSizedFIFO(128);
    
    // only doing loads
-   rule req_to_plb (burstCnt==0);
-      let req = cache_to_plb.first();      
-      cache_to_plb.deq();
+   rule req_to_plb;
+      let req = cache_to_plb.first();            
       case (req) matches
 	 tagged LoadReq .ld :
 	    begin
-	       // plb master takes word addresses, hence the shift by two
-	       let cmd = tagged LoadPage zeroExtend((ld.addr)>>2);	 
+
+               // sanity check the data format.
+               if(ld.addr[2:0] != 0) 
+               begin
+                   $display("Loads were malformed");
+                   $finish;
+               end
+	      
+	       let addr = truncate((ld.addr >> 3) + zeroExtend(burstCnt));
 	       main_tags.enq(ld.tag);
-	       plbMaster.plbMasterCommandInput.put(cmd);
+	       dataStore.readReq(addr);
+
 	       $display("req_to_plb %x", ld.addr);
                //$display("burstCnt %d", valueOf(BeatsPerBurst));
-	       burstCnt <= fromInteger(valueOf(BeatsPerBurst));
+
+	       burstCnt <= burstCnt + 1;
+	       if(burstCnt + 1 == 0)
+	       begin
+                  cache_to_plb.deq();   
+               end
 	    end
+	 default:
+	    begin
+               $display("PLB Shim got a bogus request");
+               $finish;
+            end
       endcase
    endrule
    
    rule resp_from_plb (burstCnt > 0);
-      let word <- plbMaster.wordOutput.get();
+      let data <- dataStore.readRsp();
       //$display("resp_from_plb %x", word);
-      burstCnt <= burstCnt-1;
-      let resp = tagged LoadResp {tag:main_tags.first(),data:{word[31:0],word[63:32]}};
+      
+      let resp = tagged LoadResp {tag:main_tags.first(),data: data};
       plb_to_cache.enq(resp);
-      if (burstCnt-1 ==0)
-	 main_tags.deq();
+      main_tags.deq();
    endrule   
    
    interface Server mem_server = putGetToServer(fifoToPut(cache_to_plb),fifoToGet(plb_to_cache));

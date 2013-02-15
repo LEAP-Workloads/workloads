@@ -27,13 +27,18 @@
 //
 //----------------------------------------------------------------------//
 
+`include "awb/provides/librl_bsv.bsh"
+`include "awb/provides/soft_connections.bsh"
+`include "awb/provides/soft_services.bsh"
+`include "awb/provides/soft_services_lib.bsh"
+`include "awb/provides/soft_services_deps.bsh"
+`include "awb/provides/cartpol_common.bsh"
+`include "awb/provides/cartpol_cordic.bsh"
+
 import FIFOF::*;
 import Vector::*;
 import Types::*;
-import MultiplierNew::*;
-import FixedPointNew::*;
 import Connectable::*;
-import MultiplierSynth::*;
 
 interface RayGenerate;
    method Action put(RayInit _rayInit);
@@ -42,7 +47,6 @@ endinterface
 
 typedef enum {Req, Resp} State deriving (Bits, Eq);
 
-//(* synthesize *)
 module mkRayGenerate#(Multiplier#(PipeDepth, Data, TData, Data) mult0) (RayGenerate);
    //Reg#(Index) counter1 <- mkReg(0);
    Reg#(Index) counter2 <- mkReg(0);

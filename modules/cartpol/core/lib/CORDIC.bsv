@@ -111,8 +111,9 @@ endfunction
 /////////////////////////////////////////////////////////////////////////////////////////
 // Begin of Modules
 
-module [Module] mkCORDIC#(Module#(Pipeline#(CORDICData#(data_t, bypass_t))) mkP)
-              (CORDIC#(data_t,bypass_t));
+module [m] mkCORDIC#(m#(Pipeline#(CORDICData#(data_t, bypass_t))) mkP)
+              (CORDIC#(data_t,bypass_t)) 
+provisos (IsModule#(m, a__));
 
    Pipeline#(CORDICData#(data_t, bypass_t)) p <- mkP(); 
    
@@ -122,7 +123,7 @@ module [Module] mkCORDIC#(Module#(Pipeline#(CORDICData#(data_t, bypass_t))) mkP)
 endmodule
 
 // for making cordic pipeline
-module [Module] mkCORDIC_Pipe#(Integer numStages, 
+module  mkCORDIC_Pipe#(Integer numStages, 
                                Integer step,
                                CORDICMode m, 
                                function CORDICMode getDelta(CORDICData#(data_t, bypass_t) data),
@@ -144,7 +145,7 @@ module [Module] mkCORDIC_Pipe#(Integer numStages,
 endmodule                                             
    
 // for making cir cordic 
-module [Module] mkCORDIC_Circ#(Integer numStages, 
+module mkCORDIC_Circ#(Integer numStages, 
                                Integer step,
                                CORDICMode m, 
                                function CORDICMode getDelta(CORDICData#(data_t, bypass_t) data),

@@ -24,19 +24,21 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-package mkDataCacheBlockingBram;
+`include "awb/provides/librl_bsv.bsh"
+`include "awb/provides/soft_connections.bsh"
+`include "awb/provides/soft_services.bsh"
+`include "awb/provides/soft_services_lib.bsh"
+`include "awb/provides/soft_services_deps.bsh"
+`include "awb/provides/cartpol_common.bsh"
+`include "awb/provides/cartpol_cordic.bsh"
 
-import MemTypes::*;
-import ICache::*;
 import RegFile::*;
 import GetPut::*;
 import ClientServer::*;
 import FIFO::*;
 import FIFOF::*;
 import RWire::*;
-import PLBMasterDefaultParameters::*;
 import Vector::*;
-import BRAM::*;
 
 // May want to introduce BFIFO at some point.
 

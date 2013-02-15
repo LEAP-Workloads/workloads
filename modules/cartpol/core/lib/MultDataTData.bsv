@@ -50,8 +50,8 @@ typedef Bit#(TAdd#(DoubleITWidth, DoubleFTWidth)) DoubleDTDataBit;
 typedef 5 PipeDepthDTD;
 typedef TAdd#(PipeDepthDTD, 1) PipeDepthDTD1;
 typedef TAdd#(PipeDepthDTD, 2) PipeDepthDTD2;
-typedef TAdd#(PipeDepthDTD2, 2) Quota;
-typedef TAdd#(TLog#(Quota), 1) LogQuota;
+typedef TAdd#(PipeDepthDTD2, 2) QuotaT;
+typedef TAdd#(TLog#(QuotaT), 1) LogQuotaT;
 
 interface MultiplierDTData;
     method Action put(DTData x, DTData y);
@@ -60,12 +60,12 @@ endinterface
 
 (*synthesize*)
 module mkMultDataTData (MultiplierDTData);
-    Vector#(4,MultRaw)                  mult <- replicateM(mkMultRaw);
+    Vector#(4,MultRawT)                  mult <- replicateM(mkMultRawT);
     FIFO#(Tuple2#(DTData,DTData))         in <- mkFIFO;
-    FIFO#(DTData)                        out <- mkSizedFIFO(valueOf(Quota));
+    FIFO#(DTData)                        out <- mkSizedFIFO(valueOf(QuotaT));
     Reg#(DoubleDTDataBit)                 t1 <- mkRegU();
     Reg#(DoubleDTDataBit)                 t2 <- mkRegU();
-    Counter#(LogQuota)                 token <- mkCounter(fromInteger(valueOf(Quota)));
+    Counter#(LogQuotaT)                 token <- mkCounter(fromInteger(valueOf(QuotaT)));
     Reg#(Vector#(PipeDepthDTD2,Bool)) vldchk <- mkReg(replicate(False)); 
     RWire#(Bit#(0))                    sfin1 <- mkRWire;
 
@@ -115,12 +115,12 @@ module mkMultDataTData (MultiplierDTData);
     endmethod
 endmodule
 
-interface MultRaw;
+interface MultRawT;
     method Action put(HalfDTDataBit _x, HalfDTDataBit _y);
     method DTDataBit get();
 endinterface
 
-module mkMultRaw (MultRaw);
+module mkMultRawT (MultRawT);
     Reg#(HalfDTDataBit) x <- mkRegU();
     Reg#(HalfDTDataBit) y <- mkRegU();
 

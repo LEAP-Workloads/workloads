@@ -7,6 +7,9 @@
 %requires cartpol_cache
 %requires cartpol_core
 
-%public CartPolTesterCore.bsv  CartPolTesterFPGA.bsv
+%public CartPolTesterCore.bsv
+%public Control.rrr
+%public connected-application-test.cpp  
+%public connected-application-test.h 
 
 
