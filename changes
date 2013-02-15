@@ -633,3 +633,21 @@ Directory modules/cartpol/common
 
 
 A complete cartesian-polar convertor now compiles.
+
+----------
+kfleming    Date: Fri Feb 15 10:17:16 EST 2013  CSN: CSN-mmm-15
+                  Fri Feb 15 15:17:16 UTC 2013
+
+
+Directory modules/cartpol/cache
+ PLBShim.bsv               Locally Modified           14 
+
+Directory modules/cartpol/system
+ connected-application-test.cpp Locally Modified           14 
+
+
+Cartesian-polar conversion seems to work.
+
+1) Fixed a dataflow bug in the scratchpad interface.
+2) Improved testbench.
+

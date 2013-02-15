@@ -41,7 +41,7 @@ int
 CONNECTED_APPLICATION_CLASS::Main()
 {
     OUT_TYPE_ReadCycleCount result;
-    int N = 10;
+    int N = 20;
     double r = 10.0;
     double theta = PI/6;
     UINT64 r_val = *((UINT64*)&r);
@@ -53,6 +53,7 @@ CONNECTED_APPLICATION_CLASS::Main()
 
             do {
                 result = clientStub->ReadCycleCount(0);
+		sleep(1);
             }while(!result.done);
 
     STARTER_DEVICE_SERVER_CLASS::GetInstance()->End(0);

@@ -94,7 +94,7 @@ module [CONNECTED_MODULE] mkPLBShim (PLBShim#(MainMemReq,MainMemResp));
       endcase
    endrule
    
-   rule resp_from_plb (burstCnt > 0);
+   rule resp_from_plb;
       let data <- dataStore.readRsp();
       //$display("resp_from_plb %x", word);
       
