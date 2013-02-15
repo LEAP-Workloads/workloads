@@ -44,6 +44,7 @@ import Connectable::*;
 
 interface PLBShim#(type mem_req_t, type mem_resp_t);
    interface Server#(mem_req_t,mem_resp_t) mem_server;   
+   method Bool initialized();
 endinterface
 
 
@@ -56,11 +57,25 @@ module [CONNECTED_MODULE] mkPLBShim (PLBShim#(MainMemReq,MainMemResp));
    Reg#(Bit#(TLog#(BeatsPerBurst)))     burstCnt <- mkReg(0);
    FIFO#(Bit#(MainMemTagSz))            main_tags <- mkSizedFIFO(valueof(BeatsPerBurst));
 
+   Reg#(Bool) init <- mkReg(False);
+   Reg#(Bit#(TSub#(MainMemAddrSz,3))) initAddr <- mkReg(0);
+
+
    FIFO#(MainMemReq)  cache_to_plb <- mkFIFO();
    FIFO#(MainMemResp) plb_to_cache <- mkSizedFIFO(128);
    
+   rule doInit(!init);
+       dataStore.write(initAddr,0);
+       initAddr <= initAddr + 1;
+       if(initAddr + 1 == 0)
+       begin
+           init <= True;
+       end
+   endrule
+
+
    // only doing loads
-   rule req_to_plb;
+   rule req_to_plb if(init);
       let req = cache_to_plb.first();            
       case (req) matches
 	 tagged LoadReq .ld :
@@ -105,4 +120,5 @@ module [CONNECTED_MODULE] mkPLBShim (PLBShim#(MainMemReq,MainMemResp));
    
    interface Server mem_server = putGetToServer(fifoToPut(cache_to_plb),fifoToGet(plb_to_cache));
       
+   method initialized = init;
 endmodule

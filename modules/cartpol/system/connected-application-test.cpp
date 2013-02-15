@@ -36,25 +36,39 @@ typedef struct test TESTCASE;
 
 #define PI 3.14159
 
-// main                                                                                                                             
+// main                                                             
 int
 CONNECTED_APPLICATION_CLASS::Main()
 {
     OUT_TYPE_ReadCycleCount result;
-    int N = 20;
+    int N[] = {10, 18, 31, 55, 96, 169, 297, 523, 729, 921};
     double r = 10.0;
     double theta = PI/6;
-    UINT64 r_val = *((UINT64*)&r);
-    UINT64 theta_val = *((UINT64*)&theta);
     
+    // Send a start command down. 
+    // First - the size of the projection matrix (NxN)
+    // Second - the length of the radius in radians
+    // Third - the angle to be swept 
 
-    clientStub->PutCommand(N,r_val,theta_val);
 
+    for( int index = 0;  index < sizeof(N)/sizeof(int); index++) {
+        for(r = 10.0; r < 1000.0; r = r * 1.76) {
+            for(theta = PI/16; theta < PI/2; theta += PI/4) {
 
-            do {
-                result = clientStub->ReadCycleCount(0);
-		sleep(1);
-            }while(!result.done);
+                UINT64 r_val = *((UINT64*)&r);
+                UINT64 theta_val = *((UINT64*)&theta);    
+
+		printf("CARTPOL_START:%d:%f:%f\n", N[index], r, theta);
+                clientStub->PutCommand(N[index],r_val,theta_val);
+                do {
+                    result = clientStub->ReadCycleCount(0);
+                    sleep(1);
+                } while(!result.done);
+		
+		printf("CARTPOL:%d:%f:%f:%llu\n", N[index], r, theta, result.cycleCount);
+	    }
+	}
+    }
 
     STARTER_DEVICE_SERVER_CLASS::GetInstance()->End(0);
   

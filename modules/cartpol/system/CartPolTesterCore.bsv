@@ -86,9 +86,9 @@ module [CONNECTED_MODULE] mkConnectedApplication (Empty);
    Reg#(Float) r     <- mkRegU();
    Reg#(Float) theta <- mkRegU();   
   
-   rule start(state == Idle);
+   rule start(state == Idle && plbShim.initialized);
       let command <- serverStub.acceptRequest_PutCommand();       
-      serverStub.sendResponse_PutCommand(?);
+
       n <= unpack(truncate(command.n));	
       r <= unpack(command.r);
       theta <= unpack(command.theta);
