@@ -57,8 +57,7 @@ CONNECTED_APPLICATION_CLASS::Main()
 
                 UINT64 r_val = *((UINT64*)&r);
                 UINT64 theta_val = *((UINT64*)&theta);    
-
-		printf("CARTPOL_START:%d:%f:%f\n", N[index], r, theta);
+		
                 clientStub->PutCommand(N[index],r_val,theta_val);
                 do {
                     result = clientStub->ReadCycleCount(0);

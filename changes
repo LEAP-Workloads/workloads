@@ -680,3 +680,26 @@ Directory config/pm/cartpol
 
 Added ML605 target. The convertor works on the ML605.
 
+
+----------
+kfleming    Date: Wed Feb 20 12:22:00 EST 2013  CSN: CSN-mmm-18
+                  Wed Feb 20 17:22:00 UTC 2013
+
+
+Directory config/pm/cartpol
+ cartpol_scratchpad_ml605.apm Locally Added               0 
+ cartpol_scratchpad_exe.apm Locally Added               0 
+
+Directory modules/cartpol/cache
+ PLBShimNull.bsv           Locally Added               0 
+ cartpol_cache_dual_scratchpad.awb Locally Added               0 
+ CacheWrapperSplitDoublePumpScratchpad.bsv Locally Added               0 
+ memory.dic                Locally Modified           17 
+
+Directory modules/cartpol/system
+ connected-application-test.cpp Locally Modified           17 
+
+
+Added a different memory implementation for the Cart-Pol benchmark.
+This scratchpad-based implementation does outperform the baseline
+implementation in some cases, but it may need to be scaled up.
