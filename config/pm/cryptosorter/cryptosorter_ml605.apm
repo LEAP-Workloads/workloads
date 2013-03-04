@@ -72,3 +72,6 @@ Packagehint=multifpga
 [Hybrid ML605 PCIE FPGA Environment]
 File=config/pm/leap/submodels/fpgaenv/fpgaenv-hybrid-ml605-pcie.apm
 Packagehint=leap
+
+[Hybrid ML605 PCIE FPGA Environment/Params]
+MODEL_CLOCK_FREQ=60

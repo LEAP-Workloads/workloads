@@ -54,7 +54,7 @@ CONNECTED_APPLICATION_CLASS::Main()
     for( int index = 0;  index < sizeof(N)/sizeof(int); index++) {
         for(r = 10.0; r < 1000.0; r = r * 1.76) {
             for(theta = PI/16; theta < PI/2; theta += PI/4) {
-
+  	        stringstream filename;
                 UINT64 r_val = *((UINT64*)&r);
                 UINT64 theta_val = *((UINT64*)&theta);    
 		
@@ -65,6 +65,10 @@ CONNECTED_APPLICATION_CLASS::Main()
                 } while(!result.done);
 		
 		printf("CARTPOL:%d:%f:%f:%llu\n", N[index], r, theta, result.cycleCount);
+                filename << "cartpol_" << index << "_" << r << "_" << theta << ".stats";
+	        STATS_SERVER_CLASS::GetInstance()->DumpStats();
+	        STATS_SERVER_CLASS::GetInstance()->EmitFile(filename.str());
+	        STATS_SERVER_CLASS::GetInstance()->ResetStatValues();
 	    }
 	}
     }

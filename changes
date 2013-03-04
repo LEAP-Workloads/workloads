@@ -703,3 +703,23 @@ Directory modules/cartpol/system
 Added a different memory implementation for the Cart-Pol benchmark.
 This scratchpad-based implementation does outperform the baseline
 implementation in some cases, but it may need to be scaled up.
+
+----------
+kfleming    Date: Mon Mar  4 15:19:30 EST 2013  CSN: CSN-mmm-19
+                  Mon Mar  4 20:19:30 UTC 2013
+
+
+Directory config/pm/cryptosorter
+ cryptosorter_ml605.apm    Locally Modified           18 
+
+Directory modules/cryptosorter/Sorter
+ connected-application-test.cpp Locally Modified           18 
+
+Directory modules/cartpol/system
+ connected-application-test.cpp Locally Modified           18 
+
+
+1) added stats dumping code for cartpol and sorter
+
+2) Increased frequency of sorter (maybe we should also do this for cartpol).
+
