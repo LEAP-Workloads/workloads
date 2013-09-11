@@ -33,12 +33,14 @@ Author: Myron King.
 `include "awb/provides/cartpol_common.bsh"
 `include "awb/provides/mem_services.bsh"
 `include "awb/provides/common_services.bsh"
+`include "awb/provides/scratchpad_memory_common.bsh"
 `include "awb/dict/VDEV_SCRATCH.bsh"
 
 import FIFO::*;
 import GetPut::*;
 import ClientServer::*;
 import Connectable::*;
+import DefaultValue::*;
 
 // this shim sits between the PLB and the cache.
 
@@ -52,7 +54,8 @@ module [CONNECTED_MODULE] mkPLBShim (PLBShim#(MainMemReq,MainMemResp));
    
    // We should add an initialization step. Since this workload is not data dependent, the actual values don't matter though.
 
-   MEMORY_IFC#(Bit#(TSub#(MainMemAddrSz,3)), Bit#(MainMemDataSz)) dataStore <- mkScratchpad(`VDEV_SCRATCH_BANK_A, SCRATCHPAD_CACHED);
+   MEMORY_IFC#(Bit#(TSub#(MainMemAddrSz,3)), Bit#(MainMemDataSz)) dataStore <-
+       mkScratchpad(`VDEV_SCRATCH_BANK_A, defaultValue);
 
    Reg#(Bit#(TLog#(BeatsPerBurst)))     burstCnt <- mkReg(0);
    FIFO#(Bit#(MainMemTagSz))            main_tags <- mkSizedFIFO(valueof(BeatsPerBurst));

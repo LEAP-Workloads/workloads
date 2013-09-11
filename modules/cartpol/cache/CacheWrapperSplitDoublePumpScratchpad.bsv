@@ -34,6 +34,7 @@ Author: Kermin Fleming.
 `include "awb/provides/cartpol_cordic.bsh"
 `include "awb/provides/mem_services.bsh"
 `include "awb/provides/common_services.bsh"
+`include "awb/provides/scratchpad_memory_common.bsh"
 `include "awb/dict/VDEV_SCRATCH.bsh"
 
 import ClientServer::*;
@@ -42,6 +43,7 @@ import FIFO::*;
 import GetPut::*;
 import Vector::*;
 import Complex::*;
+import DefaultValue::*;
 
 // this module accepts a cartesian coordinate (x,y), fetches the
 // memory locations corresponding to coordinates
@@ -61,8 +63,8 @@ module [CONNECTED_MODULE] mkCacheWrapperSplitDoublePump#(Vector#(2,ICache#(DataR
    endfunction
    
    Vector#(2, MEMORY_IFC#(Bit#(TSub#(MainMemAddrSz,3)), Bit#(MainMemDataSz))) dataStore = newVector;
-   dataStore[0] <- mkScratchpad(`VDEV_SCRATCH_BANK_A, SCRATCHPAD_CACHED);
-   dataStore[1] <- mkScratchpad(`VDEV_SCRATCH_BANK_B, SCRATCHPAD_CACHED);
+   dataStore[0] <- mkScratchpad(`VDEV_SCRATCH_BANK_A, defaultValue);
+   dataStore[1] <- mkScratchpad(`VDEV_SCRATCH_BANK_B, defaultValue);
 
    FIFO#(Coord)     req_fifo <- mkFIFO();
    FIFO#(Bit#(32))  resp_fifo <- mkFIFO();

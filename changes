@@ -723,3 +723,21 @@ Directory modules/cartpol/system
 
 2) Increased frequency of sorter (maybe we should also do this for cartpol).
 
+
+----------
+mcadler     Date: Wed Sep 11 16:06:16 EDT 2013  CSN: CSN-mmm-20
+                  Wed Sep 11 20:06:16 UTC 2013
+
+
+Directory modules/cryptosorter/ExternalMemory
+ ExternalMemory.bsv        Locally Modified           19 
+ ExternalMemoryBanked.bsv  Locally Modified           19 
+
+Directory modules/cartpol/cache
+ PLBShim.bsv               Locally Modified           19 
+ CacheWrapperSplitDoublePumpScratchpad.bsv Locally Modified           19 
+
+Directory modules/mmm/hardware/PLBMaster
+ PLBMasterMagic.bsv        Locally Modified           19 
+
+New scratchpad parameters.

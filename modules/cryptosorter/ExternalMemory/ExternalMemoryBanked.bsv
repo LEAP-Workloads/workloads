@@ -39,6 +39,7 @@ Author: Kermin Fleming
 import Vector::*;
 import FIFOF::*;
 import GetPut::*;
+import DefaultValue::*;
 
 
 `include "awb/provides/cryptosorter_common.bsh"
@@ -50,6 +51,7 @@ import GetPut::*;
 `include "awb/provides/soft_services_deps.bsh"
 `include "awb/provides/mem_services.bsh"
 `include "awb/provides/common_services.bsh"
+`include "awb/provides/scratchpad_memory_common.bsh"
 `include "awb/dict/VDEV_SCRATCH.bsh"
 
 typedef enum {
@@ -62,8 +64,8 @@ module [CONNECTED_MODULE] mkExternalMemory (ExternalMemory);
     let recordsPerMemRequest = fromInteger(valueof(RecordsPerMemRequest));
 
     // we might want to partition this into two address spaces at some point ...
-    MEMORY_IFC#(Addr, Record) dataStoreA <- mkScratchpad(`VDEV_SCRATCH_BANK_A, SCRATCHPAD_CACHED);
-    MEMORY_IFC#(Addr, Record) dataStoreB <- mkScratchpad(`VDEV_SCRATCH_BANK_B, SCRATCHPAD_CACHED);
+    MEMORY_IFC#(Addr, Record) dataStoreA <- mkScratchpad(`VDEV_SCRATCH_BANK_A, defaultValue);
+    MEMORY_IFC#(Addr, Record) dataStoreB <- mkScratchpad(`VDEV_SCRATCH_BANK_B, defaultValue);
 
     Reg#(Bit#(TLog#(RecordsPerBlock))) readRespCount  <- mkReg(0);
     Reg#(Bit#(TAdd#(1,TLog#(RecordsPerBlock)))) writeCount <- mkReg(recordsPerMemRequest);

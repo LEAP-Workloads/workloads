@@ -31,6 +31,7 @@ import FIFO::*;
 import FIFOLevel::*;
 import FIFOF::*;
 import RegFile::*;
+import DefaultValue::*;
 
 // Project Imports
 
@@ -44,6 +45,7 @@ import RegFile::*;
 `include "awb/provides/soft_services_deps.bsh"
 `include "awb/provides/mem_services.bsh"
 `include "awb/provides/common_services.bsh"
+`include "awb/provides/scratchpad_memory_common.bsh"
 `include "awb/dict/VDEV_SCRATCH.bsh"
 `include "awb/provides/dynamic_parameters_service.bsh"
 `include "awb/dict/PARAMS_MMM_MEMORY_UNIT.bsh"
@@ -81,10 +83,10 @@ module [CONNECTED_MODULE] mkPLBMasterMagic (PLBMaster);
   FIFOF#(ComplexWord)       wordTokens  <- mkSizedFIFOF(64);
   FIFO#(PLBMasterCommand)  plbMasterCommandInfifo <- mkFIFO(); 
 
-  MEMORY_IFC#(Bit#(20), ComplexWord) matrixA       <- mkScratchpad(`VDEV_SCRATCH_MATRIXA, SCRATCHPAD_CACHED);
-  MEMORY_IFC#(Bit#(20), ComplexWord) matrixB       <- mkScratchpad(`VDEV_SCRATCH_MATRIXB, SCRATCHPAD_CACHED);
-  MEMORY_IFC#(Bit#(20), ComplexWord) matrixC       <- mkScratchpad(`VDEV_SCRATCH_MATRIXC, SCRATCHPAD_CACHED);
-  MEMORY_IFC#(Bit#(20), ComplexWord) matrixScratch <- mkScratchpad(`VDEV_SCRATCH_SCRATCH, SCRATCHPAD_CACHED);
+  MEMORY_IFC#(Bit#(20), ComplexWord) matrixA       <- mkScratchpad(`VDEV_SCRATCH_MATRIXA, defaultValue);
+  MEMORY_IFC#(Bit#(20), ComplexWord) matrixB       <- mkScratchpad(`VDEV_SCRATCH_MATRIXB, defaultValue);
+  MEMORY_IFC#(Bit#(20), ComplexWord) matrixC       <- mkScratchpad(`VDEV_SCRATCH_MATRIXC, defaultValue);
+  MEMORY_IFC#(Bit#(20), ComplexWord) matrixScratch <- mkScratchpad(`VDEV_SCRATCH_SCRATCH, defaultValue);
 
   FIFOCountIfc#(MatrixOrder, 64) matrixOrder <- mkFIFOCount();
 
