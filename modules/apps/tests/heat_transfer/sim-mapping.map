@@ -1,8 +1,8 @@
-model -> FPGA0;
-common_services -> FPGA0;
-connected_application -> FPGA0;
-hardware_system -> FPGA0;
-heat_transfer_control -> FPGA0;
-heat_transfer_local -> FPGA0;
-heat_transfer_remote -> FPGA1;
+model -> fpga0;
+common_services -> fpga0;
+connected_application -> fpga0;
+hardware_system -> fpga0;
+heat_transfer_control -> fpga0;
+heat_transfer_local -> fpga0;
+heat_transfer_remote -> fpga1;
 
