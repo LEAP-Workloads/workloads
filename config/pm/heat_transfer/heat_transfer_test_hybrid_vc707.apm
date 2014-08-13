@@ -59,30 +59,29 @@ heat_transfer_remote3=Heat Transfer Test Remote Module 3
 heat_transfer_remote1=Heat Transfer Test Remote Module 1
 
 [Heat Transfer Test Controller Module]
-File=modules/apps/tests/heat_transfer/heat-transfer-control.awb
-Packagehint=leap-debug
-
+File=modules/heat_transfer/heat-transfer-control.awb
+Packagehint=leap-workloads
 
 [Heat Transfer System]
-File=modules/apps/tests/heat_transfer/heat-transfer.awb
-Packagehint=leap-debug
+File=modules/heat_transfer/heat-transfer.awb
+Packagehint=leap-workloads
 
 [Heat Transfer Test Local Module]
-File=modules/apps/tests/heat_transfer/heat-transfer-local.awb
-Packagehint=leap-debug
+File=modules/heat_transfer/heat-transfer-local.awb
+Packagehint=leap-workloads
 
 [Heat Transfer Test Common]
-File=modules/apps/tests/heat_transfer/heat-transfer-common.awb
-Packagehint=leap-debug
+File=modules/heat_transfer/heat-transfer-common.awb
+Packagehint=leap-workloads
 
 [Heat Transfer Test Remote Module 1]
-File=modules/apps/tests/heat_transfer/heat-transfer-remote1.awb
-Packagehint=leap-debug
+File=modules/heat_transfer/heat-transfer-remote1.awb
+Packagehint=leap-workloads
 
 [Heat Transfer Test Remote Module 3]
-File=modules/apps/tests/heat_transfer/heat-transfer-remote3.awb
-Packagehint=leap-debug
+File=modules/heat_transfer/heat-transfer-remote3.awb
+Packagehint=leap-workloads
 
 [Heat Transfer Test Remote Module 2]
-File=modules/apps/tests/heat_transfer/heat-transfer-remote2.awb
-Packagehint=leap-debug
+File=modules/heat_transfer/heat-transfer-remote2.awb
+Packagehint=leap-workloads
