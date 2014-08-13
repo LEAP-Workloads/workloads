@@ -4,7 +4,7 @@ SaveParameters=0
 Description=has strange module alingments
 File=heat_transfer_test_hybrid_dual_vc707
 Version=2.2
-Name=Heat Transfer Multifpga Synthesis Test 
+Name=Heat Transfer Dual FPGA Synthesis Test 
 DefaultBenchmark=
 Type=Leap
 Class=Asim::Model
@@ -20,7 +20,7 @@ model=HW/SW Hybrid Multifpga Project Foundation
 connected_application=Default Software Connected Application
 environment_description=VC707 Dual FPGA Environment (SMA)
 build_pipeline=LIM Build Pipeline
-fpga_mapping=Heat Transfer Test Mapping
+fpga_mapping=Heat Transfer Test Mapping for Dual FPGA
 
 [HW/SW Hybrid Multifpga Project Foundation]
 File=modules/leap/build-support/project/project-multifpga.awb
@@ -48,10 +48,6 @@ hardware_system=Heat Transfer System
 [VC707 Dual FPGA Environment (SMA)]
 File=modules/leap-platforms/fpga-environments/vc707/vc707_dual_env.awb
 Packagehint=leap-multifpga
-
-[Heat Transfer Test Mapping]
-File=modules/heat_transfer/sim_mapping.awb
-Packagehint=leap-workloads
 
 [Heat Transfer System/Requires]
 heat_transfer_local=Heat Transfer Test Local Module
@@ -155,4 +151,8 @@ Packagehint=leap-workloads
 
 [Heat Transfer Test Remote Module 3]
 File=modules/heat_transfer/heat-transfer-remote3.awb
+Packagehint=leap-workloads
+
+[Heat Transfer Test Mapping for Dual FPGA]
+File=modules/heat_transfer/sim-mapping-dual.awb
 Packagehint=leap-workloads

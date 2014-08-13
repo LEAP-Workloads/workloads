@@ -20,7 +20,7 @@ model=HW/SW Hybrid Multifpga Project Foundation
 connected_application=Default Software Connected Application
 environment_description=Simulation Dual FPGA Environment with Dual Cache
 build_pipeline=LIM Build Pipeline
-fpga_mapping=Heat Transfer Test Mapping
+fpga_mapping=Heat Transfer Test Mapping for Dual FPGA
 
 [HW/SW Hybrid Multifpga Project Foundation]
 File=modules/leap/build-support/project/project-multifpga.awb
@@ -48,10 +48,6 @@ Packagehint=leap
 
 [Default Software Connected Application/Requires]
 hardware_system=Heat Transfer System
-
-[Heat Transfer Test Mapping]
-File=modules/heat_transfer/sim_mapping.awb
-Packagehint=leap-workloads
 
 [Heat Transfer System/Requires]
 heat_transfer_local=Heat Transfer Test Local Module
@@ -156,3 +152,11 @@ Packagehint=leap-workloads
 [Heat Transfer Test Remote Module 3]
 File=modules/heat_transfer/heat-transfer-remote3.awb
 Packagehint=leap-workloads
+
+[Heat Transfer Test Mapping for Dual FPGA]
+File=modules/heat_transfer/sim-mapping-dual.awb
+Packagehint=leap-workloads
+
+[Heat Transfer Test Common/Params]
+HEAT_TRANSFER_NUM_PARTITIONS=2
+HEAT_TRANSFER_REMOTE_PLATFORM_1_ID=1

@@ -56,10 +56,10 @@ module [CONNECTED_MODULE] mkHeatTransferTestRemote3 ()
     provisos (Bits#(MEM_ADDRESS, t_MEM_ADDR_SZ),
               Bits#(TEST_DATA, t_MEM_DATA_SZ));
 
-    Integer startEngineId = valueOf(REMOTE_START_ENGINE#(3));
-
-    if (valueOf(N_PARTITIONS) > 1)
+    if (valueOf(N_PARTITIONS) > 3)
     begin
+        Integer startEngineId = valueOf(REMOTE_START_ENGINE#(3));
+        
         Reg#(Bit#(TAdd#(TLog#(N_X_MAX_POINTS), 1))) numXPoints <- mkWriteValidatedReg();
         Reg#(Bit#(TAdd#(TLog#(N_Y_MAX_POINTS), 1))) numYPoints <- mkWriteValidatedReg();
     
