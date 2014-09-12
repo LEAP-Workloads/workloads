@@ -20,7 +20,7 @@ model=HW/SW Hybrid Multifpga Project Foundation
 connected_application=Default Software Connected Application
 environment_description=ACP Dual FPGA Env with Dual SRAM
 build_pipeline=LIM Build Pipeline
-fpga_mapping=Heat Transfer Test Mapping
+fpga_mapping=Heat Transfer Test Mapping for Dual FPGA
 
 [HW/SW Hybrid Multifpga Project Foundation]
 File=modules/leap/build-support/project/project-multifpga.awb
@@ -45,9 +45,6 @@ Packagehint=leap
 [Default Software Connected Application/Requires]
 hardware_system=Heat Transfer System
 
-[Heat Transfer Test Mapping]
-File=modules/apps/tests/heat_transfer/sim_mapping.awb
-Packagehint=leap-debug
 
 [Heat Transfer System/Requires]
 heat_transfer_local=Heat Transfer Test Local Module
@@ -57,18 +54,17 @@ heat_transfer_remote2=Heat Transfer Test Remote Module 2
 heat_transfer_remote3=Heat Transfer Test Remote Module 3
 heat_transfer_remote1=Heat Transfer Test Remote Module 1
 
-
 [Heat Transfer System]
-File=modules/apps/tests/heat_transfer/heat-transfer.awb
-Packagehint=leap-debug
+File=modules/heat_transfer/heat-transfer.awb
+Packagehint=leap-workloads
 
 [Heat Transfer Test Local Module]
-File=modules/apps/tests/heat_transfer/heat-transfer-local.awb
-Packagehint=leap-debug
+File=modules/heat_transfer/heat-transfer-local.awb
+Packagehint=leap-workloads
 
 [Heat Transfer Test Common]
-File=modules/apps/tests/heat_transfer/heat-transfer-common.awb
-Packagehint=leap-debug
+File=modules/heat_transfer/heat-transfer-common.awb
+Packagehint=leap-workloads
 
 [Little-Endian Unified Message Format]
 File=modules/bluespec/common/fpgaenv/virtual-platform/umf/little-endian/umf-little-endian.awb
@@ -95,8 +91,8 @@ File=modules/leap/build-support/build-pipelines/stages/lim_connect/lim-connect.a
 Packagehint=leap-multifpga
 
 [Heat Transfer Test Controller Module]
-File=modules/apps/tests/heat_transfer/heat-transfer-control.awb
-Packagehint=leap-debug
+File=modules/heat_transfer/heat-transfer-control.awb
+Packagehint=leap-workloads
 
 [Latency-insensitive Module Common Files]
 File=modules/leap/build-support/build-pipelines/stages/lim_connect/common/lim-common.awb
@@ -146,15 +142,18 @@ Packagehint=leap-multifpga
 File=modules/leap/build-support/build-pipelines/pipelines/multifpga/multifpga-build-pipeline.awb
 Packagehint=leap-multifpga
 
-
 [Heat Transfer Test Remote Module 1]
-File=modules/apps/tests/heat_transfer/heat-transfer-remote1.awb
-Packagehint=leap-debug
+File=modules/heat_transfer/heat-transfer-remote1.awb
+Packagehint=leap-workloads
 
 [Heat Transfer Test Remote Module 2]
-File=modules/apps/tests/heat_transfer/heat-transfer-remote2.awb
-Packagehint=leap-debug
+File=modules/heat_transfer/heat-transfer-remote2.awb
+Packagehint=leap-workloads
 
 [Heat Transfer Test Remote Module 3]
-File=modules/apps/tests/heat_transfer/heat-transfer-remote3.awb
-Packagehint=leap-debug
+File=modules/heat_transfer/heat-transfer-remote3.awb
+Packagehint=leap-workloads
+
+[Heat Transfer Test Mapping for Dual FPGA]
+File=modules/heat_transfer/sim-mapping-dual.awb
+Packagehint=leap-workloads
