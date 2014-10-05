@@ -73,12 +73,6 @@ module [CONNECTED_MODULE] mkHeatTransferTestLocal ()
     //
     // Allocate coherent scratchpads for heat engines
     //
-    COH_SCRATCH_CLIENT_CONFIG clientConf = defaultValue;
-    clientConf.cacheMode = (`HEAT_TRANSFER_TEST_PVT_CACHE_ENABLE != 0) ? COH_SCRATCH_CACHED : COH_SCRATCH_UNCACHED;
-    clientConf.multiController = (`HEAT_TRANSFER_TEST_MULTI_CONTROLLER_ENABLE == 1);
-    clientConf.requestMerging = (`HEAT_TRANSFER_TEST_REQ_MERGE_ENABLE == 1);
-
-    Vector#(N_LOCAL_ENGINES, DEBUG_FILE) debugLogMs = newVector();
     Vector#(N_LOCAL_ENGINES, DEBUG_FILE) debugLogEs = newVector();
     Vector#(N_LOCAL_ENGINES, MEMORY_WITH_FENCE_IFC#(MEM_ADDRESS, TEST_DATA)) memories = newVector();
     Vector#(N_LOCAL_ENGINES, HEAT_ENGINE_IFC#(MEM_ADDRESS)) engines = newVector();
@@ -88,18 +82,20 @@ module [CONNECTED_MODULE] mkHeatTransferTestLocal ()
         // N_LOCAL_ENGINES should be at least 1 and should not be larger than N_TOTAL_ENGINES
         error("Invalid number of local heat engines");
     end
-    
-    function String genDebugMemoryFileName(Integer id);
-        return "heat_engine_memory_"+integerToString(id)+".out";
-    endfunction
-    
+     
     function String genDebugEngineFileName(Integer id);
-        return "heat_engine_"+integerToString(id)+".out";
+        return "heat_engine_" + integerToString(id) + ".out";
     endfunction
-
-    function ActionValue#(MEMORY_WITH_FENCE_IFC#(MEM_ADDRESS, TEST_DATA)) doCurryCohClient(mFunction, x, y);
+    
+    function ActionValue#(MEMORY_WITH_FENCE_IFC#(MEM_ADDRESS, TEST_DATA)) doCurryCohClient(mFunction, id);
         actionvalue
-            let m <- mFunction(`VDEV_SCRATCH_HEAT_DATA, x, clientConf, y);
+            COH_SCRATCH_CLIENT_CONFIG client_conf = defaultValue;
+            client_conf.cacheMode = (`HEAT_TRANSFER_TEST_PVT_CACHE_ENABLE != 0) ? COH_SCRATCH_CACHED : COH_SCRATCH_UNCACHED;
+            client_conf.multiController = (`HEAT_TRANSFER_TEST_MULTI_CONTROLLER_ENABLE == 1);
+            client_conf.requestMerging = (`HEAT_TRANSFER_TEST_REQ_MERGE_ENABLE == 1);
+            client_conf.debugLogPath = tagged Valid ("heat_engine_memory_" + integerToString(id) + ".out");
+            client_conf.enableStatistics = tagged Valid ("heat_engine_memory_" + integerToString(id) + "_");
+            let m <- mFunction(`VDEV_SCRATCH_HEAT_DATA, client_conf);
             return m;
         endactionvalue
     endfunction
@@ -117,15 +113,11 @@ module [CONNECTED_MODULE] mkHeatTransferTestLocal ()
 
     if (valueOf(N_TOTAL_ENGINES)>1)
     begin
-        Vector#(N_LOCAL_ENGINES, String) debugLogMNames = genWith(genDebugMemoryFileName);
         Vector#(N_LOCAL_ENGINES, String) debugLogENames = genWith(genDebugEngineFileName);
-
-        debugLogMs <- mapM(mkDebugFile, debugLogMNames);
         debugLogEs <- mapM(mkDebugFile, debugLogENames);
        
-        Vector#(N_LOCAL_ENGINES, Integer) clientIds = genVector();
-        let mkCohClientVec = replicate(mkDebugCoherentScratchpadClient);
-        memories <- zipWith3M(doCurryCohClient, mkCohClientVec, clientIds, debugLogMs);
+        let mkCohClientVec = replicate(mkCoherentScratchpadClient);
+        memories <- zipWithM(doCurryCohClient, mkCohClientVec, genVector());
 
         let mkHeatEngineVec = replicate(mkHeatEngine);
         let engineConstructors = zipWith3(doCurryHeatEngineConstructor, mkHeatEngineVec, memories, debugLogEs);
@@ -136,9 +128,11 @@ module [CONNECTED_MODULE] mkHeatTransferTestLocal ()
         SCRATCHPAD_CONFIG sconf = defaultValue;
         sconf.cacheMode = SCRATCHPAD_CACHED;
         sconf.requestMerging = (`HEAT_TRANSFER_TEST_REQ_MERGE_ENABLE == 1);
-        debugLogMs[0] <- mkDebugFile("heat_engine_memory_0.out");
-        debugLogEs[0] <- mkDebugFile("heat_engine_0.out");
+        sconf.debugLogPath = tagged Valid "heat_engine_memory_0.out";
+        sconf.enableStatistics = tagged Valid "heat_engine_memory_0_";
+        
         MEMORY_IFC#(MEM_ADDRESS, TEST_DATA) memory <- mkScratchpad(`VDEV_SCRATCH_HEAT_DATA, sconf);
+        debugLogEs[0] <- mkDebugFile("heat_engine_0.out");
         engines[0]    <- mkHeatEnginePrivate(memory, debugLogEs[0]);
     end
 

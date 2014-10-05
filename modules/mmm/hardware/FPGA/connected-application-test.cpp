@@ -35,7 +35,7 @@ CONNECTED_APPLICATION_CLASS::Main()
 {
     //int Size = 64;
     int Size = 1<<9;
-    for(Size = 1<<6; Size < (1<<10); Size = Size << 1) 
+    for(Size = 1<<6; Size < (1<<8); Size = Size << 1) 
     {
         int BlockSize = 64;
         UInt64 a = (UInt64)aMatrix;

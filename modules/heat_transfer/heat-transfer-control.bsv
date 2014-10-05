@@ -62,6 +62,8 @@ module [CONNECTED_MODULE] mkHeatTransferTestController ()
         // Allocate coherent scratchpad controller for heat engines
         COH_SCRATCH_CONTROLLER_CONFIG controllerConf = defaultValue;
         controllerConf.cacheMode = (`HEAT_TRANSFER_TEST_PVT_CACHE_ENABLE != 0) ? COH_SCRATCH_CACHED : COH_SCRATCH_UNCACHED;
+        controllerConf.debugLogPath = tagged Valid "coherent_scratchpad_controller_local.out";
+        controllerConf.enableStatistics = tagged Valid "coherent_scratchpad_controller_local_";
         NumTypeParam#(t_MEM_ADDR_SZ) addr_size = ?;
         NumTypeParam#(t_MEM_DATA_SZ) data_size = ?;
         

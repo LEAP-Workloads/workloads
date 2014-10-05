@@ -154,5 +154,5 @@ File=modules/heat_transfer/heat-transfer-remote3.awb
 Packagehint=leap-workloads
 
 [Heat Transfer Test Mapping for Dual FPGA]
-File=modules/heat_transfer/sim-mapping-dual.awb
+File=modules/heat_transfer/fpga-mapping-dual.awb
 Packagehint=leap-workloads

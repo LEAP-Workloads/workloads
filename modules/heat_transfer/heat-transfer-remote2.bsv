@@ -82,6 +82,8 @@ module [CONNECTED_MODULE] mkHeatTransferTestRemote2 ()
             controllerConf.coherenceDomainID = `VDEV_COH_SCRATCH_HEAT;
             controllerConf.isMaster = False;
             controllerConf.partition = mkCohScratchControllerAddrPartition(baseAddr, addrRange, data_size); 
+            controllerConf.debugLogPath = tagged Valid "coherent_scratchpad_controller_remote2.out";
+            controllerConf.enableStatistics = tagged Valid "coherent_scratchpad_controller_remote2_";
             
             let originID <- getSynthesisBoundaryPlatformID();
             let platformID = (`FPGA_NUM_PLATFORMS != 1)? `HEAT_TRANSFER_REMOTE_PLATFORM_2_ID : 0;
@@ -93,25 +95,22 @@ module [CONNECTED_MODULE] mkHeatTransferTestRemote2 ()
         //
         // Allocate coherent scratchpads for heat engines
         //
-        COH_SCRATCH_CLIENT_CONFIG clientConf = defaultValue;
-        clientConf.cacheMode = (`HEAT_TRANSFER_TEST_PVT_CACHE_ENABLE != 0) ? COH_SCRATCH_CACHED : COH_SCRATCH_UNCACHED;
-        clientConf.multiController = (`HEAT_TRANSFER_TEST_MULTI_CONTROLLER_ENABLE == 1);
-        clientConf.requestMerging = (`HEAT_TRANSFER_TEST_REQ_MERGE_ENABLE == 1);
-        
-        function String genDebugMemoryFileName(Integer id);
-            return "heat_engine_memory_"+integerToString(id + startEngineId)+".out";
+        function ActionValue#(MEMORY_WITH_FENCE_IFC#(MEM_ADDRESS, TEST_DATA)) doCurryCohClient(mFunction, id);
+            actionvalue
+                Integer scratchpadID = (`HEAT_TRANSFER_TEST_MULTI_CONTROLLER_ENABLE == 1)? `VDEV_SCRATCH_HEAT_DATA3 : `VDEV_SCRATCH_HEAT_DATA;
+                COH_SCRATCH_CLIENT_CONFIG client_conf = defaultValue;
+                client_conf.cacheMode = (`HEAT_TRANSFER_TEST_PVT_CACHE_ENABLE != 0) ? COH_SCRATCH_CACHED : COH_SCRATCH_UNCACHED;
+                client_conf.multiController = (`HEAT_TRANSFER_TEST_MULTI_CONTROLLER_ENABLE == 1);
+                client_conf.requestMerging = (`HEAT_TRANSFER_TEST_REQ_MERGE_ENABLE == 1);
+                client_conf.debugLogPath = tagged Valid ("heat_engine_memory_" + integerToString(id + startEngineId) + ".out");
+                client_conf.enableStatistics = tagged Valid ("heat_engine_memory_" + integerToString(id + startEngineId) + "_");
+                let m <- mFunction(scratchpadID, client_conf);
+                return m;
+            endactionvalue
         endfunction
         
         function String genDebugEngineFileName(Integer id);
             return "heat_engine_"+integerToString(id + startEngineId)+".out";
-        endfunction
-
-        function ActionValue#(MEMORY_WITH_FENCE_IFC#(MEM_ADDRESS, TEST_DATA)) doCurryCohClient(mFunction, x, y);
-            actionvalue
-                Integer scratchpadID = (`HEAT_TRANSFER_TEST_MULTI_CONTROLLER_ENABLE == 1)? `VDEV_SCRATCH_HEAT_DATA3 : `VDEV_SCRATCH_HEAT_DATA;
-                let m <- mFunction(scratchpadID, x + startEngineId, clientConf, y);
-                return m;
-            endactionvalue
         endfunction
 
         function doCurryHeatEngineConstructor(mFunction, x, y);
@@ -125,15 +124,12 @@ module [CONNECTED_MODULE] mkHeatTransferTestRemote2 ()
             endactionvalue
         endfunction
         
-        Vector#(N_ENGINES_PER_PARTITION, String) debugLogMNames = genWith(genDebugMemoryFileName);
         Vector#(N_ENGINES_PER_PARTITION, String) debugLogENames = genWith(genDebugEngineFileName);
-        Vector#(N_ENGINES_PER_PARTITION, DEBUG_FILE) debugLogMs <- mapM(mkDebugFile, debugLogMNames); 
         Vector#(N_ENGINES_PER_PARTITION, DEBUG_FILE) debugLogEs <- mapM(mkDebugFile, debugLogENames);
 
-        Vector#(N_ENGINES_PER_PARTITION, Integer) clientIds = genVector();
-        let mkCohClientVec = replicate(mkDebugCoherentScratchpadClient);
+        let mkCohClientVec = replicate(mkCoherentScratchpadClient);
         Vector#(N_ENGINES_PER_PARTITION, MEMORY_WITH_FENCE_IFC#(MEM_ADDRESS, TEST_DATA)) memories <- 
-            zipWith3M(doCurryCohClient, mkCohClientVec, clientIds, debugLogMs);
+            zipWithM(doCurryCohClient, mkCohClientVec, genVector());
 
         let mkHeatEngineVec = replicate(mkHeatEngine);
         let engineConstructors = zipWith3(doCurryHeatEngineConstructor, mkHeatEngineVec, memories, debugLogEs);
