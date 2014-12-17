@@ -31,23 +31,24 @@
 import Vector::*;
 import DefaultValue::*;
 
-`include "asim/provides/librl_bsv.bsh"
+`include "awb/provides/librl_bsv.bsh"
 
-`include "asim/provides/soft_connections.bsh"
+`include "awb/provides/soft_connections.bsh"
 `include "awb/provides/soft_services.bsh"
 `include "awb/provides/soft_services_lib.bsh"
 `include "awb/provides/soft_services_deps.bsh"
 
-`include "asim/provides/mem_services.bsh"
-`include "asim/provides/common_services.bsh"
+`include "awb/provides/mem_services.bsh"
+`include "awb/provides/common_services.bsh"
 `include "awb/provides/scratchpad_memory_common.bsh"
-`include "asim/provides/coherent_scratchpad_memory_service.bsh"
-`include "asim/provides/heat_transfer_common_params.bsh"
+`include "awb/provides/shared_scratchpad_memory_common.bsh"
+`include "awb/provides/coherent_scratchpad_memory_service.bsh"
+`include "awb/provides/heat_transfer_common_params.bsh"
 `include "awb/provides/heat_transfer_common.bsh"
 
-`include "asim/dict/VDEV_SCRATCH.bsh"
-`include "asim/dict/VDEV_COH_SCRATCH.bsh"
-`include "asim/dict/PARAMS_HEAT_TRANSFER_COMMON.bsh"
+`include "awb/dict/VDEV_SCRATCH.bsh"
+`include "awb/dict/VDEV_COH_SCRATCH.bsh"
+`include "awb/dict/PARAMS_HEAT_TRANSFER_COMMON.bsh"
 
 
 //
@@ -75,14 +76,16 @@ module [CONNECTED_MODULE] mkHeatTransferTestController ()
             Bit#(TAdd#(TLog#(N_Y_MAX_POINTS), 1)) numRowsPerEngine = numYPoints >> valueOf(TLog#(N_Y_ENGINES));
             MEM_ADDRESS numPointsPerEngine = unpack(zeroExtend(numColsPerEngine)*zeroExtend(numRowsPerEngine));
 
-            COH_SCRATCH_MEM_ADDRESS baseAddr  = 0;
-            COH_SCRATCH_MEM_ADDRESS addrRange = zeroExtendNP(pack(numPointsPerEngine)) << valueOf(TAdd#(TLog#(N_LOCAL_ENGINES), 1));
+            SHARED_SCRATCH_MEM_ADDRESS baseAddr  = 0;
+            SHARED_SCRATCH_MEM_ADDRESS addrRange = zeroExtendNP(pack(numPointsPerEngine)) << valueOf(TAdd#(TLog#(N_LOCAL_ENGINES), 1));
 
             controllerConf.multiController = True;
             controllerConf.coherenceDomainID = `VDEV_COH_SCRATCH_HEAT;
             controllerConf.isMaster = True;
-            controllerConf.partition = mkCohScratchControllerAddrPartition(baseAddr, addrRange, data_size); 
-        
+            controllerConf.partition = (`HEAT_TRANSFER_TEST_PVT_CACHE_ENABLE != 0) ? 
+                                       mkCohScratchControllerAddrPartition(baseAddr, addrRange, data_size):
+                                       mkUncachedSharedScratchControllerAddrPartition(baseAddr, addrRange);
+
             // Dynamic parameters.
             PARAMETER_NODE paramNode <- mkDynamicParameterNode();
             Param#(16) numXParam <- mkDynamicParameter(`PARAMS_HEAT_TRANSFER_COMMON_HEAT_TRANSFER_TEST_X_POINTS, paramNode);

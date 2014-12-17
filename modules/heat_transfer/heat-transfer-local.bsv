@@ -41,6 +41,7 @@ import DefaultValue::*;
 `include "awb/provides/mem_services.bsh"
 `include "awb/provides/common_services.bsh"
 `include "awb/provides/scratchpad_memory_common.bsh"
+`include "awb/provides/shared_scratchpad_memory_common.bsh"
 `include "awb/provides/coherent_scratchpad_memory_service.bsh"
 `include "awb/provides/lock_sync_service.bsh"
 `include "awb/provides/heat_transfer_common_params.bsh"

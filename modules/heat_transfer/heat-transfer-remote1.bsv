@@ -31,23 +31,24 @@
 import Vector::*;
 import DefaultValue::*;
 
-`include "asim/provides/librl_bsv.bsh"
+`include "awb/provides/librl_bsv.bsh"
 
-`include "asim/provides/soft_connections.bsh"
+`include "awb/provides/soft_connections.bsh"
 `include "awb/provides/soft_services.bsh"
 `include "awb/provides/soft_services_lib.bsh"
 `include "awb/provides/soft_services_deps.bsh"
 
-`include "asim/provides/mem_services.bsh"
-`include "asim/provides/common_services.bsh"
+`include "awb/provides/mem_services.bsh"
+`include "awb/provides/common_services.bsh"
 `include "awb/provides/scratchpad_memory_common.bsh"
-`include "asim/provides/coherent_scratchpad_memory_service.bsh"
-`include "asim/provides/heat_transfer_common_params.bsh"
+`include "awb/provides/shared_scratchpad_memory_common.bsh"
+`include "awb/provides/coherent_scratchpad_memory_service.bsh"
+`include "awb/provides/heat_transfer_common_params.bsh"
 `include "awb/provides/heat_transfer_common.bsh"
 
-`include "asim/dict/VDEV_SCRATCH.bsh"
-`include "asim/dict/VDEV_COH_SCRATCH.bsh"
-`include "asim/dict/PARAMS_HEAT_TRANSFER_COMMON.bsh"
+`include "awb/dict/VDEV_SCRATCH.bsh"
+`include "awb/dict/VDEV_COH_SCRATCH.bsh"
+`include "awb/dict/PARAMS_HEAT_TRANSFER_COMMON.bsh"
 
 //
 // Implement a heat transfer test
@@ -73,15 +74,17 @@ module [CONNECTED_MODULE] mkHeatTransferTestRemote1 ()
             NumTypeParam#(t_MEM_DATA_SZ) data_size = ?;
             MEM_ADDRESS numPointsPerEngine = zeroExtend(numColsPerEngine)*zeroExtend(numRowsPerEngine);
 
-            COH_SCRATCH_MEM_ADDRESS baseAddr  = zeroExtendNP(pack(numPointsPerEngine)) * fromInteger(startEngineId*2);
-            COH_SCRATCH_MEM_ADDRESS addrRange = zeroExtendNP(pack(numPointsPerEngine)) << valueOf(TAdd#(TLog#(N_ENGINES_PER_PARTITION), 1));
+            SHARED_SCRATCH_MEM_ADDRESS baseAddr  = zeroExtendNP(pack(numPointsPerEngine)) * fromInteger(startEngineId*2);
+            SHARED_SCRATCH_MEM_ADDRESS addrRange = zeroExtendNP(pack(numPointsPerEngine)) << valueOf(TAdd#(TLog#(N_ENGINES_PER_PARTITION), 1));
             
             COH_SCRATCH_CONTROLLER_CONFIG controllerConf = defaultValue;
             controllerConf.cacheMode = (`HEAT_TRANSFER_TEST_PVT_CACHE_ENABLE != 0) ? COH_SCRATCH_CACHED : COH_SCRATCH_UNCACHED;
             controllerConf.multiController = True;
             controllerConf.coherenceDomainID = `VDEV_COH_SCRATCH_HEAT;
             controllerConf.isMaster = False;
-            controllerConf.partition = mkCohScratchControllerAddrPartition(baseAddr, addrRange, data_size); 
+            controllerConf.partition = (`HEAT_TRANSFER_TEST_PVT_CACHE_ENABLE != 0) ? 
+                                       mkCohScratchControllerAddrPartition(baseAddr, addrRange, data_size):
+                                       mkUncachedSharedScratchControllerAddrPartition(baseAddr, addrRange);
             controllerConf.debugLogPath = tagged Valid "coherent_scratchpad_controller_remote1.out";
             controllerConf.enableStatistics = tagged Valid "coherent_scratchpad_controller_remote1_";
             
