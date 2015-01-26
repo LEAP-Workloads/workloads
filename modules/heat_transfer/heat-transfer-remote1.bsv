@@ -144,6 +144,11 @@ module [CONNECTED_MODULE] mkHeatTransferTestRemote1 ()
         PARAMETER_NODE paramNode <- mkDynamicParameterNode();
         Param#(16) numXParam <- mkDynamicParameter(`PARAMS_HEAT_TRANSFER_COMMON_HEAT_TRANSFER_TEST_X_POINTS, paramNode);
         Param#(16) numYParam <- mkDynamicParameter(`PARAMS_HEAT_TRANSFER_COMMON_HEAT_TRANSFER_TEST_Y_POINTS, paramNode);
+        // Verbose mode
+        //  0 -- quiet
+        //  1 -- verbose
+        Param#(1) verboseMode <- mkDynamicParameter(`PARAMS_HEAT_TRANSFER_COMMON_HEAT_TRANSFER_TEST_VERBOSE, paramNode);
+        let verbose = verboseMode == 1;
         
         Reg#(Bit#(5))  bidX               <- mkReg(0);
         Reg#(Bit#(5))  bidY               <- mkReg(0);
@@ -165,6 +170,7 @@ module [CONNECTED_MODULE] mkHeatTransferTestRemote1 ()
                 engines[resize(engineID - fromInteger(startEngineId))].setFrameSize(unpack(zeroExtend(numXPoints)), unpack(zeroExtend(numYPoints)));
                 engines[resize(engineID - fromInteger(startEngineId))].setAddrX(addr_x, addr_x + zeroExtend(numColsPerEngine) - 1);
                 engines[resize(engineID - fromInteger(startEngineId))].setAddrY(addr_y, addr_y + zeroExtend(numRowsPerEngine) - 1);
+                engines[resize(engineID - fromInteger(startEngineId))].setVerboseMode(verbose);
                 debugLog.record($format("blockIdInit: engineID: %2d, addrX: 0x%x, addrY: 0x%x", engineID, addr_x, addr_y));
             end
             if (engineID == fromInteger(startEngineId + valueOf(N_ENGINES_PER_PARTITION) - 1))

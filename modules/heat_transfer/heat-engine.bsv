@@ -57,6 +57,7 @@ interface HEAT_ENGINE_IFC#(type t_ADDR);
     method Action setFrameSize(t_ADDR x, t_ADDR y);
     method Action setAddrX(t_ADDR startX, t_ADDR endX);
     method Action setAddrY(t_ADDR startY, t_ADDR endY);
+    method Action setVerboseMode(Bool verbose);
     method Bool initialized();
     method Bool done();
 endinterface
@@ -97,6 +98,7 @@ module [CONNECTED_MODULE] mkHeatEngine#(MEMORY_WITH_FENCE_IFC#(t_ADDR, t_DATA) c
     Reg#(Bit#(16)) numIter                           <- mkReg(0);
     Reg#(Bit#(16)) maxIter                           <- mkReg(0);
     Reg#(Bit#(32)) cycleCnt                          <- mkReg(0);
+    Reg#(Bool)     verboseMode                       <- mkReg(False);
     Reg#(Bit#(N_SYNC_NODES)) barrierInitValue        <- mkReg(0);
     Reg#(t_ADDR_MAX_X) startAddrX                    <- mkReg(0);
     Reg#(t_ADDR_MAX_Y) startAddrY                    <- mkReg(0);
@@ -109,6 +111,10 @@ module [CONNECTED_MODULE] mkHeatEngine#(MEMORY_WITH_FENCE_IFC#(t_ADDR, t_DATA) c
     Reg#(t_ADDR_MAX_Y) frameSizeY                    <- mkReg(0);
     Reg#(Bit#(TAdd#(t_ADDR_MAX_X_SZ, 1))) rowLength  <- mkReg(0);
 
+    // Standard Output
+    STDIO#(Bit#(64)) stdio <- mkStdIO();
+    let msgTest <- getGlobalStringUID("heatEngine: engine id: %02d, addr=0x%08x, val=0x%08x\n");
+    
     // addr function
     function t_ADDR calAddr(t_ADDR_MAX_X rx, t_ADDR_MAX_Y ry, Bit#(1) b);
         Bit#(TAdd#(TAdd#(t_ADDR_MAX_X_SZ, 1), t_ADDR_MAX_Y_SZ)) pixel_addr = (zeroExtend(ry) * zeroExtend(rowLength)) + zeroExtend(rx); 
@@ -353,6 +359,10 @@ module [CONNECTED_MODULE] mkHeatEngine#(MEMORY_WITH_FENCE_IFC#(t_ADDR, t_DATA) c
             Bool read_bit = unpack(truncate(numIter));
             let addr = calAddr(writeAddrX, writeAddrY, pack(!(read_bit)));
             cohMem.write(addr, new_value);
+            if (verboseMode)
+            begin
+                stdio.printf(msgTest, list3(fromInteger(engineId), zeroExtendNP(pack(addr)), zeroExtendNP(pack(new_value))));
+            end
             debugLog.record($format("write: addr_x=0x%x, addr_y=0x%x, addr=0x%x, value=0x%x", 
                             writeAddrX, writeAddrY, addr, new_value));
             let new_head_addr = incrSetAddr(headAddr);
@@ -470,6 +480,10 @@ module [CONNECTED_MODULE] mkHeatEngine#(MEMORY_WITH_FENCE_IFC#(t_ADDR, t_DATA) c
         end
     endmethod
 
+    method Action setVerboseMode(Bool verbose);
+        verboseMode <= verbose;
+    endmethod
+
     method Bool initialized() = initDone;
     method Bool done() = allDone;
 endmodule
@@ -513,6 +527,10 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
     Reg#(t_ADDR_MAX_Y) frameSizeY                    <- mkReg(0);
     Reg#(Bit#(TAdd#(t_ADDR_MAX_X_SZ, 1))) rowLength  <- mkReg(0);
 
+    // Standard Output
+    STDIO#(Bit#(64)) stdio <- mkStdIO();
+    let msgTest <- getGlobalStringUID("heatEngine: engine id: 0, addr=0x%08x, val=0x%08x\n");
+    
     // addr function
     function t_ADDR calAddr(t_ADDR_MAX_X rx, t_ADDR_MAX_Y ry, Bit#(1) b);
         Bit#(TAdd#(TAdd#(t_ADDR_MAX_X_SZ, 1), t_ADDR_MAX_Y_SZ)) pixel_addr = (zeroExtend(ry) * zeroExtend(rowLength)) + zeroExtend(rx); 
@@ -617,6 +635,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
     Reg#(Tuple2#(Bool, Bit#(3))) tailAddr   <- mkReg(unpack(0));
     Reg#(t_ADDR_MAX_X)           writeAddrX <- mkReg(0);
     Reg#(t_ADDR_MAX_Y)           writeAddrY <- mkReg(0);
+    Reg#(Bool)                  verboseMode <- mkReg(False);
     PulseWire                    reqFullW   <- mkPulseWire();
 
     // increase set addr (head/tail)
@@ -754,6 +773,10 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
             Bool read_bit = unpack(truncate(numIter));
             let addr = calAddr(writeAddrX, writeAddrY, pack(!(read_bit)));
             cohMem.write(addr, new_value);
+            if (verboseMode)
+            begin
+                stdio.printf(msgTest, list2(zeroExtendNP(pack(addr)), zeroExtendNP(pack(new_value))));
+            end
             debugLog.record($format("write: addr_x=0x%x, addr_y=0x%x, addr=0x%x, value=0x%x", 
                             writeAddrX, writeAddrY, addr, new_value));
             let new_head_addr = incrSetAddr(headAddr);
@@ -841,6 +864,10 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
     
     method Action setBarrier(Bit#(N_SYNC_NODES) barrier);
         noAction;
+    endmethod
+    
+    method Action setVerboseMode(Bool verbose);
+        verboseMode <= verbose;
     endmethod
 
     method Bool initialized() = initDone;
