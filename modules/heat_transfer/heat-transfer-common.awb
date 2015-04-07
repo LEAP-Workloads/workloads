@@ -19,6 +19,7 @@
 %param --global HEAT_TRANSFER_REMOTE_PLATFORM_3_ID          0  "platform ID for remote partition 3"
 
 %param --global HEAT_TRANSFER_TEST_PVT_CACHE_ENABLE         1  "0: disable, 1: enable private caches"
+%param --global HEAT_TRANSFER_TEST_PVT_CACHE_ENTRIES        0  "0: default, other: number of private cache words"
 %param --global HEAT_TRANSFER_TEST_MULTI_CONTROLLER_ENABLE  0  "0: disable, 1: enable multiple coherent scratchpad controllers"
 %param --global HEAT_TRANSFER_TEST_REQ_MERGE_ENABLE         1  "0: disable, 1: enable request merging"
 

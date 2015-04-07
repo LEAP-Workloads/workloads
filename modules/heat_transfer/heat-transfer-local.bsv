@@ -92,6 +92,11 @@ module [CONNECTED_MODULE] mkHeatTransferTestLocal ()
         actionvalue
             COH_SCRATCH_CLIENT_CONFIG client_conf = defaultValue;
             client_conf.cacheMode = (`HEAT_TRANSFER_TEST_PVT_CACHE_ENABLE != 0) ? COH_SCRATCH_CACHED : COH_SCRATCH_UNCACHED;
+            if (`HEAT_TRANSFER_TEST_PVT_CACHE_ENTRIES != 0)
+            begin
+                client_conf.cacheEntries = `HEAT_TRANSFER_TEST_PVT_CACHE_ENTRIES;
+            end
+
             client_conf.multiController = (`HEAT_TRANSFER_TEST_MULTI_CONTROLLER_ENABLE == 1);
             client_conf.requestMerging = (`HEAT_TRANSFER_TEST_REQ_MERGE_ENABLE == 1);
             client_conf.debugLogPath = tagged Valid ("heat_engine_memory_" + integerToString(id) + ".out");
@@ -128,6 +133,11 @@ module [CONNECTED_MODULE] mkHeatTransferTestLocal ()
     begin
         SCRATCHPAD_CONFIG sconf = defaultValue;
         sconf.cacheMode = SCRATCHPAD_CACHED;
+        if (`HEAT_TRANSFER_TEST_PVT_CACHE_ENTRIES != 0)
+        begin
+            sconf.cacheEntries = `HEAT_TRANSFER_TEST_PVT_CACHE_ENTRIES;
+        end
+
         sconf.requestMerging = (`HEAT_TRANSFER_TEST_REQ_MERGE_ENABLE == 1);
         sconf.debugLogPath = tagged Valid "heat_engine_memory_0.out";
         sconf.enableStatistics = tagged Valid "heat_engine_memory_0_";
