@@ -15,5 +15,5 @@ typedef TMul#(N_ENGINES_PER_PARTITION, n) REMOTE_START_ENGINE#(numeric type n);
 
 typedef TMul#(N_X_MAX_POINTS, N_Y_MAX_POINTS)  N_TOTAL_MAX_POINTS;
 typedef Bit#(TAdd#(TAdd#(TLog#(N_X_MAX_POINTS),TLog#(N_Y_MAX_POINTS)),2)) MEM_ADDRESS;
-typedef Bit#(8) TEST_DATA;
+typedef Bit#(`HEAT_TRANSFER_DATA_SIZE) TEST_DATA;
 

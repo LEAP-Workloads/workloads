@@ -8,6 +8,7 @@
 %public heat-transfer-common.bsv
 %public heat-engine.bsv
 
+%param --global HEAT_TRANSFER_DATA_SIZE                     8  "Size (bits) of each entry"
 %param --global HEAT_TRANSFER_X_ENGINE                      1  "number of X engines"
 %param --global HEAT_TRANSFER_Y_ENGINE                      2  "number of Y engines"
 %param --global HEAT_TRANSFER_X_MAX_POINTS                512  "maximum number of X pixels"

@@ -691,7 +691,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
         cohMem.readReq(addr);
         testReqQ.enq(testPhase-1);
         testPhase <= testPhase + 1;
-        debugLog.record($format("read: addr_x=0x%x, addr_y=0x%x, addr=0x%x", testAddrX-1, testAddrY, addr));
+        debugLog.record($format("read1: addr_x=0x%x, addr_y=0x%x, addr=0x%x", testAddrX-1, testAddrY, addr));
     endrule
 
     rule testPhase2 (initDone && !issueDone && (testPhase == 2));
@@ -699,7 +699,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
         cohMem.readReq(addr);
         testReqQ.enq(testPhase-1);
         testPhase <= testPhase + 1;
-        debugLog.record($format("read: addr_x=0x%x, addr_y=0x%x, addr=0x%x", testAddrX, testAddrY, addr));
+        debugLog.record($format("read2: addr_x=0x%x, addr_y=0x%x, addr=0x%x", testAddrX, testAddrY, addr));
     endrule
     
     rule testPhase3 (initDone && !issueDone && (testPhase == 3) && !reqFullW);
@@ -707,7 +707,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
         cohMem.readReq(addr);
         testReqQ.enq(testPhase-1);
         testPhase <= testPhase + 1;
-        debugLog.record($format("read: addr_x=0x%x, addr_y=0x%x, addr=0x%x", testAddrX, testAddrY-1, addr));
+        debugLog.record($format("read3: addr_x=0x%x, addr_y=0x%x, addr=0x%x", testAddrX, testAddrY-1, addr));
     endrule
     
     rule testPhase4 (initDone && !issueDone && (testPhase == 4));
@@ -715,7 +715,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
         cohMem.readReq(addr);
         testReqQ.enq(testPhase-1);
         testPhase <= testPhase + 1;
-        debugLog.record($format("read: addr_x=0x%x, addr_y=0x%x, addr=0x%x", testAddrX, testAddrY+1, addr));
+        debugLog.record($format("read4: addr_x=0x%x, addr_y=0x%x, addr=0x%x", testAddrX, testAddrY+1, addr));
     endrule
     
     rule testPhase5 (initDone && !issueDone && (testPhase == 5));
@@ -723,7 +723,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
         let addr = calAddr(new_x, testAddrY, truncate(numIter));
         cohMem.readReq(addr);
         testReqQ.enq(testPhase-1);
-        debugLog.record($format("read: addr_x=0x%x, addr_y=0x%x, addr=0x%x", new_x, testAddrY, addr));
+        debugLog.record($format("read5: addr_x=0x%x, addr_y=0x%x, addr=0x%x", new_x, testAddrY, addr));
         if (((testAddrX == endAddrX) && !readFlipRow) || ((testAddrX == startAddrX) && readFlipRow)) //end of the row
         begin
             if (testAddrY == endAddrY) //end of interation 
@@ -752,7 +752,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
         cohMem.readReq(addr);
         testPhase <= 4;
         testReqQ.enq(0);
-        debugLog.record($format("read: addr_x=0x%x, addr_y=0x%x, addr=0x%x", new_x, testAddrY, addr));
+        debugLog.record($format("readFold: addr_x=0x%x, addr_y=0x%x, addr=0x%x", new_x, testAddrY, addr));
     endrule
 
     rule testRecv (initDone && !startIter && !iterDone);
