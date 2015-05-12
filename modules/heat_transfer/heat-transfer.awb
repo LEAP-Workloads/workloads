@@ -3,7 +3,7 @@
 
 %attributes heat_transfer test
 
-%provides hardware_system
+%provides heat_transfer_system
 %requires heat_transfer_local
 %requires heat_transfer_remote1
 %requires heat_transfer_remote2

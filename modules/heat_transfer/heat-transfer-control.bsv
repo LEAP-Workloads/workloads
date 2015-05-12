@@ -68,6 +68,12 @@ module [CONNECTED_MODULE] mkHeatTransferTestController ()
         NumTypeParam#(t_MEM_ADDR_SZ) addr_size = ?;
         NumTypeParam#(t_MEM_DATA_SZ) data_size = ?;
         
+        if (`HEAT_TRANSFER_HARDWARE_INIT == 0)
+        begin
+            let initFileName <- getGlobalStringUID("input.dat");
+            controllerConf.initFilePath = tagged Valid initFileName;
+        end
+
         if (`HEAT_TRANSFER_TEST_MULTI_CONTROLLER_ENABLE == 1)
         begin
             Reg#(Bit#(TAdd#(TLog#(N_X_MAX_POINTS), 1))) numXPoints <- mkWriteValidatedReg();

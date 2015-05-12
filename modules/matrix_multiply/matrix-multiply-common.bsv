@@ -54,27 +54,12 @@ typedef struct
 MATRIX_MULTIPLY_BLOCK_INFO
     deriving (Bits, Eq);
 
-// typedef struct
-// {
-//     MATRIX_ADDR_X_MAX startAx;
-//     MATRIX_ADDR_Y_MAX startAy;
-//     MATRIX_ADDR_X_MAX startBx;
-//     MATRIX_ADDR_Y_MAX startBy;
-//     Bool isFirstBlock;
-//     Bool isLastBlock;
-//     Bool needWriteBack;
-//     Bool newBlock;
-// }
-// MATRIX_MULTIPLY_ENGINE_CMD
-//     deriving (Bits, Eq);
-
-
 // definitions for matrix-multiply engines
 typedef `MATRIX_MULTIPLY_BLOCK_SIZE BLOCK_SIZE;
 typedef Bit#(TAdd#(TLog#(TLog#(BLOCK_SIZE)), 1)) BLOCK_SIZE_BITS;
 typedef   4 MATRIX_MULTIPLY_CMD_FIFO_DEPTH;
-typedef  64 MATRIX_A_BUFFER_DEPTH;
-typedef  16 MATRIX_B_BUFFER_DEPTH;
+typedef 256 MATRIX_A_BUFFER_DEPTH;
+typedef  32 MATRIX_B_BUFFER_DEPTH;
 typedef TMul#(BLOCK_SIZE,BLOCK_SIZE) MATRIX_C_WRITE_BACK_BUFFER_DEPTH;
 typedef  4  MATRIX_C_WRITE_BACK_FIFO_DEPTH;
 

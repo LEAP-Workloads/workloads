@@ -101,8 +101,14 @@ module [CONNECTED_MODULE] mkBufferManagerA#(MEMORY_READER_IFC#(t_ADDR, t_DATA) m
               Alias#(Bit#(t_ADDR_MAX_X_SZ), t_ADDR_MAX_X),
               Alias#(Bit#(t_ADDR_MAX_Y_SZ), t_ADDR_MAX_Y));
 
-    Vector#(2, FIFOF#(t_DATA)) dataBuffers <- replicateM(mkSizedAutoMemFIFOF(valueOf(n_DEPTH), defaultValue));
-    
+    //Vector#(2, FIFOF#(t_DATA)) dataBuffers <- replicateM(mkSizedAutoMemFIFOF(valueOf(n_DEPTH), defaultValue));
+`ifndef MATRIX_MULTIPLY_MATRIX_A_Z_SHAPE_ACCESS_Z
+    Vector#(2, FIFOF#(t_DATA)) dataBuffers <- replicateM(mkSizedBRAMFIFOF(valueOf(n_DEPTH)));
+`else
+    FIFOF#(t_DATA) dataBuffer <- mkSizedBRAMFIFOF(valueOf(n_DEPTH));
+`endif
+
+
     Reg#(MATRIX_LOAD_BUFFER_MANAGER_STATE) state <- mkReg(STATE_IDLE);
 
     Reg#(t_ADDR_MAX_X) matrixStartX    <- mkReg(0);
@@ -118,8 +124,11 @@ module [CONNECTED_MODULE] mkBufferManagerA#(MEMORY_READER_IFC#(t_ADDR, t_DATA) m
     Wire#(Tuple3#(t_ADDR_MAX_X, t_ADDR_MAX_Y, Bool)) startCmdW <- mkWire();
 
     Reg#(Bit#(TLog#(BLOCK_SIZE))) maxRowIdx       <- mkReg(0); 
+    
+`ifndef MATRIX_MULTIPLY_MATRIX_A_Z_SHAPE_ACCESS_Z    
     Reg#(Bit#(TLog#(BLOCK_SIZE))) bufferDeqRowIdx <- mkReg(0); 
     Reg#(Bit#(1)) bufferBankIdx                   <- mkReg(0);
+`endif
 
     function t_ADDR calMemAddr(t_ADDR_MAX_X rx, t_ADDR_MAX_Y ry);
         Bit#(TAdd#(TAdd#(t_ADDR_MAX_X_SZ, 1), t_ADDR_MAX_Y_SZ)) addr = (zeroExtend(ry) << rowSizeBits) + zeroExtend(rx); 
@@ -181,6 +190,7 @@ module [CONNECTED_MODULE] mkBufferManagerA#(MEMORY_READER_IFC#(t_ADDR, t_DATA) m
                         size_bits, total_row, total_element));
     endrule
 
+`ifndef MATRIX_MULTIPLY_MATRIX_A_Z_SHAPE_ACCESS_Z
     (* mutually_exclusive = "startNewBlock, readMatrixPhase1, readMatrixPhase2" *)
     rule readMatrixPhase1 (state == STATE_READ && !readReqPhase);
         let addr = calMemAddr(matrixAddrX, matrixAddrY);
@@ -215,10 +225,42 @@ module [CONNECTED_MODULE] mkBufferManagerA#(MEMORY_READER_IFC#(t_ADDR, t_DATA) m
         debugLog.record($format("readMatrixA: phase2: x=0x%x, y=0x%x, addr=0x%x", 
                         matrixAddrX+1, matrixAddrY, addr));
     endrule
+`else
+    (* mutually_exclusive = "startNewBlock, readMatrixPhase" *)
+    rule readMatrixPhase (state == STATE_READ);
+        let addr = calMemAddr(matrixAddrX, matrixAddrY);
+        mem.readReq(addr);
+        debugLog.record($format("readMatrixA: x=0x%x, y=0x%x, addr=0x%x", matrixAddrX, matrixAddrY, addr));
+        if (matrixAddrY == matrixEndY)
+        begin
+            if (matrixAddrX == matrixEndX)
+            begin
+                readMatrixReqDoneW.send();
+                debugLog.record($format("readMatrixA: memRead issue done"));
+            end
+            else
+            begin
+                matrixAddrY <= matrixStartY;
+                matrixAddrX <= matrixAddrX + 1;
+            end
+        end
+        else 
+        begin
+            matrixAddrY <= matrixAddrY + 1;
+        end
+    endrule
+`endif
+
 
     rule recvDataFromMem (state != STATE_IDLE);
         let resp <- mem.readRsp();
+`ifndef MATRIX_MULTIPLY_MATRIX_A_Z_SHAPE_ACCESS_Z        
         dataBuffers[readRespIdx[0]].enq(resp);
+        debugLog.record($format("recvDataFromMatrixA: data=0x%x, bank_idx=%d", resp, readRespIdx[0]));
+`else
+        dataBuffer.enq(resp);
+        debugLog.record($format("recvDataFromMatrixA: data=0x%x", resp));
+`endif
         if (readRespIdx == maxElementIdx)
         begin
             readRespIdx <= 0;
@@ -229,7 +271,6 @@ module [CONNECTED_MODULE] mkBufferManagerA#(MEMORY_READER_IFC#(t_ADDR, t_DATA) m
         begin
             readRespIdx <= readRespIdx + 1;
         end
-        debugLog.record($format("recvDataFromMatrixA: data=0x%x, bank_idx=%d", resp, readRespIdx[0]));
     endrule
     
     // =======================================================================
@@ -253,6 +294,7 @@ module [CONNECTED_MODULE] mkBufferManagerA#(MEMORY_READER_IFC#(t_ADDR, t_DATA) m
     endmethod
     
     method ActionValue#(t_DATA) getDataFromMem();
+`ifndef MATRIX_MULTIPLY_MATRIX_A_Z_SHAPE_ACCESS_Z    
         let r = dataBuffers[bufferBankIdx].first();
         dataBuffers[bufferBankIdx].deq();
         if (bufferDeqRowIdx == maxRowIdx)
@@ -263,14 +305,23 @@ module [CONNECTED_MODULE] mkBufferManagerA#(MEMORY_READER_IFC#(t_ADDR, t_DATA) m
         else
         begin
             bufferDeqRowIdx <= bufferDeqRowIdx + 1;
-        end 
+        end
         debugLog.record($format("getData from memory buffer A: bank_idx=0x%x, row_idx=0x%x, data=0x%x", 
                        bufferBankIdx, bufferDeqRowIdx, r));
+`else
+        let r = dataBuffer.first();
+        dataBuffer.deq();
+        debugLog.record($format("getData from memory buffer A: data=0x%x", r));
+`endif
         return r;  
     endmethod
 
     method t_DATA peekDataFromMem();
+`ifndef MATRIX_MULTIPLY_MATRIX_A_Z_SHAPE_ACCESS_Z    
         return dataBuffers[bufferBankIdx].first();
+`else
+        return dataBuffer.first();
+`endif
     endmethod
 
     method Action putDataIntoBuffer(t_DATA data);
@@ -305,8 +356,11 @@ module [CONNECTED_MODULE] mkBufferManagerB#(MEMORY_READER_IFC#(t_ADDR, t_MEM_DAT
               Alias#(Bit#(TLog#(n_BANKS)), t_BANK_IDX),
               Alias#(Bit#(t_BANK_ADDR_SZ), t_BANK_ADDR));
 
-    FIFOF#(t_BUFFER_DATA) dataBuffer <- mkSizedAutoMemFIFOF(valueOf(n_DEPTH), defaultValue);
-    FIFOF#(t_BUFFER_DATA) localBuffer <- mkSizedAutoMemFIFOF(valueOf(n_LOCAL_BUF_DEPTH)+1, defaultValue);
+    //FIFOF#(t_BUFFER_DATA) dataBuffer <- mkSizedAutoMemFIFOF(valueOf(n_DEPTH), defaultValue);
+    //FIFOF#(t_BUFFER_DATA) localBuffer <- mkSizedAutoMemFIFOF(valueOf(n_LOCAL_BUF_DEPTH)+1, defaultValue);
+    
+    FIFOF#(t_BUFFER_DATA) dataBuffer <- mkSizedBRAMFIFOF(valueOf(n_DEPTH));
+    FIFOF#(t_BUFFER_DATA) localBuffer <- mkSizedBRAMFIFOF(valueOf(n_LOCAL_BUF_DEPTH)+1);
 
     Reg#(MATRIX_LOAD_BUFFER_MANAGER_STATE) state <- mkReg(STATE_IDLE);
     
@@ -497,6 +551,7 @@ MATRIX_STORE_BUFFER_MANAGER_STATE
     deriving (Bits, Eq);
 
 module [CONNECTED_MODULE] mkBufferManagerC#(MEMORY_WRITER_IFC#(t_ADDR, t_MEM_DATA) mem,
+                                            NumTypeParam#(n_WORDS) wordNum, 
                                             DEBUG_FILE debugLog)
     // interface:
     (MATRIX_STORE_MANAGER#(t_BUFFER_DATA))
@@ -504,9 +559,9 @@ module [CONNECTED_MODULE] mkBufferManagerC#(MEMORY_WRITER_IFC#(t_ADDR, t_MEM_DAT
               Bits#(t_MEM_DATA, t_MEM_DATA_SZ),
               Bits#(t_BUFFER_DATA, t_BUFFER_DATA_SZ),
               NumAlias#(TDiv#(t_BUFFER_DATA_SZ, t_MEM_DATA_SZ), n_BANKS),
-              NumAlias#(TLog#(MATRIX_X_MAX), t_ADDR_MAX_X_SZ),
+              NumAlias#(TSub#(TLog#(MATRIX_X_MAX), TLog#(n_WORDS)), t_ADDR_MAX_X_SZ),
               NumAlias#(TLog#(MATRIX_Y_MAX), t_ADDR_MAX_Y_SZ),
-              NumAlias#(TMul#(TLog#(BLOCK_SIZE), 2), t_BLOCK_ADDR_SZ),
+              NumAlias#(TSub#(TMul#(TLog#(BLOCK_SIZE), 2), TLog#(n_WORDS)), t_BLOCK_ADDR_SZ),
               NumAlias#(TSub#(t_BLOCK_ADDR_SZ, TLog#(n_BANKS)), t_BANK_ADDR_SZ),
               Add#(TAdd#(t_ADDR_MAX_X_SZ, t_ADDR_MAX_Y_SZ), extraBits, t_ADDR_SZ),
               Alias#(Bit#(t_ADDR_MAX_X_SZ), t_ADDR_MAX_X),
@@ -515,7 +570,8 @@ module [CONNECTED_MODULE] mkBufferManagerC#(MEMORY_WRITER_IFC#(t_ADDR, t_MEM_DAT
               Alias#(Bit#(TLog#(n_BANKS)), t_BANK_IDX),
               Alias#(Bit#(t_BANK_ADDR_SZ), t_BANK_ADDR));
 
-    FIFOF#(Tuple2#(t_ADDR, t_MEM_DATA)) writebackBuffer <- mkSizedAutoMemFIFOF(valueOf(MATRIX_C_WRITE_BACK_BUFFER_DEPTH), defaultValue);
+    //FIFOF#(Tuple2#(t_ADDR, t_MEM_DATA)) writebackBuffer <- mkSizedAutoMemFIFOF(valueOf(MATRIX_C_WRITE_BACK_BUFFER_DEPTH), defaultValue);
+    FIFOF#(Tuple2#(t_ADDR, t_MEM_DATA)) writebackBuffer <- mkSizedBRAMFIFOF(valueOf(MATRIX_C_WRITE_BACK_BUFFER_DEPTH));
     BRAM#(t_BANK_ADDR, t_BUFFER_DATA) dataBuffer <- mkBRAM();
     Reg#(MATRIX_STORE_BUFFER_MANAGER_STATE) state <- mkReg(STATE_IDLE);
     
@@ -524,13 +580,13 @@ module [CONNECTED_MODULE] mkBufferManagerC#(MEMORY_WRITER_IFC#(t_ADDR, t_MEM_DAT
     Reg#(t_BANK_ADDR)  maxBankAddr      <- mkReg(0);
     Reg#(Bool)         writeLastBlock   <- mkReg(False);
 
-    Reg#(BLOCK_SIZE_BITS)  blockSizeBits  <- mkReg(fromInteger(valueOf(TLog#(BLOCK_SIZE))));
-    Reg#(MATRIX_SIZE_BITS)   rowSizeBits  <- mkReg(0);
+    Reg#(BLOCK_SIZE_BITS)  blockRowSizeBits  <- mkReg(fromInteger(valueOf(TLog#(BLOCK_SIZE))));
+    Reg#(MATRIX_SIZE_BITS)      rowSizeBits  <- mkReg(0);
 
     function t_ADDR calMemAddr(t_BANK_ADDR bank_addr, t_BANK_IDX bank_idx);
         t_BLOCK_ADDR block_addr = pack(tuple2(bank_addr, bank_idx));
-        t_BLOCK_ADDR by = block_addr >> blockSizeBits;
-        t_BLOCK_ADDR bx = block_addr - (by << blockSizeBits);
+        t_BLOCK_ADDR by = block_addr >> blockRowSizeBits;
+        t_BLOCK_ADDR bx = block_addr - (by << blockRowSizeBits);
         t_ADDR_MAX_X rx = matrixStartX + resize(bx);
         t_ADDR_MAX_Y ry = matrixStartY + resize(by);
         Bit#(TAdd#(TAdd#(t_ADDR_MAX_X_SZ, 1), t_ADDR_MAX_Y_SZ)) addr = (zeroExtend(ry) << rowSizeBits) + zeroExtend(rx); 
@@ -736,7 +792,7 @@ module [CONNECTED_MODULE] mkBufferManagerC#(MEMORY_WRITER_IFC#(t_ADDR, t_MEM_DAT
         debugLog.record($format("forwardWritebackReq: matrix C: addr=0x%x, data=0x%x", addr, data)); 
         wbReqQ.deq();
     endrule
-
+    
     // forwardWritebackReq
     (* fire_when_enabled*)
     rule forwardWritebackReqFromBuffer (True);
@@ -759,23 +815,25 @@ module [CONNECTED_MODULE] mkBufferManagerC#(MEMORY_WRITER_IFC#(t_ADDR, t_MEM_DAT
     // =======================================================================
     
     method Action setMatrixRowSize(MATRIX_SIZE_BITS sizeBits) if (state == STATE_IDLE);
-        rowSizeBits <= sizeBits;
-        debugLog.record($format("setMatrixRowSize: matrix C: row size bits=0x%x", sizeBits));
+        let size_bits = sizeBits - fromInteger(valueOf(TLog#(n_WORDS)));
+        rowSizeBits <= size_bits;
+        debugLog.record($format("setMatrixRowSize: matrix C: row size bits=0x%x", size_bits));
     endmethod
    
     method Action setBlockSize(BLOCK_SIZE_BITS sizeBits) if (state == STATE_IDLE);
-        Bit#(TAdd#(TLog#(TMul#(TLog#(BLOCK_SIZE),2)),1)) element_bits = resize(pack(sizeBits)) << 1;
+        Bit#(TAdd#(TLog#(TMul#(TLog#(BLOCK_SIZE),2)),1)) element_bits = (resize(pack(sizeBits)) << 1) - fromInteger(valueOf(TLog#(n_WORDS)));
         Bit#(TAdd#(TMul#(TLog#(BLOCK_SIZE),2),1)) total_element = 1 << element_bits;
         Bit#(TAdd#(TLog#(BLOCK_SIZE),1)) total_row = 1 << sizeBits;
         Bit#(TAdd#(TMul#(TLog#(BLOCK_SIZE),2),1)) total_bank = total_element >> fromInteger(valueOf(TLog#(n_BANKS)));
-        blockSizeBits <= sizeBits;
-        maxBankAddr   <= resize(total_bank -1);
-        debugLog.record($format("setBlockSize: size bits=0x%x, total_row=0x%x, total_bank=0x%x", 
-                        sizeBits, total_row, total_bank));
+        BLOCK_SIZE_BITS row_size_bit = sizeBits - fromInteger(valueOf(TLog#(n_WORDS)));
+        blockRowSizeBits <= row_size_bit;
+        maxBankAddr      <= resize(total_bank -1);
+        debugLog.record($format("setBlockSize: matrix C: block size bits=0x%x, row size bits=0x%x, total_row=0x%x, total_bank=0x%x", 
+                        sizeBits, row_size_bit, total_row, total_bank));
     endmethod
 
-    method Action setStartAddr(t_ADDR_MAX_X addrX, t_ADDR_MAX_Y addrY, Bool isLastBlock) if (state == STATE_IDLE);
-        matrixStartX <= addrX;
+    method Action setStartAddr(MATRIX_ADDR_X_MAX addrX, MATRIX_ADDR_Y_MAX addrY, Bool isLastBlock) if (state == STATE_IDLE);
+        matrixStartX <= truncate(addrX >> fromInteger(valueOf(TLog#(n_WORDS))));
         matrixStartY <= addrY;
         wbStartW.send();
         if (isLastBlock)
@@ -785,11 +843,11 @@ module [CONNECTED_MODULE] mkBufferManagerC#(MEMORY_WRITER_IFC#(t_ADDR, t_MEM_DAT
         debugLog.record($format("setStartAddr: matrix C: x=0x%x, y=0x%x", addrX, addrY));
     endmethod
     
-    method Action readBankReq(t_BLOCK_ADDR addr);
+    method Action readBankReq(Bit#(TMul#(TLog#(BLOCK_SIZE),2)) addr);
         engineReadBankReqQ.enq(truncate(addr));
     endmethod
 
-    method Action writeBankReq(t_BLOCK_ADDR addr, t_BUFFER_DATA data) if (!checkBankWriteReqPending || !bankWriteReqPending);
+    method Action writeBankReq(Bit#(TMul#(TLog#(BLOCK_SIZE),2)) addr, t_BUFFER_DATA data) if (!checkBankWriteReqPending || !bankWriteReqPending);
         t_BANK_ADDR bank_addr = truncate(addr);
         bypassWriteReq <= tagged Valid tuple2(bank_addr, data);
         if (state == STATE_IDLE || (state == STATE_WRITE && bank_addr < fromMaybe(0, wbCompletedAddr)) || !checkBankWriteReqPending)
@@ -833,12 +891,15 @@ MATRIX_MULTIPLY_ENGINE_STATE
 
 module [CONNECTED_MODULE] mkMatrixMultiplyEngine#(MEMORY_READER_IFC#(t_ADDR, t_DATA) matrixA,
                                                   MEMORY_READER_IFC#(t_ADDR, t_DATA) matrixB,
-                                                  MEMORY_WRITER_IFC#(t_ADDR, t_DATA) matrixC,
+                                                  MEMORY_WRITER_IFC#(t_MATRIX_C_ADDR, t_MATRIX_C_DATA) matrixC,
                                                   Integer engineID)
     // interface:
     (MATRIX_MULTIPLY_ENGINE_IFC)
     provisos (Bits#(t_ADDR, t_ADDR_SZ),
               Bits#(t_DATA, t_DATA_SZ),
+              Bits#(t_MATRIX_C_ADDR, t_MATRIX_C_ADDR_SZ),
+              Bits#(t_MATRIX_C_DATA, t_MATRIX_C_DATA_SZ),
+              NumAlias#(TDiv#(t_MATRIX_C_DATA_SZ, t_DATA_SZ), n_MATRIX_C_WORD),
               NumAlias#(TLog#(MATRIX_X_MAX), t_ADDR_MAX_X_SZ),
               NumAlias#(TLog#(MATRIX_Y_MAX), t_ADDR_MAX_Y_SZ),
               NumAlias#(TExp#(TMin#(TLog#(BLOCK_SIZE), TLog#(N_LOCAL_MULTIPLIERS))), n),
@@ -846,6 +907,7 @@ module [CONNECTED_MODULE] mkMatrixMultiplyEngine#(MEMORY_READER_IFC#(t_ADDR, t_D
               NumAlias#(TMul#(TLog#(BLOCK_SIZE), 2), t_BLOCK_ADDR_SZ),
               NumAlias#(TSub#(t_BLOCK_ADDR_SZ, TLog#(n)), t_BANK_ADDR_SZ),
               Add#(TAdd#(t_ADDR_MAX_X_SZ, t_ADDR_MAX_Y_SZ), extraBits, t_ADDR_SZ),
+              Add#(TAdd#(TSub#(t_ADDR_MAX_X_SZ, TLog#(n_MATRIX_C_WORD)), t_ADDR_MAX_Y_SZ), extraBits2, t_MATRIX_C_ADDR_SZ),
               Alias#(Bit#(t_ADDR_MAX_X_SZ), t_ADDR_MAX_X),
               Alias#(Bit#(t_ADDR_MAX_Y_SZ), t_ADDR_MAX_Y),
               Alias#(Bit#(t_BANK_ADDR_SZ), t_BANK_ADDR),
@@ -875,7 +937,8 @@ module [CONNECTED_MODULE] mkMatrixMultiplyEngine#(MEMORY_READER_IFC#(t_ADDR, t_D
     NumTypeParam#(MATRIX_B_BUFFER_DEPTH) bufferBdepth = ?;
     MATRIX_LOAD_MANAGER#(Vector#(n, t_DATA)) bufferManagerB <- mkBufferManagerB(matrixB, bufferBdepth, bufferDebugLog);
    
-    MATRIX_STORE_MANAGER#(Vector#(n, t_DATA)) bufferManagerC <- mkBufferManagerC(matrixC, bufferDebugLog);
+    NumTypeParam#(n_MATRIX_C_WORD) matrixWordNum = ?; // matrix C data contains how many pixels
+    MATRIX_STORE_MANAGER#(Vector#(n, t_DATA)) bufferManagerC <- mkBufferManagerC(matrixC, matrixWordNum, bufferDebugLog);
 
     // =======================================================================
     //

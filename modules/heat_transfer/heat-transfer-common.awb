@@ -24,6 +24,9 @@
 %param --global HEAT_TRANSFER_TEST_MULTI_CONTROLLER_ENABLE  0  "0: disable, 1: enable multiple coherent scratchpad controllers"
 %param --global HEAT_TRANSFER_TEST_REQ_MERGE_ENABLE         1  "0: disable, 1: enable request merging"
 
+%param --global HEAT_TRANSFER_RESULT_CHECK                  0  "enables result checking" 
+%param --global HEAT_TRANSFER_HARDWARE_INIT                 1  "heat frame initialized by hardware" 
+
 %param --dynamic HEAT_TRANSFER_TEST_ITER                  128  "number of iterations"
 %param --dynamic HEAT_TRANSFER_TEST_X_POINTS              512  "number of X pixels"
 %param --dynamic HEAT_TRANSFER_TEST_Y_POINTS              512  "number of Y pixels"

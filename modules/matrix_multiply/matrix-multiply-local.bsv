@@ -63,25 +63,34 @@ STATE
 //
 module [CONNECTED_MODULE] mkMatrixMultiplyLocal ()
     provisos (Bits#(MEM_ADDRESS, t_MEM_ADDR_SZ),
-              Bits#(TEST_DATA, t_MEM_DATA_SZ));
+              Bits#(TEST_DATA, t_MEM_DATA_SZ),
+              NumAlias#(TExp#(TMin#(TLog#(BLOCK_SIZE), TLog#(N_LOCAL_MULTIPLIERS))), n),
+              Bits#(SCRATCHPAD_MEM_VALUE, t_SCRATCHPAD_MEM_VALUE_SZ),
+              //NumAlias#(TMin#(TMul#(t_MEM_DATA_SZ, n), t_SCRATCHPAD_MEM_VALUE_SZ), t_MATRIX_C_DATA_SZ),
+              NumAlias#(TExp#(TLog#(TDiv#(TMin#(TMul#(t_MEM_DATA_SZ, n), t_SCRATCHPAD_MEM_VALUE_SZ), t_MEM_DATA_SZ))), n_MATRIX_C_WORD),
+              NumAlias#(TMul#(n_MATRIX_C_WORD, t_MEM_DATA_SZ), t_MATRIX_C_DATA_SZ),
+              Alias#(Bit#(TSub#(t_MEM_ADDR_SZ, TLog#(n_MATRIX_C_WORD))), t_MATRIX_C_ADDR),
+              Alias#(Bit#(t_MATRIX_C_DATA_SZ), t_MATRIX_C_DATA));
 
     Connection_Receive#(UMF_CHUNK) linkFromHost <- mkConnection_Receive("CPUTOFPGA");
     Connection_Send#(UMF_CHUNK) linkToHost <- mkConnection_Send("FPGATOCPU");    
     DEBUG_FILE debugLog <- mkDebugFile("matrix_multiply_local.out");
 
     // Output
-    // STDIO#(Bit#(64)) stdio <- mkStdIO();
+    STDIO#(Bit#(64)) stdio <- mkStdIO();
     Reg#(STATE) state <- mkReg(STATE_IDLE);
+    let msgError <- getGlobalStringUID("matrix_multiply: error: addr: 0x%x, val: 0x%016llx, expected: 0x%016llx\n");
 
     // Matrix memories
     let matrixAInitFileName <- getGlobalStringUID("matrixA.dat");
     SCRATCHPAD_CONFIG sconfA = defaultValue;
     sconfA.cacheMode = (`MATRIX_MULTIPLY_PVT_CACHE_ENABLE == 1)? SCRATCHPAD_CACHED : SCRATCHPAD_NO_PVT_CACHE;
+    sconfA.cacheEntries = 512;
     sconfA.requestMerging = (`MATRIX_MULTIPLY_REQ_MERGE_ENABLE == 1);
     sconfA.debugLogPath = tagged Valid "matrix_A_memory.out";
     sconfA.initFilePath = tagged Valid matrixAInitFileName;
+    sconfA.enableStatistics = tagged Valid ("matrix_A_memory_");
     MATRIX_MEMORY_READ_ONLY_IFC#(N_ENGINES, MEM_ADDRESS, TEST_DATA) memoryA <- mkReadOnlyMemWithPrivScratchpad(`VDEV_SCRATCH_MATRIX_A, sconfA);
-    //MEMORY_MULTI_READ_IFC#(N_ENGINES, MEM_ADDRESS, TEST_DATA) memoryA <- mkMultiReadScratchpad(`VDEV_SCRATCH_MATRIX_A, sconfA);
 
     let matrixBInitFileName <- getGlobalStringUID("matrixB.dat");
     SCRATCHPAD_CONFIG sconfB = defaultValue;
@@ -89,25 +98,26 @@ module [CONNECTED_MODULE] mkMatrixMultiplyLocal ()
     sconfB.requestMerging = (`MATRIX_MULTIPLY_REQ_MERGE_ENABLE == 1);
     sconfB.debugLogPath = tagged Valid "matrix_B_memory.out";
     sconfB.initFilePath = tagged Valid matrixBInitFileName;
+    sconfB.enableStatistics = tagged Valid ("matrix_B_memory_");
     MATRIX_MEMORY_READ_ONLY_IFC#(N_ENGINES, MEM_ADDRESS, TEST_DATA) memoryB <- mkReadOnlyMemWithPrivScratchpad(`VDEV_SCRATCH_MATRIX_B, sconfB);
     
     SCRATCHPAD_CONFIG sconfC = defaultValue;
-    sconfC.cacheMode = (`MATRIX_MULTIPLY_PVT_CACHE_ENABLE == 1)? SCRATCHPAD_CACHED : SCRATCHPAD_NO_PVT_CACHE;
-    //sconfC.cacheMode = SCRATCHPAD_UNCACHED;
+    sconfC.cacheMode = SCRATCHPAD_UNCACHED;
     sconfC.debugLogPath = tagged Valid "matrix_C_memory.out";
+    //sconfC.requestMerging = (`MATRIX_MULTIPLY_REQ_MERGE_ENABLE == 1);
+    sconfC.requestMerging = False;
     
 `ifndef MATRIX_MULTIPLY_RESULT_CHECK_Z
-    MATRIX_MEMORY_ONE_READER_MULTI_WRITER_IFC#(N_ENGINES, MEM_ADDRESS, TEST_DATA) memoryC <- mkMultiWriterMemWithPrivScratchpad(`VDEV_SCRATCH_MATRIX_C, sconfC);
-    Reg#(Bool) checkReqIssueDone <- mkReg(False);
-    Reg#(MEM_ADDRESS) maxAddr  <- mkReg(0);
+    MATRIX_MEMORY_ONE_READER_MULTI_WRITER_IFC#(N_ENGINES, t_MATRIX_C_ADDR, t_MATRIX_C_DATA) memoryC <- mkMultiWriterMemWithPrivScratchpad(`VDEV_SCRATCH_MATRIX_C, sconfC);
+    Reg#(Bool) checkReqIssueDone  <- mkReg(False);
+    Reg#(t_MATRIX_C_ADDR) maxAddr <- mkReg(0);
     let matrixGoldenCInitFileName <- getGlobalStringUID("matrixC.dat");
     SCRATCHPAD_CONFIG sconfGoldC = defaultValue;
-    sconfGoldC.cacheMode = (`MATRIX_MULTIPLY_PVT_CACHE_ENABLE == 1)? SCRATCHPAD_CACHED : SCRATCHPAD_NO_PVT_CACHE;
     sconfGoldC.initFilePath = tagged Valid matrixGoldenCInitFileName;
     sconfGoldC.debugLogPath = tagged Valid "matrix_C_memory_golden.out";
-    MEMORY_IFC#(MEM_ADDRESS, TEST_DATA) memoryGoldenC <- mkScratchpad(`VDEV_SCRATCH_MATRIX_GOLD, sconfGoldC);
+    MEMORY_IFC#(t_MATRIX_C_ADDR, t_MATRIX_C_DATA) memoryGoldenC <- mkScratchpad(`VDEV_SCRATCH_MATRIX_GOLD, sconfGoldC);
 `else
-    MATRIX_MEMORY_WRITE_ONLY_IFC#(N_ENGINES, MEM_ADDRESS, TEST_DATA) memoryC <- mkWriteOnlyMemWithPrivScratchpad(`VDEV_SCRATCH_MATRIX_C, sconfC);
+    MATRIX_MEMORY_WRITE_ONLY_IFC#(N_ENGINES, t_MATRIX_C_ADDR, t_MATRIX_C_DATA) memoryC <- mkWriteOnlyMemWithPrivScratchpad(`VDEV_SCRATCH_MATRIX_C, sconfC);
 `endif
 
     // Processing Engines and command fifos
@@ -147,9 +157,9 @@ module [CONNECTED_MODULE] mkMatrixMultiplyLocal ()
         else if (m matches tagged CHECK_INST .e)
         begin
             state <= STATE_CHECK;
-            MEM_ADDRESS max_addr = resize((1 << e.logElement)-1);
+            MEM_ADDRESS max_addr = resize((1 << (e.logElement-fromInteger(valueOf(TLog#(n_MATRIX_C_WORD)))))-1);
             debugLog.record($format("receiveReqFromHost: Check Instruction: # elements=0x%x", max_addr));
-            maxAddr <= max_addr;
+            maxAddr <= truncate(max_addr);
             checkReqIssueDone <= False;
         end
 `endif        
@@ -194,9 +204,9 @@ module [CONNECTED_MODULE] mkMatrixMultiplyLocal ()
     endrule
 
 `ifndef MATRIX_MULTIPLY_RESULT_CHECK_Z
-    Reg#(MEM_ADDRESS) errorCnt <- mkReg(0);
-    Reg#(MEM_ADDRESS) checkCnt <- mkReg(0);
-    FIFO#(MEM_ADDRESS) checkReqQ <- mkSizedFIFO(32);
+    Reg#(t_MATRIX_C_ADDR)  errorCnt  <- mkReg(0);
+    Reg#(t_MATRIX_C_ADDR)  checkCnt  <- mkReg(0);
+    FIFO#(t_MATRIX_C_ADDR) checkReqQ <- mkSizedFIFO(32);
     rule issueCheckReq (state == STATE_CHECK && !checkReqIssueDone);
         memoryC.readPort.readReq(checkCnt);
         memoryGoldenC.readReq(checkCnt);
@@ -225,6 +235,7 @@ module [CONNECTED_MODULE] mkMatrixMultiplyLocal ()
         begin
             new_error_cnt = errorCnt + 1;
             debugLog.record($format("compareMatrixC: error: addr=0x%x, data=0x%x, expected=0x%x", addr, r1, r2)); 
+            stdio.printf(msgError, list3(zeroExtend(addr), zeroExtend(r1), zeroExtend(r2)));
         end
         if (addr == maxAddr)
         begin
@@ -239,8 +250,6 @@ module [CONNECTED_MODULE] mkMatrixMultiplyLocal ()
         end
     endrule
 `endif
-
-
 
 endmodule
 

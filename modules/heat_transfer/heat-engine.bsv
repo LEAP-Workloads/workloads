@@ -58,6 +58,7 @@ interface HEAT_ENGINE_IFC#(type t_ADDR);
     method Action setAddrX(t_ADDR startX, t_ADDR endX);
     method Action setAddrY(t_ADDR startY, t_ADDR endY);
     method Action setVerboseMode(Bool verbose);
+    method Action startResultCheck();
     method Bool initialized();
     method Bool done();
 endinterface
@@ -484,6 +485,10 @@ module [CONNECTED_MODULE] mkHeatEngine#(MEMORY_WITH_FENCE_IFC#(t_ADDR, t_DATA) c
         verboseMode <= verbose;
     endmethod
 
+    method Action startResultCheck();
+        noAction;
+    endmethod
+
     method Bool initialized() = initDone;
     method Bool done() = allDone;
 endmodule
@@ -493,6 +498,8 @@ endmodule
 // Heat engine implementation using private scratchpad
 //
 module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMem,
+                                               Bool resultCheck, 
+                                               Bool hardwareInit, 
                                                DEBUG_FILE debugLog)
     // interface:
     (HEAT_ENGINE_IFC#(t_ADDR))
@@ -511,7 +518,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
     // =======================================================================
     
     Reg#(Bool) initDone                              <- mkReg(False);
-    Reg#(Bool) masterInitDone                        <- mkReg(False);
+    Reg#(Bool) masterInitDone                        <- mkReg(!hardwareInit);
     Reg#(Bit#(16)) numIter                           <- mkReg(0);
     Reg#(Bit#(16)) maxIter                           <- mkReg(0);
     Reg#(Bit#(32)) cycleCnt                          <- mkReg(0);
@@ -527,6 +534,8 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
     Reg#(t_ADDR_MAX_Y) frameSizeY                    <- mkReg(0);
     Reg#(Bit#(TAdd#(t_ADDR_MAX_X_SZ, 1))) rowLength  <- mkReg(0);
 
+    FIFOF#(Tuple2#(t_ADDR, t_DATA)) writeReqQ        <- mkFIFOF();
+    
     // Standard Output
     STDIO#(Bit#(64)) stdio <- mkStdIO();
     let msgTest <- getGlobalStringUID("heatEngine: engine id: 0, addr=0x%08x, val=0x%08x\n");
@@ -562,7 +571,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
         masterInitCnt <= masterInitCnt + 1;
     endrule
 
-    rule doMasterInit2 (!masterInitDone && masterInitCnt == 2);
+    rule doMasterInit2 (!masterInitDone && masterInitCnt == 2 && !writeReqQ.notEmpty());
          masterInitCnt <= masterInitCnt + 1;
          debugLog.record($format("frame initialization done, cycle=0x%11d", cycleCnt));
     endrule
@@ -587,7 +596,8 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
         begin
             init_value = unpack(resize(lfsr.value()));
         end
-        cohMem.write(addr, init_value);
+        //cohMem.write(addr, init_value);
+        writeReqQ.enq(tuple2(addr, init_value));
         lfsr.next(); 
         initIter0 <= False;
         debugLog.record($format("masterFrameInitIter0: addr_x=0x%x, addr_y=0x%x, addr=0x%x, value=0x%x", 
@@ -596,7 +606,8 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
 
     rule masterFrameInitIter1 (!masterInitDone && masterInitCnt == 1 && !frameInitDone && !initIter0);
         let addr = calAddr(testAddrX, testAddrY,1);
-        cohMem.write(addr, unpack(0));
+        //cohMem.write(addr, unpack(0));
+        writeReqQ.enq(tuple2(addr, unpack(0)));
         if (testAddrX == frameSizeX) 
         begin
             testAddrX <= 0;
@@ -628,6 +639,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
     FIFOF#(Bit#(3))              testReqQ   <- mkSizedFIFOF(32);
     Reg#(Bool)                   iterDone   <- mkReg(False);
     Reg#(Bool)                  issueDone   <- mkReg(False);
+    Reg#(Bool)                    testDone  <- mkReg(False);
     Reg#(Bool)                    allDone   <- mkReg(False);
     Reg#(Bool)                readFlipRow   <- mkReg(False);
     Reg#(Bool)               writeFlipRow   <- mkReg(False);
@@ -686,7 +698,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
         debugLog.record($format("initIter: iteration starts: numIter=%05d", numIter));
     endrule
 
-    rule testPhase1 (initDone && !issueDone && (testPhase == 1));
+    rule testPhase1 (initDone && !iterDone && !issueDone && (testPhase == 1));
         let addr = calAddr(testAddrX-1, testAddrY, truncate(numIter));
         cohMem.readReq(addr);
         testReqQ.enq(testPhase-1);
@@ -694,7 +706,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
         debugLog.record($format("read1: addr_x=0x%x, addr_y=0x%x, addr=0x%x", testAddrX-1, testAddrY, addr));
     endrule
 
-    rule testPhase2 (initDone && !issueDone && (testPhase == 2));
+    rule testPhase2 (initDone && !iterDone && !issueDone && (testPhase == 2));
         let addr = calAddr(testAddrX, testAddrY, truncate(numIter));
         cohMem.readReq(addr);
         testReqQ.enq(testPhase-1);
@@ -702,7 +714,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
         debugLog.record($format("read2: addr_x=0x%x, addr_y=0x%x, addr=0x%x", testAddrX, testAddrY, addr));
     endrule
     
-    rule testPhase3 (initDone && !issueDone && (testPhase == 3) && !reqFullW);
+    rule testPhase3 (initDone && !iterDone && !issueDone && (testPhase == 3) && !reqFullW);
         let addr = calAddr(testAddrX, testAddrY-1, truncate(numIter));
         cohMem.readReq(addr);
         testReqQ.enq(testPhase-1);
@@ -710,7 +722,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
         debugLog.record($format("read3: addr_x=0x%x, addr_y=0x%x, addr=0x%x", testAddrX, testAddrY-1, addr));
     endrule
     
-    rule testPhase4 (initDone && !issueDone && (testPhase == 4));
+    rule testPhase4 (initDone && !iterDone && !issueDone && (testPhase == 4));
         let addr = calAddr(testAddrX, testAddrY+1, truncate(numIter));
         cohMem.readReq(addr);
         testReqQ.enq(testPhase-1);
@@ -718,7 +730,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
         debugLog.record($format("read4: addr_x=0x%x, addr_y=0x%x, addr=0x%x", testAddrX, testAddrY+1, addr));
     endrule
     
-    rule testPhase5 (initDone && !issueDone && (testPhase == 5));
+    rule testPhase5 (initDone && !iterDone && !issueDone && (testPhase == 5));
         let new_x = (readFlipRow)? (testAddrX - 1) : (testAddrX + 1);
         let addr = calAddr(new_x, testAddrY, truncate(numIter));
         cohMem.readReq(addr);
@@ -746,7 +758,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
         end
     endrule
 
-    rule foldPointPhase (initDone && !issueDone && (testPhase == 7) && !reqFullW);
+    rule foldPointPhase (initDone && !iterDone && !issueDone && (testPhase == 7) && !reqFullW);
         let new_x = (readFlipRow)? (testAddrX + 1) : (testAddrX - 1);
         let addr = calAddr(new_x, testAddrY, truncate(numIter));
         cohMem.readReq(addr);
@@ -755,6 +767,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
         debugLog.record($format("readFold: addr_x=0x%x, addr_y=0x%x, addr=0x%x", new_x, testAddrY, addr));
     endrule
 
+    (* mutually_exclusive = "masterFrameInitIter0, masterFrameInitIter1, testRecv" *)
     rule testRecv (initDone && !startIter && !iterDone);
         let idx = testReqQ.first();
         testReqQ.deq();
@@ -772,7 +785,8 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
                                pack(testValues[testValueIdx(h,3)]) + pack(data) - (3 * pack(testValues[testValueIdx(h,1)])));
             Bool read_bit = unpack(truncate(numIter));
             let addr = calAddr(writeAddrX, writeAddrY, pack(!(read_bit)));
-            cohMem.write(addr, new_value);
+            //cohMem.write(addr, new_value);
+            writeReqQ.enq(tuple2(addr, new_value));
             if (verboseMode)
             begin
                 stdio.printf(msgTest, list2(zeroExtendNP(pack(addr)), zeroExtendNP(pack(new_value))));
@@ -807,12 +821,19 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
         end
     endrule    
     
-    rule waitForSync (initDone && !startIter && issueDone && iterDone);
+    rule forwardWriteReq (True);
+        match {.addr, .data} = writeReqQ.first();
+        writeReqQ.deq();
+        cohMem.write(addr, data);
+    endrule
+    
+    rule waitForSync (initDone && !startIter && issueDone && iterDone && !testDone && !writeReqQ.notEmpty());
         numIter  <= numIter + 1;
-        iterDone <= False;
         if (numIter == maxIter) 
         begin
-            allDone <= True;
+            allDone   <= True;
+            testDone  <= True;
+            issueDone <= False;
             debugLog.record($format("waitForSync: all complete,  numIter=%05d", numIter));
         end
         else
@@ -825,12 +846,93 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
             readFlipRow  <= False;
             writeFlipRow <= False;
             issueDone    <= False;
+            iterDone     <= False;
             headAddr     <= unpack(0);
             tailAddr     <= unpack(0);
             debugLog.record($format("waitForSync: next iteration starts: numIter=%05d", numIter+1));
         end
     endrule
-    
+   
+    // =======================================================================
+    //
+    // Result Check: Write the final result to a file for comparison 
+    //
+    // ====================================================================
+
+    Reg#(Bool) needResultCheck <- mkReg(False);
+
+    if (resultCheck)
+    begin
+        let outFileName                <- getGlobalStringUID("output.hex");
+        let fmode                      <- getGlobalStringUID("w+");
+        let msgWrite                   <- getGlobalStringUID("%02x ");
+        let msgWriteWithNewline        <- getGlobalStringUID("%02x \n");
+        Reg#(Bool) fileReqIssued       <- mkReg(False);
+        Reg#(Bool) fileOpened          <- mkReg(False);
+        Reg#(Bool) resultDumpDone      <- mkReg(False);
+        Reg#(STDIO_FILE) outFileHandle <- mkRegU();
+
+        rule reqFilename (testDone && needResultCheck && !fileReqIssued);
+            stdio.fopen_req(outFileName, fmode);
+            fileReqIssued <= True;
+            debugLog.record($format("issue outputFile fopen req..."));
+        endrule
+
+        rule writeFileOpenResp (testDone && needResultCheck && !fileOpened);
+            STDIO_FILE f  <- stdio.fopen_rsp();
+            outFileHandle <= f;
+            fileOpened    <= True;
+            debugLog.record($format("outputFile is opened"));
+        endrule
+
+        rule closeFile (testDone && needResultCheck && resultDumpDone && !allDone);
+            stdio.fclose(outFileHandle);
+            allDone <= True;
+        endrule
+
+        Reg#(t_ADDR) readReqAddr <- mkReg(unpack(0));
+        t_ADDR lastAddr = calAddr(frameSizeX, frameSizeY, 1);
+        
+        rule readFinalResult (testDone && needResultCheck && !issueDone);
+            cohMem.readReq(readReqAddr);
+            debugLog.record($format("readFinalResult: addr=0x%x", readReqAddr));
+            if (pack(readReqAddr) == pack(lastAddr))
+            begin
+                issueDone <= True;
+            end
+            else
+            begin
+                readReqAddr <= unpack(pack(readReqAddr) + 1);
+            end
+        endrule
+
+        Reg#(t_ADDR) resultCnt <- mkReg(unpack(0));
+        Reg#(Bit#(TAdd#(t_ADDR_MAX_X_SZ, 1))) lineAddr <- mkReg(0);
+
+        rule dumpFinalResult (testDone && needResultCheck && fileOpened && !resultDumpDone);
+            let data <- cohMem.readRsp();
+            debugLog.record($format("dumpFinalResult: data=0x%x", data));
+            if (lineAddr == ((zeroExtend(pack(frameSizeX))<<1) + 1))
+            begin
+                lineAddr <= 0;
+                stdio.fprintf(outFileHandle, msgWriteWithNewline, list1(zeroExtendNP(pack(data))));
+            end
+            else
+            begin
+                lineAddr <= lineAddr + 1;
+                stdio.fprintf(outFileHandle, msgWrite, list1(zeroExtendNP(pack(data))));
+            end
+            
+            if (pack(resultCnt) == pack(lastAddr))
+            begin
+                resultDumpDone <= True; 
+            end
+            else
+            begin
+                resultCnt <= unpack(pack(resultCnt) + 1);
+            end
+        endrule
+    end
     
     // =======================================================================
     //
@@ -868,6 +970,11 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
     
     method Action setVerboseMode(Bool verbose);
         verboseMode <= verbose;
+    endmethod
+
+    method Action startResultCheck();
+        needResultCheck <= resultCheck;
+        allDone <= !resultCheck;
     endmethod
 
     method Bool initialized() = initDone;

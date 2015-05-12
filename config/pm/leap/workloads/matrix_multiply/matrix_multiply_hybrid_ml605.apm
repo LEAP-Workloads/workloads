@@ -72,6 +72,7 @@ Packagehint=leap-multifpga
 File=modules/leap/build-support/project/null_mapping.awb
 Packagehint=leap-multifpga
 
+
 [ML605 HW/SW Environment]
 File=modules/leap-platforms/fpga-environments/ml605/ml605_hwsw.awb
 Packagehint=leap-multifpga

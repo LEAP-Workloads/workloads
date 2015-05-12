@@ -83,10 +83,13 @@ module [CONNECTED_MODULE] mkPLBMasterMagic (PLBMaster);
   FIFOF#(ComplexWord)       wordTokens  <- mkSizedFIFOF(64);
   FIFO#(PLBMasterCommand)  plbMasterCommandInfifo <- mkFIFO(); 
 
-  MEMORY_IFC#(Bit#(20), ComplexWord) matrixA       <- mkScratchpad(`VDEV_SCRATCH_MATRIXA, defaultValue);
-  MEMORY_IFC#(Bit#(20), ComplexWord) matrixB       <- mkScratchpad(`VDEV_SCRATCH_MATRIXB, defaultValue);
-  MEMORY_IFC#(Bit#(20), ComplexWord) matrixC       <- mkScratchpad(`VDEV_SCRATCH_MATRIXC, defaultValue);
-  MEMORY_IFC#(Bit#(20), ComplexWord) matrixScratch <- mkScratchpad(`VDEV_SCRATCH_SCRATCH, defaultValue);
+  SCRATCHPAD_CONFIG sconf = defaultValue;
+  sconf.requestMerging = True;
+
+  MEMORY_IFC#(Bit#(20), ComplexWord) matrixA       <- mkScratchpad(`VDEV_SCRATCH_MATRIXA, sconf);
+  MEMORY_IFC#(Bit#(20), ComplexWord) matrixB       <- mkScratchpad(`VDEV_SCRATCH_MATRIXB, sconf);
+  MEMORY_IFC#(Bit#(20), ComplexWord) matrixC       <- mkScratchpad(`VDEV_SCRATCH_MATRIXC, sconf);
+  MEMORY_IFC#(Bit#(20), ComplexWord) matrixScratch <- mkScratchpad(`VDEV_SCRATCH_SCRATCH, sconf);
 
   FIFOCountIfc#(MatrixOrder, 64) matrixOrder <- mkFIFOCount();
 

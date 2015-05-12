@@ -17,7 +17,7 @@ DefaultAttributes=function_as_boundary traffic_light demo connected slave hybrid
 model=HW/SW Hybrid Multifpga Project Foundation
 
 [HW/SW Hybrid Multifpga Project Foundation/Requires]
-connected_application=Default Software Connected Application
+connected_application=Heat Transfer Test Connected Application
 environment_description=Simulation Dual FPGA Environment with Dual Cache
 build_pipeline=LIM Build Pipeline
 fpga_mapping=Heat Transfer Test Mapping for Dual FPGA Simulation
@@ -42,12 +42,7 @@ Packagehint=leap-multifpga
 File=modules/leap/build-support/build-pipelines/stages/parsers/bsv-types/typeparser.awb
 Packagehint=leap-multifpga
 
-[Default Software Connected Application]
-File=modules/leap/build-support/project/application-env/soft-services/default-sw/connected-application-default-sw.awb
-Packagehint=leap
 
-[Default Software Connected Application/Requires]
-hardware_system=Heat Transfer System
 
 [Heat Transfer System/Requires]
 heat_transfer_local=Heat Transfer Test Local Module
@@ -154,10 +149,13 @@ File=modules/heat_transfer/heat-transfer-remote3.awb
 Packagehint=leap-workloads
 
 
-[Heat Transfer Test Common/Params]
-HEAT_TRANSFER_NUM_PARTITIONS=2
-HEAT_TRANSFER_REMOTE_PLATFORM_1_ID=1
-
 [Heat Transfer Test Mapping for Dual FPGA Simulation]
 File=modules/heat_transfer/sim-mapping-dual.awb
+Packagehint=leap-workloads
+
+[Heat Transfer Test Connected Application/Requires]
+heat_transfer_system=Heat Transfer System
+
+[Heat Transfer Test Connected Application]
+File=modules/heat_transfer/connected_application/connected-application-test.awb
 Packagehint=leap-workloads

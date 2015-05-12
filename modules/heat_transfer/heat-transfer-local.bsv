@@ -55,6 +55,7 @@ typedef enum
 {
     STATE_init,
     STATE_test,
+    STATE_check, 
     STATE_finished,
     STATE_exit
 }
@@ -137,6 +138,15 @@ module [CONNECTED_MODULE] mkHeatTransferTestLocal ()
         begin
             sconf.cacheEntries = `HEAT_TRANSFER_TEST_PVT_CACHE_ENTRIES;
         end
+        if (`HEAT_TRANSFER_HARDWARE_INIT == 0)
+        begin
+            let initFileName <- getGlobalStringUID("input.dat");
+            sconf.initFilePath = tagged Valid initFileName;
+        end
+        else if (`HEAT_TRANSFER_RESULT_CHECK == 1)
+        begin
+            error("Cannot check result with hardware initialization. Set HEAT_TRANSFER_HARDWARE_INIT to 0.");
+        end
 
         sconf.requestMerging = (`HEAT_TRANSFER_TEST_REQ_MERGE_ENABLE == 1);
         sconf.debugLogPath = tagged Valid "heat_engine_memory_0.out";
@@ -144,7 +154,7 @@ module [CONNECTED_MODULE] mkHeatTransferTestLocal ()
         
         MEMORY_IFC#(MEM_ADDRESS, TEST_DATA) memory <- mkScratchpad(`VDEV_SCRATCH_HEAT_DATA, sconf);
         debugLogEs[0] <- mkDebugFile("heat_engine_0.out");
-        engines[0]    <- mkHeatEnginePrivate(memory, debugLogEs[0]);
+        engines[0]    <- mkHeatEnginePrivate(memory, (`HEAT_TRANSFER_RESULT_CHECK == 1), (`HEAT_TRANSFER_HARDWARE_INIT == 1), debugLogEs[0]);
     end
 
     DEBUG_FILE debugLog <- mkDebugFile("heat_transfer_test_local.out");
@@ -254,10 +264,24 @@ module [CONNECTED_MODULE] mkHeatTransferTestLocal ()
         end
         engineID <= engineID + 1;
     endrule
-
+        
     rule waitForAllDone (state == STATE_test && engines[0].done());
-        state <= STATE_finished;
+        if (`HEAT_TRANSFER_RESULT_CHECK == 1)
+        begin
+            engines[0].startResultCheck();
+            state <= STATE_check;
+        end
+        else
+        begin
+            state <= STATE_finished;
+        end
         debugLog.record($format("waitForAllDone: all engines complete, cycle=0x%011d", cycleCnt));
+        stdio.printf(msgDone, list2(zeroExtend(cycleCnt), zeroExtend(cycleCnt-initCycleCnt)));
+    endrule
+    
+    rule resultCheck (state == STATE_check && engines[0].done());
+        debugLog.record($format("resultCheck done..."));
+        state <= STATE_finished;
     endrule
 
     // ====================================================================
@@ -267,7 +291,6 @@ module [CONNECTED_MODULE] mkHeatTransferTestLocal ()
     // ====================================================================
 
     rule sendDone (state == STATE_finished);
-        stdio.printf(msgDone, list2(zeroExtend(cycleCnt), zeroExtend(cycleCnt-initCycleCnt)));
         linkStarterFinishRun.send(0);
         state <= STATE_exit;
     endrule

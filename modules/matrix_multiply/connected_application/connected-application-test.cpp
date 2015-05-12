@@ -8,12 +8,18 @@
 #include "awb/provides/umf.h"
 #include "awb/provides/matrix_multiply_common.h"
 
-static UINT32 matrixTestNum  = 1;
-static UINT32 matrixAsizeX[] = {128};
-static UINT32 matrixAsizeY[] = {128};
-static UINT32 matrixBsizeX[] = {128};
-static UINT32 matrixBsizeY[] = {128};
-static UINT32 matrixTestIter = 2;
+static UINT32 matrixTestNum  = 5;
+static UINT32 matrixAsizeX[] = {64,128,256,512,1024};
+static UINT32 matrixAsizeY[] = {64,128,256,512,1024};
+static UINT32 matrixBsizeX[] = {64,128,256,512,1024};
+static UINT32 matrixBsizeY[] = {64,128,256,512,1024};
+static UINT32 matrixTestIter = 4;
+// static UINT32 matrixTestNum  = 1;
+// static UINT32 matrixAsizeX[] = {256};
+// static UINT32 matrixAsizeY[] = {256};
+// static UINT32 matrixBsizeX[] = {256};
+// static UINT32 matrixBsizeY[] = {256};
+// static UINT32 matrixTestIter = 1;
 
 #define initInstruction(engine_num, matrix_a_size, matrix_b_size, block_size) \
     (UINT128(engine_num) << 24 | UINT128(matrix_a_size) << 16 | UINT128(matrix_b_size) << 8 | UINT128(block_size))
@@ -116,6 +122,7 @@ CONNECTED_APPLICATION_CLASS::Main()
     //int engineNumber = 1;
     
     bool resultCheck = (MATRIX_MULTIPLY_RESULT_CHECK == 1);
+    //bool resultCheck = false;
     
     UINT128 cycleCnt = 0;
     UINT128 errorCnt = 0;
@@ -212,7 +219,7 @@ CONNECTED_APPLICATION_CLASS::Main()
                             int block_info = convertBlockInfo((block_cnt == 0) && (k == 0), (block_cnt + engineNumber + e >= block_num) && (k == (accu_cnt-1)), k == (accu_cnt-1), k == 0, ((block_cnt + e) == (block_num-1)) && (k == (accu_cnt-1)));
                             UINT128 compute_inst = (UINT128) computeInstruction(e, start_a_x, start_a_y, start_b_x, start_b_y, block_info);
                             output.push(compute_inst);
-                            printf("Engine Instruction: engine ID: %d, block ID (%d,%d), Step %d \n", e, block_id_x_arr[e], block_id_y_arr[e], k); 
+                            // printf("Engine Instruction: engine ID: %d, block ID (%d,%d), Step %d \n", e, block_id_x_arr[e], block_id_y_arr[e], k); 
                         }
                     }
                 }

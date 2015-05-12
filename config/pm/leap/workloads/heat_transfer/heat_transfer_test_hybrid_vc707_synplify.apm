@@ -16,12 +16,7 @@ RootProvides=model
 DefaultAttributes=bram-test hasim hybrid
 model=HW/SW Hybrid Pipeline Build
 
-[Default Software Connected Application]
-File=modules/leap/build-support/project/application-env/soft-services/default-sw/connected-application-default-sw.awb
-Packagehint=leap
 
-[Default Software Connected Application/Requires]
-hardware_system=Heat Transfer System
 
 [Default Hybrid Project Common Utilities]
 File=config/pm/leap/submodels/common/project-common-default.apm
@@ -37,7 +32,7 @@ fpgaenv=Hybrid VC707 PCIE FPGA Environment (Synplify)
 application_env=Soft Services Hybrid Application Environment
 
 [Soft Services Hybrid Application Environment/Requires]
-connected_application=Default Software Connected Application
+connected_application=Heat Transfer Test Connected Application
 
 [HW/SW Hybrid Pipeline Build]
 File=modules/leap/build-support/project/project-pipeline.awb
@@ -79,11 +74,16 @@ Packagehint=leap-workloads
 File=modules/heat_transfer/heat-transfer-remote2.awb
 Packagehint=leap-workloads
 
-
-
 [Hybrid VC707 PCIE FPGA Environment (Synplify)/Params]
 MODEL_CLOCK_FREQ=75
 
 [Hybrid VC707 PCIE FPGA Environment (Synplify)]
 File=config/pm/leap/submodels/fpgaenv/fpgaenv-hybrid-vc707-pcie-synplify.apm
 Packagehint=leap
+
+[Heat Transfer Test Connected Application]
+File=modules/heat_transfer/connected_application/connected-application-test.awb
+Packagehint=leap-workloads
+
+[Heat Transfer Test Connected Application/Requires]
+heat_transfer_system=Heat Transfer System
