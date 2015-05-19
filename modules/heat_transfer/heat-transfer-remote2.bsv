@@ -122,7 +122,8 @@ module [CONNECTED_MODULE] mkHeatTransferTestRemote2 ()
 
         function ActionValue#(HEAT_ENGINE_IFC#(MEM_ADDRESS)) doCurryHeatEngine(mFunction, id);
             actionvalue
-                let m <- mFunction(id + startEngineId, False);
+                //let m <- mFunction(id + startEngineId, False);
+                let m <- mFunction(id + startEngineId, False, (`HEAT_TRANSFER_RESULT_CHECK == 1), (`HEAT_TRANSFER_HARDWARE_INIT == 1));
                 return m;
             endactionvalue
         endfunction
