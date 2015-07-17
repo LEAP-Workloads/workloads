@@ -670,7 +670,7 @@ module [CONNECTED_MODULE] mkHeatEnginePrivate#(MEMORY_IFC#(t_ADDR, t_DATA) cohMe
         cycleCnt <= cycleCnt + 1;
     endrule
     
-    rule doInit (!initDone && masterInitDone && maxIter != 0 && endAddrX != 0 && endAddrY != 0);
+    rule doInit (!initDone && masterInitDone && endAddrX != 0 && endAddrY != 0);
         initDone <= True;
         debugLog.record($format("doInit: initialization done, cycle=0x%11d", cycleCnt));
     endrule
