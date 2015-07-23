@@ -7,6 +7,7 @@
 #include <string>
 #include <iomanip>
 #include <bitset>
+#include <unistd.h>
 using namespace std;
 
 const unsigned int dataByteWidth = 1;
@@ -23,26 +24,72 @@ uint64_t calVal(uint64_t x1, uint64_t x2, uint64_t x3, uint64_t x4, uint64_t x5)
     return uint64_t(y);
 }
 
+void printUsage(char* programName)
+{
+    cout<<"Usage: "<< programName <<" <heat frame x size> <heat frame y size> [-g] [-i iter] [-p partition]"<<endl;
+}
+
+template <typename T>
+string numberToString ( T Number )
+{
+   ostringstream ss;
+   ss << Number;
+   return ss.str();
+}
+
 int main ( int argc, char *argv[] )
 {
     if ( argc < 3 )
-        cout<<"usage: "<< argv[0] <<" <heat frame x size> <heat frame y size> [genGoldenAnswer] [iteration]"<<endl;
+    {
+        printUsage(argv[0]);
+    }
     else
     {
-        unsigned int frameSizeX = atoi(argv[1]);
-        unsigned int frameSizeY = atoi(argv[2]);
+        unsigned int frameSizeX = 0;
+        unsigned int frameSizeY = 0;
         bool genGoldenAnswer = false;
         unsigned int iter = 16;
+        unsigned int partition = 1;
 
-        cout<<"Heat transfer: "<<frameSizeX<<"x"<<frameSizeY<<endl;
-       
-        if (argc > 3 && string(argv[3]) == string("genGoldenAnswer"))
-        {
-            genGoldenAnswer = true; 
-            if (argc == 5 && atoi(argv[4]) > 0)
+        int opterr = 0;
+        int c;
+        while ((c = getopt (argc, argv, "gi:p:")) != -1)
+        {            
+            switch (c)
             {
-                iter = atoi(argv[4]);
+                case 'g': genGoldenAnswer = true; break;
+                case 'i': iter = atoi(optarg); break;
+                case 'p': partition = atoi(optarg); break;
+                case '?':
+                    if (optopt == 'i' || optopt == 'p')
+                      fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+                    else if (isprint (optopt))
+                      fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+                    else
+                      fprintf (stderr,
+                               "Unknown option character `\\x%x'.\n",
+                               optopt);
+                    printUsage(argv[0]);
+                    return 1;
+                default: printUsage(argv[0]); return 1;
             }
+        }
+        
+        if (argc <= optind+1)
+        {
+            printUsage(argv[0]);
+            return 1;
+        }
+        else
+        {
+            frameSizeX = atoi(argv[optind]);         
+            frameSizeY = atoi(argv[optind+1]);         
+        }
+        
+        cout<<"Heat transfer: "<<frameSizeX<<"x"<<frameSizeY<<" partition: "<< partition<<endl;
+       
+        if (genGoldenAnswer)
+        {
             cout<<"generate golden answer: iter = "<<iter<<endl;
         }
 
@@ -67,12 +114,35 @@ int main ( int argc, char *argv[] )
 
         ofstream outfile;
         ofstream outfileHex;
-        outfile.open((fileBaseName.str()+string("input.dat")).c_str(), ios::out | ios::binary);
-        outfileHex.open((fileBaseName.str()+string("input.hex")).c_str(), ios::out);
+        
+        if (partition == 1)
+        {
+            outfile.open((fileBaseName.str()+string("input.dat")).c_str(), ios::out | ios::binary);
+            outfileHex.open((fileBaseName.str()+string("input.hex")).c_str(), ios::out);
+        }
+        else
+        {
+            outfile.open((fileBaseName.str()+string("input_p0.dat")).c_str(), ios::out | ios::binary);
+            outfileHex.open((fileBaseName.str()+string("input_p0.hex")).c_str(), ios::out);
+        }
+
+        unsigned int partition_points = frameSizeX * frameSizeY / partition;
+        unsigned int total_points = 0;
+        unsigned int total_partition = 0;
+
         for (unsigned int y = 0; y < frameSizeY; y++)
         {
             for (unsigned int x = 0; x < frameSizeX; x++)
             {
+                if (total_points == partition_points)
+                {
+                    total_points = 0;
+                    total_partition++;
+                    outfile.close();
+                    outfile.open((fileBaseName.str()+string("input_p")+numberToString(total_partition)+string(".dat")).c_str(), ios::out | ios::binary);
+                    outfileHex.close();
+                    outfileHex.open((fileBaseName.str()+string("input_p")+numberToString(total_partition)+string(".hex")).c_str(), ios::out);
+                }
                 int val = rand() % (1<<dataWidth);
                 int z_val = 0;
                 if ((x == 0) || (x == (frameSizeX-1)) || (y == 0) || (y == (frameSizeY-1)) ) //boundaries
@@ -88,6 +158,7 @@ int main ( int argc, char *argv[] )
                     frames[0][y][x] = (uint64_t)val;
                     frames[1][y][x] = 0;
                 }
+                total_points++;
             }
             outfileHex << endl;
         }

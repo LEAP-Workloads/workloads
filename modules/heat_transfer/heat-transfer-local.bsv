@@ -72,6 +72,11 @@ module [CONNECTED_MODULE] mkHeatTransferTestLocal ()
     Connection_Receive#(Bool) linkStarterStartRun <- mkConnectionRecv("vdev_starter_start_run");
     Connection_Send#(Bit#(8)) linkStarterFinishRun <- mkConnectionSend("vdev_starter_finish_run");
 
+    if (`HEAT_TRANSFER_HARDWARE_INIT == 1 && `HEAT_TRANSFER_RESULT_CHECK == 1)
+    begin
+        error("Cannot check result with hardware initialization. Set HEAT_TRANSFER_HARDWARE_INIT to 0.");
+    end
+    
     //
     // Allocate coherent scratchpads for heat engines
     //
@@ -142,10 +147,6 @@ module [CONNECTED_MODULE] mkHeatTransferTestLocal ()
         begin
             let initFileName <- getGlobalStringUID("input.dat");
             sconf.initFilePath = tagged Valid initFileName;
-        end
-        else if (`HEAT_TRANSFER_RESULT_CHECK == 1)
-        begin
-            error("Cannot check result with hardware initialization. Set HEAT_TRANSFER_HARDWARE_INIT to 0.");
         end
 
         sconf.requestMerging = (`HEAT_TRANSFER_TEST_REQ_MERGE_ENABLE == 1);

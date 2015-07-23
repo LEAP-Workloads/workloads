@@ -78,6 +78,11 @@ module [CONNECTED_MODULE] mkHeatTransferTestRemote2 ()
             SHARED_SCRATCH_MEM_ADDRESS addrRange = zeroExtendNP(pack(numPointsPerEngine)) << valueOf(TAdd#(TLog#(N_ENGINES_PER_PARTITION), 1));
             
             COH_SCRATCH_CONTROLLER_CONFIG controllerConf = defaultValue;
+            if (`HEAT_TRANSFER_HARDWARE_INIT == 0)
+            begin
+                let initFileName <- getGlobalStringUID("input2.dat");
+                controllerConf.initFilePath = tagged Valid initFileName;
+            end
             controllerConf.cacheMode = (`HEAT_TRANSFER_TEST_PVT_CACHE_ENABLE != 0) ? COH_SCRATCH_CACHED : COH_SCRATCH_UNCACHED;
             controllerConf.multiController = True;
             controllerConf.coherenceDomainID = `VDEV_COH_SCRATCH_HEAT;

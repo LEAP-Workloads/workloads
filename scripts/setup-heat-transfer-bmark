@@ -43,7 +43,7 @@ ErrorExit("Can't find benchmark root") if ($benchmark_root eq '');
 #
 if (! GetOptions('compare=s' => \$compare,
                  'data=s' => \$data,
-#                 'iter=s' => \$iter,
+                 'iter=s' => \$iter,
                  'group=s' => \$group,
                  'feeder=s' => \$feeder,
                  'linkto=s' => \$linkto,
@@ -77,14 +77,44 @@ mkdir('leap_debug') or ErrorExit("Failed to make 'leap_debug' directory");
 if (defined($data)) 
 {
    print "data: $data\n";
-   symlink("${srcdir}/${data}_input.dat", "input.dat") or die("Failed to link to $data");
-   symlink("${srcdir}/${data}_output_iter128_golden.hex", "output_golden.hex") or die("Failed to link to $data");
+   if ($data =~ m/_p/)
+   {
+       my $base = $`; 
+       my $partition = $';
+       my $infile = "";
+
+       print "base name: ${base}\n";
+       print "partition: ${partition}\n"; 
+       
+       for (my $i=0; $i < $partition; $i++)
+       {
+           if ($i == 0)
+           {
+               $infile = ${base}. "_input_p0.dat";
+               symlink("${srcdir}/${infile}", "input.dat") or die("Failed to link to ${infile}");
+           }
+           else
+           {
+               $infile = ${base}. "_input_p${i}.dat";
+               symlink("${srcdir}/${infile}", "input${i}.dat") or die("Failed to link to ${infile}");
+           }
+       }
+       if (defined($iter))
+       {
+           print "output iter: $iter\n";
+           symlink("${srcdir}/${base}_output_iter${iter}_golden.hex", "output_golden.hex") or die("Failed to link to $data");
+       }
+   }
+   else
+   {
+       symlink("${srcdir}/${data}_input.dat", "input.dat") or die("Failed to link to $data");
+       if (defined($iter))
+       {
+           print "output iter: $iter\n";
+           symlink("${srcdir}/${data}_output_iter${iter}_golden.hex", "output_golden.hex") or die("Failed to link to $data");
+       }
+   }
    
-   #if (defined($iter))
-   #{
-   #    print "output iter: $iter\n"
-       #symlink("${srcdir}/${data}_output_iter${iter}_golden.hex", "output_golden.hex") or die("Failed to link to $data");
-   #}
 }
 
 # Store compare rules to config
@@ -102,7 +132,7 @@ exit(0);
 sub Usage() {
     print STDERR "Usage: setup-heat-transfer-bmark [--compare <compare commands>]\n";
     print STDERR "                                 [--data <input file>]\n";
-#    print STDERR "                                 [--iter <golden output iteration>]\n";
+    print STDERR "                                 [--iter <golden output iteration>]\n";
     print STDERR "                                 [--group <name>]\n";
     print STDERR "                                 <bmark> <srcdir> <dstdir>\n";
     exit(1);

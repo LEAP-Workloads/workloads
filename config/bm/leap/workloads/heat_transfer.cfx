@@ -14,16 +14,21 @@ my $gcfg = Asim::GenCFG->new();
 
 my @bmark_tests = ("heat_transfer_32x32",
                    "heat_transfer_64x64",
+                   "heat_transfer_64x64_p2",
                    "heat_transfer_128x128",
+                   "heat_transfer_128x128_p2",
                    "heat_transfer_256x256",
+                   "heat_transfer_256x256_p2",
                    "heat_transfer_512x512",
+                   "heat_transfer_512x512_p2",
                    "heat_transfer_1024x1024",
+                   "heat_transfer_1024x1024_p2",
                   );                   
 
 foreach my $bmark (@bmark_tests) {
     $gcfg->add(name => $bmark,
                tree => [ "benchmarks" ],
-               setup => "scripts/setup-heat-transfer-bmark --data=../modules/heat_transfer/benchmark/$bmark $bmark",
+               setup => "scripts/setup-heat-transfer-bmark --data=../modules/heat_transfer/benchmark/$bmark --iter=128 $bmark",
                feeder => "none",
                ccount => 800000,
               );
