@@ -79,25 +79,27 @@ module [CONNECTED_MODULE] mkExternalMemory (ExternalMemory);
         readRespCount <= readRespCount + 1;
         dataStore.readReq(addr);
         creditOutfifo.enq(addr);
-	if(debug) $display("Mem Read Request %h", addr);
+        if(sorterDebug) 
+            $display("Mem Read Request %h", addr);
     endrule
 
     rule doResps;
         let data <- dataStore.readRsp();
-	readRespFIFO.enq(data);
+        readRespFIFO.enq(data);
     endrule 
 
     rule doWrites(writeCount < recordsPerMemRequest);
         writeCount <= writeCount + 1;
         dataStore.write(writeAddr + zeroExtend(writeCount), writeDataFIFO.first);
-	writeDataFIFO.deq;
-	if(debug) $display("Mem Write Address %h %h", writeAddr + zeroExtend(writeCount), writeDataFIFO.first);
+        writeDataFIFO.deq;
+        if(sorterDebug) 
+            $display("Mem Write Address %h %h", writeAddr + zeroExtend(writeCount), writeDataFIFO.first);
     endrule
 
     rule startWrite (writeCount == recordsPerMemRequest);
         writeCount <= 0;
         writeAddr  <= writeAddrFIFO.first >> 2;
-	writeAddrFIFO.deq;
+        writeAddrFIFO.deq;
     endrule
 
     // This is conservative...
@@ -109,33 +111,29 @@ module [CONNECTED_MODULE] mkExternalMemory (ExternalMemory);
         return  writeCount <  recordsPerMemRequest || writeDataFIFO.notEmpty;
     endmethod
 
-    interface Read read;
-
+    interface ReadIfc read;
         method Action readReq(Addr addr) if(readRespCount == 0);
             readRespCount <= 1;
-	    let adjustedAddr = addr >> 2; // Convert to word space.
+            let adjustedAddr = addr >> 2; // Convert to word space.
             dataStore.readReq(adjustedAddr);
-            creditOutfifo.enq(adjustedAddr);	
-	    readAddr <= adjustedAddr;
-  	    if(debug) $display("Mem Read Request %h", adjustedAddr);
+            creditOutfifo.enq(adjustedAddr);    
+            readAddr <= adjustedAddr;
+            if(sorterDebug) 
+                $display("Mem Read Request %h", adjustedAddr);
         endmethod 
 
         method ActionValue#(Record) read();
            creditOutfifo.deq;
            readRespFIFO.deq;
-  	   if(debug) $display("Mem Read Response %h %h", creditOutfifo.first, readRespFIFO.first); 
+           if(sorterDebug) 
+               $display("Mem Read Response %h %h", creditOutfifo.first, readRespFIFO.first); 
            return readRespFIFO.first;
         endmethod
-
     endinterface
 
-
-    interface Write write;
- 
+    interface WriteIfc write;
         method writeReq = writeAddrFIFO.enq;
-
         method write = writeDataFIFO.enq;
-
     endinterface
 
 endmodule

@@ -28,5 +28,5 @@ Author: Kermin Fleming
 // This file contains debug flags for the various system modules.  You should 
 // turn these off when you check in files
 
-Bool debug = True;
+Bool sorterDebug = True;
 

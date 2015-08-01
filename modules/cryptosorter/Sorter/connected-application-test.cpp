@@ -62,7 +62,7 @@ CONNECTED_APPLICATION_CLASS::Main()
 	}
     }
 
-    STARTER_DEVICE_SERVER_CLASS::GetInstance()->End(0);
+    STARTER_SERVICE_SERVER_CLASS::GetInstance()->End(0);
   
     return 0;
 }

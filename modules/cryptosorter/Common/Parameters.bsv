@@ -51,12 +51,12 @@ typedef 8 RecordsPerMemRequest;
 // RecAddr in mkCtro.bsv (mdk);
 typedef 32'h00800000 MemBankSelector;
 
-interface Read;
+interface ReadIfc;
     method Action readReq(Addr addr);
     method ActionValue#(Record) read();
 endinterface
 
-interface Write;
+interface WriteIfc;
     method Action writeReq(Addr addr);
     method Action write(Record record);
 endinterface
@@ -64,8 +64,8 @@ endinterface
 interface ExternalMemory;
     method Bool readsPending();
     method Bool writesPending();
-    interface Read read;
-    interface Write write;
+    interface ReadIfc read;
+    interface WriteIfc write;
 endinterface
 
 typedef 32 BlockSize; // Words per burst (4*RecordsPerMemRequest)
