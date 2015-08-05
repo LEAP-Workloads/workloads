@@ -7,6 +7,7 @@
 
 %public heat-transfer-common.bsv
 %public heat-engine.bsv
+%sources -t SCRATCHPAD_STAT -v PRIVATE heat-transfer-scratchpad.stats
 
 %param --global HEAT_TRANSFER_DATA_SIZE                     8  "Size (bits) of each entry"
 %param --global HEAT_TRANSFER_X_ENGINE                      1  "number of X engines"
@@ -26,6 +27,8 @@
 
 %param --global HEAT_TRANSFER_RESULT_CHECK                  0  "enables result checking" 
 %param --global HEAT_TRANSFER_HARDWARE_INIT                 1  "heat frame initialized by hardware" 
+
+%param --global HEAT_TRANSFER_RING_LATENCY_TEST             0  "test scratchpad ring latency by adding dummy nodes"
 
 %param --dynamic HEAT_TRANSFER_TEST_ITER                  128  "number of iterations"
 %param --dynamic HEAT_TRANSFER_TEST_X_POINTS              512  "number of X pixels"

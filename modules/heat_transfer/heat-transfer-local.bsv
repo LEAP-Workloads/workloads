@@ -199,6 +199,32 @@ module [CONNECTED_MODULE] mkHeatTransferTestLocal ()
     Bit#(TAdd#(TLog#(N_X_MAX_POINTS), 1)) numColsPerEngine = numXPoints >> valueOf(TLog#(N_X_ENGINES));
     Bit#(TAdd#(TLog#(N_Y_MAX_POINTS), 1)) numRowsPerEngine = numYPoints >> valueOf(TLog#(N_Y_ENGINES));
 
+
+    if (`HEAT_TRANSFER_RING_LATENCY_TEST != 0)
+    begin
+        let platformID <- getSynthesisBoundaryPlatformID();
+        for (Integer c = 0; c < valueOf(SCRATCHPAD_N_SERVERS); c = c + 1)
+        begin
+            String ringBaseName = "Scratchpad_Platform_" + integerToString(platformID);
+            if (c > 0)
+            begin
+                ringBaseName = "Scratchpad_" + integerToString(c) + "_" + "Platform_" + integerToString(platformID);
+            end
+            
+            for (Integer d = 0; d < valueOf(TDiv#(4, SCRATCHPAD_N_SERVERS)); d = d +1)
+            begin
+                CONNECTION_ADDR_RING#(SCRATCHPAD_PORT_NUM, SCRATCHPAD_MEM_REQ) link_mem_req <-
+                    mkConnectionTokenRingDynNode(ringBaseName + "_Req");
+
+                CONNECTION_ADDR_RING#(SCRATCHPAD_PORT_NUM, SCRATCHPAD_READ_RSP) link_mem_rsp <-
+                    mkConnectionTokenRingDynNode(ringBaseName + "_Resp");
+                messageM("Scratchpad Ring Name: "+ ringBaseName + "_Req, dummy node " + integerToString(d));
+                messageM("Scratchpad Ring Name: "+ ringBaseName + "_Resp, dummy node " + integerToString(d));
+            end
+        end
+    end
+
+
     (* fire_when_enabled *)
     rule countCycle(True);
         cycleCnt <= cycleCnt + 1;
