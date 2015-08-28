@@ -481,7 +481,7 @@ module [CONNECTED_MODULE] mkHeatEngine#(MEMORY_WITH_FENCE_IFC#(t_ADDR, t_DATA) c
     dbg_list <- addDebugScanField(dbg_list, "testReqQ notEmpty", testReqQ.notEmpty);
     dbg_list <- addDebugScanField(dbg_list, "testReqQ notFull", testReqQ.notFull);
     
-    let dbgNode <- mkDebugScanNode("Heat Engine "+ integerToString(engineId) + "(heat-engine.bsv)", dbg_list);
+    let dbgNode <- mkDebugScanNode("Heat Engine "+ integerToString(engineId) + " (heat-engine.bsv)", dbg_list);
 
     // =======================================================================
     //

@@ -57,7 +57,7 @@ module [CONNECTED_MODULE] mkHeatTransferTestRemote1 ()
     provisos (Bits#(MEM_ADDRESS, t_MEM_ADDR_SZ),
               Bits#(TEST_DATA, t_MEM_DATA_SZ));
 
-    if (valueOf(N_PARTITIONS) > 1)
+    if (valueOf(N_PARTITIONS) > 1 && valueOf(N_TOTAL_ENGINES) > 1)
     begin
         Integer startEngineId = valueOf(REMOTE_START_ENGINE#(1));
         
