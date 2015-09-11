@@ -1,0 +1,76 @@
+
+[Global]
+SaveParameters=0
+Description=Traffic Light from Bluespec Tutorial for ACP w. synthesis boundary
+File=cryptosorter_li_exe
+Version=2.2
+Name=Traffic Light Model - ACP with synthesis boundary
+DefaultBenchmark=config/bm/leap/demos.cfx/benchmarks/null.cfg
+Type=Leap
+Class=Asim::Model
+DefaultRunOpts=
+RootName=HW/SW Hybrid Multifpga Project Foundation
+RootProvides=model
+
+[Model]
+DefaultAttributes=function_as_boundary traffic_light demo connected slave hybrid project
+model=HW/SW Hybrid Multifpga Project Foundation
+
+[Cryptosorter Sort Tree]
+File=modules/cryptosorter/SortTree/sort_tree.awb
+Packagehint=leap-workloads
+
+[Cryptosorter Top level control]
+File=modules/cryptosorter/ctrl/control.awb
+Packagehint=leap-workloads
+
+[HW/SW Hybrid Multifpga Project Foundation/Requires]
+connected_application=Cryptosorter application (multifpga)
+fpga_mapping=Null FPGA Mapping
+build_pipeline=LIM Compiler Pipeline
+environment_description=Simulation HW/SW Environment
+
+[HW/SW Hybrid Multifpga Project Foundation]
+File=modules/leap/build-support/project/project-multifpga.awb
+Packagehint=leap-multifpga
+
+[Cryptosorter common files]
+File=modules/cryptosorter/Common/common.awb
+Packagehint=leap-workloads
+
+[Cryptosorter application (multifpga)/Requires]
+cryptosorter_sort_tree=Cryptosorter Sort Tree
+cryptosorter_sorter=Cryptosorter Top Level
+cryptosorter_common=Cryptosorter common files
+cryptosorter_memory_wrapper=Cryptosorter Memory Wrapper
+cryptosorter_control=Cryptosorter Top level control
+
+[LIM Compiler Pipeline/Params]
+GENERATE_ROUTER_STATS=1
+
+[Null FPGA Mapping]
+File=modules/leap/build-support/project/null_mapping.awb
+Packagehint=leap-multifpga
+
+[LIM Compiler Pipeline]
+File=config/pm/leap/submodels/pipelines/build-pipeline-lim.apm
+Packagehint=leap-multifpga
+
+[Cryptosorter Top Level]
+File=modules/cryptosorter/Sorter/sorter.awb
+Packagehint=leap-workloads
+
+[Cryptosorter application (multifpga)]
+File=modules/cryptosorter/Sorter/connected-application-multifpga.awb
+Packagehint=leap-workloads
+
+[Simulation HW/SW Environment]
+File=modules/leap-platforms/fpga-environments/sim/sim_hwsw.awb
+Packagehint=leap-multifpga
+
+[Cryptosorter Memory Wrapper]
+File=modules/cryptosorter/ExternalMemory/external_memory.awb
+Packagehint=leap-workloads
+
+[Cryptosorter application (multifpga)/Params]
+SORTERS=4

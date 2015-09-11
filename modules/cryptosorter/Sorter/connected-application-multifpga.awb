@@ -1,4 +1,4 @@
-%name Cryptosorter application
+%name Cryptosorter application (multifpga)
 %desc Cryptosorter, based around merge sort
 
 %attributes slave connected hybrid
@@ -10,8 +10,6 @@
 %requires cryptosorter_sort_tree
 %requires cryptosorter_sorter
 %requires cryptosorter_memory_wrapper
-%requires multifpga_switch
-
 
 %public  CryptoSorter.bsv
 %public  connected-application-test.h
