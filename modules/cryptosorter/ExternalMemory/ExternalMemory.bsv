@@ -54,12 +54,12 @@ import DefaultValue::*;
 `include "awb/provides/scratchpad_memory_common.bsh"
 `include "awb/dict/VDEV_SCRATCH.bsh"
 
-module [CONNECTED_MODULE] mkExternalMemory (ExternalMemory);
+module [CONNECTED_MODULE] mkExternalMemory#(Integer memoryID) (ExternalMemory);
 
     let recordsPerMemRequest = fromInteger(valueof(RecordsPerMemRequest));
 
     // we might want to partition this into two address spaces at some point ...
-    MEMORY_IFC#(Addr, Record) dataStore <- mkScratchpad(`VDEV_SCRATCH_BANK_A, defaultValue);
+    MEMORY_IFC#(Addr, Record) dataStore <- mkScratchpad(fromInteger(memoryID), defaultValue);
 
     Reg#(Bit#(TLog#(RecordsPerBlock))) readRespCount  <- mkReg(0);
     Reg#(Bit#(TAdd#(1,TLog#(RecordsPerBlock)))) writeCount <- mkReg(recordsPerMemRequest);

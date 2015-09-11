@@ -1,0 +1,14 @@
+%name Cryptosorter Top Level
+%desc Cryptosorter, based around merge sort
+
+%attributes slave connected hybrid
+
+%provides cryptosorter_sorter
+
+%public  Sorter.bsv
+
+%library libglib-2.0.a
+%library libgthread-2.0.a
+%library librt.a
+
+

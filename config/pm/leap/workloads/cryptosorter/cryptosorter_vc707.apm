@@ -41,6 +41,7 @@ cryptosorter_common=Cryptosorter common files
 cryptosorter_sort_tree=Cryptosorter Sort Tree
 cryptosorter_memory_wrapper=Cryptosorter Memory Wrapper
 cryptosorter_control=Cryptosorter Top level control
+cryptosorter_sorter=Cryptosorter Top Level
 
 [Cryptosorter common files]
 File=modules/cryptosorter/Common/common.awb
@@ -69,8 +70,10 @@ multifpga_switch=MultiFPGA Switch with Flowcontrol
 File=modules/leap/virtual-platform/virtual-devices/devices/multifpga_router_service/flowcontrol/flowcontrol-switch.awb
 Packagehint=leap-multifpga
 
-
-
 [Hybrid VC707 PCIE FPGA Environment (Synplify)]
 File=config/pm/leap/submodels/fpgaenv/fpgaenv-hybrid-vc707-pcie-synplify.apm
 Packagehint=leap
+
+[Cryptosorter Top Level]
+File=modules/cryptosorter/Sorter/sorter.awb
+Packagehint=leap-workloads

@@ -44,7 +44,7 @@ CONNECTED_APPLICATION_CLASS::Main()
     int style = 2;
     int seed = 1;
 
-    for(int logSize = 6; logSize < 19; logSize++) {
+    for(int logSize = 6; logSize < 7; logSize++) {
         for(int style = 0; style < 4; style++) {
   	    stringstream filename;
 

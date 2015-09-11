@@ -25,6 +25,9 @@ OTHER DEALINGS IN THE SOFTWARE.
 Author: Kermin Fleming
 */
 
+`include "awb/provides/rrr_common.bsh"
+`include "awb/provides/umf.bsh"
+
 `define AddrWidth 26
 typedef 26 AddrWidth;
 typedef Bit#(`AddrWidth) Addr;
@@ -76,6 +79,16 @@ typedef Bit#(64) BusWord;
 typedef TDiv#(TMul#(BlockSize,WordWidth),RecordWidth)   RecordsPerBlock;
 typedef TDiv#(RecordWidth,WordWidth)   WordsPerRecord;
 typedef TDiv#(RecordWidth,DoubleWordWidth)   DoubleWordsPerRecord;
+
+
+typedef struct
+{
+    UINT32 size;
+    UINT32 style;
+    UINT32 seed;
+}
+Instruction
+    deriving (Bits, Eq);
 
 /*
 typedef 1 FunctionalUnitNumber;

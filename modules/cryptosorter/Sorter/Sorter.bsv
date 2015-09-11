@@ -47,17 +47,19 @@ typedef enum {
   Init, 
   Idle,
   Waiting
-} TopState deriving (Bits,Eq);
+} SorterState deriving (Bits,Eq);
 
-module [CONNECTED_MODULE] mkConnectedApplication (Empty);
+module [CONNECTED_MODULE] mkSorter#(Integer sorterID) (Empty);
 
-  ServerStub_CRYPTOSORTERCONTROLRRR serverStub <- mkServerStub_CRYPTOSORTERCONTROLRRR();
-  ExternalMemory extMem <- mkExternalMemory();
+  CONNECTION_RECV#(Instruction) commandIn <- mkConnectionRecv("commandIn_" + integerToString(sorterID));
+  CONNECTION_SEND#(Bool)                    doneOut   <- mkConnectionSend("doneOut_" + integerToString(sorterID));
+
+  ExternalMemory extMem <- mkExternalMemory(sorterID);
   Control  controller <- mkControl(extMem);
   Reg#(Bit#(2)) style <- mkReg(0);  
   Reg#(Bit#(5)) size <- mkReg(0);
   Reg#(Bit#(3)) passes <- mkReg(1);
-  Reg#(TopState) state <- mkReg(Idle);
+  Reg#(SorterState) state <- mkReg(Idle);
   Reg#(Bit#(40)) counter <- mkReg(0);
   Reg#(Bit#(32)) initCtrl <- mkReg(0);
   Reg#(Bit#(32)) initData    <- mkReg(0);
@@ -65,25 +67,19 @@ module [CONNECTED_MODULE] mkConnectedApplication (Empty);
 
   rule getfinished((state == Waiting) && controller.finished);
     state <= Idle;
+    doneOut.send(True);
   endrule
 
   rule countUp(state == Waiting);
     counter <= counter + 1;
   endrule
 
-  rule dropCountReq(state != Idle);
-     let inst <- serverStub.acceptRequest_ReadCycleCount();       
-     serverStub.sendResponse_ReadCycleCount(0,?);
-  endrule
-
-  rule readCount(state == Idle);
-     let inst <- serverStub.acceptRequest_ReadCycleCount();       
-     serverStub.sendResponse_ReadCycleCount(1,zeroExtend(counter));
-  endrule
 
   rule sendCommand(controller.finished && (state == Idle));    
-    let inst <- serverStub.acceptRequest_PutInstruction();       
-    serverStub.sendResponse_PutInstruction(?);
+    
+    Instruction inst = commandIn.receive();
+    commandIn.deq();       
+
     size <= truncate(pack(inst.size));
     style <= truncate(pack(inst.style));
     state <= Init;
@@ -91,7 +87,7 @@ module [CONNECTED_MODULE] mkConnectedApplication (Empty);
     passes <= 1;
     initCtrl <= 0;
     initData <= 0;
-    lfsr.seed(inst.seed);
+    lfsr.seed(inst.seed + 1 + fromInteger(sorterID));
   endrule
 
   rule doInitCtrl(state == Init && initCtrl < 1<<size);

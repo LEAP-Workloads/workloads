@@ -59,13 +59,13 @@ typedef enum {
     BANK_B
 } Bank deriving (Bits, Eq); 
 
-module [CONNECTED_MODULE] mkExternalMemory (ExternalMemory);
+module [CONNECTED_MODULE] mkExternalMemory#(Integer memoryID) (ExternalMemory);
 
     let recordsPerMemRequest = fromInteger(valueof(RecordsPerMemRequest));
 
     // we might want to partition this into two address spaces at some point ...
-    MEMORY_IFC#(Addr, Record) dataStoreA <- mkScratchpad(`VDEV_SCRATCH_BANK_A, defaultValue);
-    MEMORY_IFC#(Addr, Record) dataStoreB <- mkScratchpad(`VDEV_SCRATCH_BANK_B, defaultValue);
+    MEMORY_IFC#(Addr, Record) dataStoreA <- mkScratchpad(fromInteger(2 * memoryID + 1), defaultValue);
+    MEMORY_IFC#(Addr, Record) dataStoreB <- mkScratchpad(fromInteger(2 * memoryID), defaultValue);
 
     Reg#(Bit#(TLog#(RecordsPerBlock))) readRespCount  <- mkReg(0);
     Reg#(Bit#(TAdd#(1,TLog#(RecordsPerBlock)))) writeCount <- mkReg(recordsPerMemRequest);

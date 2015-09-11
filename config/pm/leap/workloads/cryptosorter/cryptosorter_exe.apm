@@ -45,30 +45,35 @@ cryptosorter_common=Cryptosorter common files
 cryptosorter_sort_tree=Cryptosorter Sort Tree
 cryptosorter_memory_wrapper=Cryptosorter Memory Wrapper
 cryptosorter_control=Cryptosorter Top level control
+cryptosorter_sorter=Cryptosorter Top Level
 
 [Cryptosorter common files]
 File=modules/cryptosorter/Common/common.awb
-Packagehint=mmm
+Packagehint=leap-workloads
 
 [Cryptosorter application]
 File=modules/cryptosorter/Sorter/connected-application-test.awb
-Packagehint=mmm
+Packagehint=leap-workloads
 
 [Cryptosorter Sort Tree]
 File=modules/cryptosorter/SortTree/sort_tree.awb
-Packagehint=mmm
+Packagehint=leap-workloads
 
 [Cryptosorter Top level control]
 File=modules/cryptosorter/ctrl/control.awb
-Packagehint=mmm
+Packagehint=leap-workloads
 
 [Cryptosorter Memory Wrapper]
 File=modules/cryptosorter/ExternalMemory/external_memory.awb
-Packagehint=mmm
+Packagehint=leap-workloads
 
 [Cryptosorter Sort Tree/Requires]
 multifpga_switch=MultiFPGA Switch with Flowcontrol
 
 [MultiFPGA Switch with Flowcontrol]
 File=modules/leap/virtual-platform/virtual-devices/devices/multifpga_router_service/flowcontrol/flowcontrol-switch.awb
-Packagehint=multifpga
+Packagehint=leap-multifpga
+
+[Cryptosorter Top Level]
+File=modules/cryptosorter/Sorter/sorter.awb
+Packagehint=leap-workloads
