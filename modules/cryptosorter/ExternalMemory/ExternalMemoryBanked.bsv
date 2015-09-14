@@ -63,6 +63,12 @@ module [CONNECTED_MODULE] mkExternalMemory#(Integer memoryID) (ExternalMemory);
 
     let recordsPerMemRequest = fromInteger(valueof(RecordsPerMemRequest));
 
+    let sconfA = defaultValue;
+    sconfA.enableStatistics = tagged Valid ("Sorter_" + integerToString(memoryID) + "_bankA");
+
+    let sconfB = defaultValue;
+    sconfB.enableStatistics = tagged Valid ("Sorter_" + integerToString(memoryID) + "_bankB");
+
     // we might want to partition this into two address spaces at some point ...
     MEMORY_IFC#(Addr, Record) dataStoreA <- mkScratchpad(fromInteger(2 * memoryID + 1), defaultValue);
     MEMORY_IFC#(Addr, Record) dataStoreB <- mkScratchpad(fromInteger(2 * memoryID), defaultValue);
