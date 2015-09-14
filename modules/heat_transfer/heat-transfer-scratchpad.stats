@@ -4,12 +4,24 @@ LEAP_SCRATCHPAD_1_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to t
 LEAP_SCRATCHPAD_2_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",2114211
 LEAP_SCRATCHPAD_2_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",2114211
 LEAP_SCRATCHPAD_2_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",2107194
+LEAP_SCRATCHPAD_3_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",2114211
+LEAP_SCRATCHPAD_3_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",2114211
+LEAP_SCRATCHPAD_3_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",2107194
+LEAP_SCRATCHPAD_4_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",2114211
+LEAP_SCRATCHPAD_4_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",2114211
+LEAP_SCRATCHPAD_4_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",2107194
 LEAP_SCRATCHPAD_5_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",31917512
 LEAP_SCRATCHPAD_5_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",31917512
 LEAP_SCRATCHPAD_5_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",16920448
 LEAP_SCRATCHPAD_6_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",31896606
 LEAP_SCRATCHPAD_6_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",31896606
 LEAP_SCRATCHPAD_6_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",16919659
+LEAP_SCRATCHPAD_7_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",31896606
+LEAP_SCRATCHPAD_7_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",31896606
+LEAP_SCRATCHPAD_7_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",16919659
+LEAP_SCRATCHPAD_8_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",31896606
+LEAP_SCRATCHPAD_8_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",31896606
+LEAP_SCRATCHPAD_8_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",16919659
 
 //Scratchpad bandwidth partition: ID: 5, Ratio: 1:1
 //Scratchpad bandwidth partition: ID: 6, Ratio: 1:1

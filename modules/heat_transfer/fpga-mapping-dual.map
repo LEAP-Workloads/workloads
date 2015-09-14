@@ -5,6 +5,6 @@ hardware_system -> fpga0;
 heat_transfer_control -> fpga0;
 heat_transfer_local -> fpga0;
 heat_transfer_remote1 -> fpga1;
-heat_transfer_remote2 -> fpga1;
+heat_transfer_remote2 -> fpga0;
 heat_transfer_remote3 -> fpga1;
 
