@@ -44,6 +44,8 @@ cryptosorter_sorter=Cryptosorter Top Level
 cryptosorter_common=Cryptosorter common files
 cryptosorter_memory_wrapper=Cryptosorter Memory Wrapper
 cryptosorter_control=Cryptosorter Top level control
+cryptosorter_sorters_b=Cryptosorters Partition B
+cryptosorter_sorters_a=Cryptosorters Partition A
 
 [LIM Compiler Pipeline/Params]
 GENERATE_ROUTER_STATS=1
@@ -64,14 +66,18 @@ Packagehint=leap-workloads
 File=modules/cryptosorter/Sorter/connected-application-multifpga.awb
 Packagehint=leap-workloads
 
-
 [Cryptosorter Memory Wrapper]
 File=modules/cryptosorter/ExternalMemory/external_memory.awb
 Packagehint=leap-workloads
 
-[Cryptosorter application (multifpga)/Params]
-SORTERS=4
-
 [VC709 HW/SW Environment]
 File=modules/leap-platforms/fpga-environments/vc709/vc709_hwsw.awb
 Packagehint=leap-multifpga
+
+[Cryptosorters Partition A]
+File=modules/cryptosorter/Sorter/sorters-a.awb
+Packagehint=leap-workloads
+
+[Cryptosorters Partition B]
+File=modules/cryptosorter/Sorter/sorters-b.awb
+Packagehint=leap-workloads

@@ -2,7 +2,7 @@
 [Global]
 SaveParameters=0
 Description=Traffic Light from Bluespec Tutorial for ACP w. synthesis boundary
-File=cryptosorter_li_exe
+File=cryptosorter_li_dual_vc707_8
 Version=2.2
 Name=Traffic Light Model - ACP with synthesis boundary
 DefaultBenchmark=config/bm/leap/demos.cfx/benchmarks/null.cfg
@@ -26,9 +26,9 @@ Packagehint=leap-workloads
 
 [HW/SW Hybrid Multifpga Project Foundation/Requires]
 connected_application=Cryptosorter application (multifpga)
-fpga_mapping=Null FPGA Mapping
+fpga_mapping=Cryptosorter Mapping for Dual FPGA
 build_pipeline=LIM Compiler Pipeline
-environment_description=Simulation HW/SW Environment
+environment_description=VC707 Dual HW/SW Environment
 
 [HW/SW Hybrid Multifpga Project Foundation]
 File=modules/leap/build-support/project/project-multifpga.awb
@@ -50,10 +50,6 @@ cryptosorter_sorters_a=Cryptosorters Partition A
 [LIM Compiler Pipeline/Params]
 GENERATE_ROUTER_STATS=1
 
-[Null FPGA Mapping]
-File=modules/leap/build-support/project/null_mapping.awb
-Packagehint=leap-multifpga
-
 [LIM Compiler Pipeline]
 File=config/pm/leap/submodels/pipelines/build-pipeline-lim.apm
 Packagehint=leap-multifpga
@@ -66,10 +62,6 @@ Packagehint=leap-workloads
 File=modules/cryptosorter/Sorter/connected-application-multifpga.awb
 Packagehint=leap-workloads
 
-[Simulation HW/SW Environment]
-File=modules/leap-platforms/fpga-environments/sim/sim_hwsw.awb
-Packagehint=leap-multifpga
-
 [Cryptosorter Memory Wrapper]
 File=modules/cryptosorter/ExternalMemory/external_memory.awb
 Packagehint=leap-workloads
@@ -81,3 +73,14 @@ Packagehint=leap-workloads
 [Cryptosorters Partition B]
 File=modules/cryptosorter/Sorter/sorters-b.awb
 Packagehint=leap-workloads
+
+[Cryptosorter Mapping for Dual FPGA]
+File=modules/cryptosorter/Sorter/fpga-mapping-dual.awb
+Packagehint=leap-workloads
+
+[Cryptosorter common files/Params]
+SORTERS=8
+
+[VC707 Dual HW/SW Environment]
+File=modules/leap-platforms/fpga-environments/vc707/vc707_dual_hwsw.awb
+Packagehint=leap-multifpga

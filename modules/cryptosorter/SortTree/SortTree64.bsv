@@ -31,12 +31,13 @@ import FIFO::*;
 import StmtFSM::*;
 import Vector::*;
 
+`include "awb/provides/cryptosorter_common.bsh"
 `include "asim/provides/librl_bsv.bsh"
 `include "awb/provides/multifpga_switch.bsh"
 
 typedef 5 TOK_SZ;
 
-module mkSortTree64 (SortTree#(64,Bit#(TOK_SZ),Maybe#(Bit#(128))));
+module mkSortTree64 (SortTree#(64,Bit#(TOK_SZ),Maybe#(Bit#(RecordWidth))));
    
    let level6Merger <- mkBRAMLevel6MergerInstance();
    let level5Merger <- mkBRAMLevel5MergerInstance();

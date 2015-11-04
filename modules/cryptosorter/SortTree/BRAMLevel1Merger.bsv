@@ -44,7 +44,7 @@ import Sort::*;
 typedef 4 FIFO_SZ_1; 
 typedef TLog#(TAdd#(FIFO_SZ_1,1)) TOK_SZ_1;
 
-module mkBRAMLevel1MergerInstance (SortLevel#(2,1,Bit#(TOK_SZ_1),Bit#(TOK_SZ_1),Maybe#(Bit#(128))));
+module mkBRAMLevel1MergerInstance (SortLevel#(2,1,Bit#(TOK_SZ_1),Bit#(TOK_SZ_1),Maybe#(Bit#(RecordWidth))));
    Bit#(FIFO_SZ_1) dntCare = ?;
    let res <- mkBRAMOneLevelMerger(dntCare, notValid, fromMaybe(?), mkZeroCycleScheduler);
    return res;

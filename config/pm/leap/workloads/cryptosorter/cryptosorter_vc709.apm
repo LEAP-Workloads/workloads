@@ -2,9 +2,9 @@
 [Global]
 SaveParameters=0
 Description=Traffic Light from Bluespec Tutorial for ACP w. synthesis boundary
-File=cryptosorter_ml605
+File=cryptosorter_vc709
 Version=2.2
-Name=Traffic Light Model - ACP with synthesis boundary
+Name=Cryptosorter on VC707 (Synplify) 
 DefaultBenchmark=config/bm/leap/demos.cfx/benchmarks/null.cfg
 Type=Leap
 Class=Asim::Model
@@ -22,7 +22,7 @@ Packagehint=leap
 
 [HW/SW Hybrid Pipeline Build/Requires]
 project_common=Default Hybrid Project Common Utilities
-fpgaenv=Hybrid ML605 PCIE FPGA Environment
+fpgaenv=Hybrid VC709 PCIE FPGA Environment (Vivado)
 application_env=Soft Services Hybrid Application Environment
 
 [Soft Services Hybrid Application Environment]
@@ -68,13 +68,10 @@ Packagehint=leap-workloads
 File=modules/leap/virtual-platform/virtual-devices/devices/multifpga_router_service/flowcontrol/flowcontrol-switch.awb
 Packagehint=leap-multifpga
 
-[Hybrid ML605 PCIE FPGA Environment]
-File=config/pm/leap/submodels/fpgaenv/fpgaenv-hybrid-ml605-pcie.apm
-Packagehint=leap
-
-[Hybrid ML605 PCIE FPGA Environment/Params]
-MODEL_CLOCK_FREQ=60
-
 [Cryptosorter Top Level]
 File=modules/cryptosorter/Sorter/sorter.awb
 Packagehint=leap-workloads
+
+[Hybrid VC709 PCIE FPGA Environment (Vivado)]
+File=config/pm/leap/submodels/fpgaenv/fpgaenv-hybrid-vc709-pcie-vivado.apm
+Packagehint=leap

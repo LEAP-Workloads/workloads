@@ -70,18 +70,10 @@ function String getCommandString(Integer id);
   return "commandIn_" + integerToString(id);
 endfunction
 
-`ifdef TOP_LEVEL_SORTERS
-    `define SORTERS `TOP_LEVEL_SORTERS
-`endif
-
 module [CONNECTED_MODULE] mkConnectedApplication (Empty);
 
   ServerStub_CRYPTOSORTERCONTROLRRR serverStub <- mkServerStub_CRYPTOSORTERCONTROLRRR();
-
-`ifdef TOP_LEVEL_SORTERS
   Vector#(`SORTERS, Empty) sorters <- genWithM(mkSorter);
-`endif
-
   Vector#(`SORTERS, CONNECTION_SEND#(Instruction)) commands <- mapM(mkConnectionSend, genWith(getCommandString));
   Vector#(`SORTERS, CONNECTION_RECV#(Bool)) dones <- mapM(mkConnectionRecv, genWith(getDoneString));
 

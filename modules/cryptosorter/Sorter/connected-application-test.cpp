@@ -44,7 +44,7 @@ CONNECTED_APPLICATION_CLASS::Main()
     int style = 2;
     int seed = 1;
 
-    for(int logSize = 6; logSize < 7; logSize++) {
+    for(int logSize = 7; logSize < 19; logSize++) {
         for(int style = 0; style < 4; style++) {
   	    stringstream filename;
 
@@ -52,13 +52,14 @@ CONNECTED_APPLICATION_CLASS::Main()
 
             do {
                 result = clientStub->ReadCycleCount(0);
+                sleep(1);
             }while(!result.done);
 
             printf("%d:%d:%llu\n", 1 << logSize, style, result.cycleCount); 
             filename << "sorter_" << logSize << "_" << style << ".stats";
-            STATS_SERVER_CLASS::GetInstance()->DumpStats();
-            STATS_SERVER_CLASS::GetInstance()->EmitFile(filename.str()); 
-            STATS_SERVER_CLASS::GetInstance()->ResetStatValues();
+            //STATS_SERVER_CLASS::GetInstance()->DumpStats();
+            //STATS_SERVER_CLASS::GetInstance()->EmitFile(filename.str()); 
+            //STATS_SERVER_CLASS::GetInstance()->ResetStatValues();
 	}
     }
 

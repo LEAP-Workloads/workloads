@@ -28,15 +28,15 @@ Author: Kermin Fleming
 `include "awb/provides/rrr_common.bsh"
 `include "awb/provides/umf.bsh"
 
-`define AddrWidth 26
-typedef 26 AddrWidth;
+`define AddrWidth 24
+typedef 24 AddrWidth;
 typedef Bit#(`AddrWidth) Addr;
 
 `define RecordNum 8
 typedef 8 RecordNum;
 
-`define RecordWidth 128
-typedef 128 RecordWidth;
+`define RecordWidth 64
+typedef 64 RecordWidth;
 typedef Bit#(`RecordWidth) Record;
 
 `define ReadPortNum 1
@@ -44,10 +44,12 @@ typedef 1 ReadPortNum;
 `define WritePortNum 1
 typedef 1 WritePortNum;
 
+typedef 128 MaxOutstandingRequests;
+
 //`define RecordsPerMemRequest 4
 //typedef 4 RecordsPerMemRequest;
-`define RecordsPerMemRequest 8
-typedef 8 RecordsPerMemRequest;
+//`define RecordsPerMemRequest 8
+//typedef 8 RecordsPerMemRequest;
 
 
 // we could get away with 32'h400000, saving one bit on
@@ -76,7 +78,9 @@ typedef 32 BlockSize; // Words per burst (4*RecordsPerMemRequest)
 typedef 32 WordWidth;
 typedef 64 DoubleWordWidth;
 typedef Bit#(64) BusWord;
+// Coersce RecordsPerBlock and RecordsPerMemRequest to be the same
 typedef TDiv#(TMul#(BlockSize,WordWidth),RecordWidth)   RecordsPerBlock;
+typedef TDiv#(TMul#(BlockSize,WordWidth),RecordWidth)   RecordsPerMemRequest;
 typedef TDiv#(RecordWidth,WordWidth)   WordsPerRecord;
 typedef TDiv#(RecordWidth,DoubleWordWidth)   DoubleWordsPerRecord;
 

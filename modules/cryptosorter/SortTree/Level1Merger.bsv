@@ -34,7 +34,7 @@ import Vector::*;
 `include "asim/provides/librl_bsv.bsh"
 `include "awb/provides/multifpga_switch.bsh"
 
-module mkLevel1MergerInstance (SortTree#(2,Bit#(2),Maybe#(Bit#(128))));
+module mkLevel1MergerInstance (SortTree#(2,Bit#(2),Maybe#(Bit#(RecordWidth))));
    let res <- mkTwoToOneMerger(notValid, fromMaybe(?));
    return res;
 endmodule

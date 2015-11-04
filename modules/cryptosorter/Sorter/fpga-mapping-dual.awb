@@ -1,0 +1,11 @@
+
+%name Cryptosorter Mapping for Dual FPGA
+%desc This file describes the mapping of the test
+
+%attributes tool
+
+%provides fpga_mapping
+
+%sources -t FPGAENV_MAPPING -v PUBLIC fpga-mapping-dual.map
+
+

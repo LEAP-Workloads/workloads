@@ -1,0 +1,7 @@
+model -> fpga0;
+common_services -> fpga0;
+connected_application -> fpga0;
+cryptosorter_sorters_a -> fpga0;
+cryptosorter_sorters_b -> fpga1;
+
+

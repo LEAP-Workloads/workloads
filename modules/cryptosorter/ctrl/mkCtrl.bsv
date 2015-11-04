@@ -81,7 +81,7 @@ typedef Bit#(20) RecAddr;
 
 (* descending_urgency = "drain_sorter,  write_to_mem" *)
 (* descending_urgency = "read_request_a, schedule_read_request" *)
-module mkControl#(ExternalMemory extMem) (Control);
+module mkControl#(ExternalMemory extMem, Integer sorterID) (Control);
 
 
    /*
@@ -147,7 +147,7 @@ module mkControl#(ExternalMemory extMem) (Control);
    FIFO#(RecAddr) pending_first_read_res_count <- mkFIFO();
    FIFO#(Bit#(6))      pending_pending_reserve <- mkFIFO();
    
-   FIFO#(Tuple2#(KMask, Maybe#(Bit#(128)))) put_rec_fifo <- mkFIFO();
+   FIFO#(Tuple2#(KMask, Maybe#(Bit#(RecordWidth)))) put_rec_fifo <- mkFIFO();
    
    RecAddr ra_one = 1;
    let kmerges   = fromInteger(valueOf(KMerges));
@@ -246,7 +246,7 @@ module mkControl#(ExternalMemory extMem) (Control);
        pending_first_res_count.enq(res_count);
        pending_first_read_res_count.enq(truncate(read_res_count));
        if(sorterDebug) 
-           $display("first_stage_reserve %d", res_count);
+           $display("sorter %d first_stage_reserve %d", sorterID, res_count);
        // reached the end of a 64 element block, decrement the number
        // of 64 element blocks remaining
        if (res_count == 0) 
@@ -268,7 +268,7 @@ module mkControl#(ExternalMemory extMem) (Control);
       if((truncate(pending_pending_reserve.first())&rpmr_mask) == 0)
       begin   
           if(sorterDebug) 
-              $display("first_stage_reserve block: %d, idx %d", 
+              $display("sorter %d first_stage_reserve block: %d, idx %d", sorterID, 
           pending_first_read_res_count.first(),
           pending_pending_reserve.first());
           fsfifo.enq(?);
@@ -283,7 +283,7 @@ module mkControl#(ExternalMemory extMem) (Control);
        extMem.read.readReq(zeroExtend(array_len-read_req_count)*(recwid/32));
        read_req_count <= new_read_req_count;
        if(sorterDebug) 
-           $display("first_stage_read_req %d", new_read_req_count);
+           $display("sorter %d first_stage_read_req %d", new_read_req_count, sorterID);
    endrule
    
    // get the records returned from memory and feed the sort_tree
@@ -296,7 +296,7 @@ module mkControl#(ExternalMemory extMem) (Control);
             put_rec_fifo.enq(tuple2(read_count, tagged Invalid));
             read_count <= read_count - 1;
             if(sorterDebug) 
-                $display("first_stage_read_resp eos %d", read_count);
+                $display("sorter %d first_stage_read_resp eos %d", sorterID, read_count);
        end
        else
        begin
@@ -304,7 +304,7 @@ module mkControl#(ExternalMemory extMem) (Control);
            let mask = 0;
            put_rec_fifo.enq(tuple2(read_count, tagged Valid (a^mask)));
            if(sorterDebug) 
-               $display("FIRST first_stage_read_resp idx %h, val %h xor %h", read_count, a,a^mask);
+               $display("sorter %d FIRST first_stage_read_resp idx %h, val %h xor %h", sorterID, read_count, a,a^mask);
        end
    endrule
    
@@ -318,7 +318,7 @@ module mkControl#(ExternalMemory extMem) (Control);
            if (out_buff_cnt == maxBound) // need a new write request
                wrfifo.enq(?);
            if(sorterDebug) 
-               $display("drain_sorter_finish");
+               $display("sorter %d drain_sorter_finish", sorterID);
        end
        else
        begin
@@ -326,7 +326,7 @@ module mkControl#(ExternalMemory extMem) (Control);
            // we just dequeued an end of stream token, and
            // don't need to write that out to memory
            if(sorterDebug) 
-               $display("drain_sorter_finish eos");
+               $display("sorter %d drain_sorter_finish eos", sorterID);
        end
    endrule
    
@@ -337,7 +337,7 @@ module mkControl#(ExternalMemory extMem) (Control);
        extMem.write.writeReq(write_addr);
        write_req_count <= write_req_count - rpmr;
        if(sorterDebug) 
-           $display("write_command addr %h base %h count %d recwid %d recwid/32",write_addr, write_base_addr, write_req_count, recwid, recwid/32);
+           $display("sorter %d write_command addr %h base %h count %d recwid %d recwid/32", sorterID, write_addr, write_base_addr, write_req_count, recwid, recwid/32);
    endrule
    
    rule write_to_mem (True);
@@ -349,14 +349,14 @@ module mkControl#(ExternalMemory extMem) (Control);
            let mask = 0;
            extMem.write.write(out_buff.first()^mask);
            if(sorterDebug) 
-               $display("LAST write_to_mem write_count %h, write_val %h xor %h",
+               $display("sorter %d LAST write_to_mem write_count %h, write_val %h xor %h", sorterID,
                         write_count,out_buff.first(),out_buff.first()^mask);          
        end
        else
        begin
            extMem.write.write(out_buff.first());
            if(sorterDebug) 
-               $display("write_to_mem write_count %h, write_val %h",
+               $display("sorter %d write_to_mem write_count %h, write_val %h", sorterID,
                         write_count,out_buff.first());      
        end
 
@@ -373,7 +373,7 @@ module mkControl#(ExternalMemory extMem) (Control);
            iter            <= iter+1;
            finish_stage    <= replicate(False);
            if (sorterDebug) 
-               $display("done array, write_base_addr=%x", write_base_addr);
+               $display("sorter %d done array, write_base_addr=%x", sorterID, write_base_addr);
            ssl  <= ssl  << 6;
            nssl <= nssl << 6;
            nss  <= (nss <= 64) ? 1 : (nss>>6);
@@ -411,8 +411,8 @@ module mkControl#(ExternalMemory extMem) (Control);
                rsp_offsets.upd(set_count, chk ? 0 : zeroExtend(ssl));
                eos_lefts.upd(set_count,(nss<kmerges) ? 1 : nss>>6); // number of substream / 64
                if (sorterDebug) 
-                   $display("%d base %x, req_offset %x, rsp_offset %x, eos_left %x",
-                            set_count, set_ptr_count, (chk ? 0 : ssl), (chk ? 0 : ssl), ((nss < kmerges) ? 1 : nss>>6));
+                   $display("sorter %d: %d base %x, req_offset %x, rsp_offset %x, eos_left %x",
+                            sorterID, set_count, set_ptr_count, (chk ? 0 : ssl), (chk ? 0 : ssl), ((nss < kmerges) ? 1 : nss>>6));
             end
             if(nss<=kmerges)
             begin
@@ -454,9 +454,9 @@ module mkControl#(ExternalMemory extMem) (Control);
        match {.bv,.idx}  = res;
        if (sorterDebug)
        begin
-           $display("schedule_read_requests %d, %d", bv, idx);
-           $display("   tok[%d] %d, ",idx,sort_tree.inStream.getTokInfo[idx]);
-           $display("finish[%d] %d, ",idx,finish_stage[idx]);
+           $display("sorter %d schedule_read_requests %d, %d", sorterID, bv, idx);
+           $display("sorter %d   tok[%d] %d, ", sorterID, idx,sort_tree.inStream.getTokInfo[idx]);
+           $display("sorter %dfinish[%d] %d, ", sorterID, idx,finish_stage[idx]);
        end
    endrule
    
@@ -488,7 +488,7 @@ module mkControl#(ExternalMemory extMem) (Control);
            pending_req_is_fin_stage   <= is_fin_stage;
                
            if (sorterDebug) 
-               $display("read_requests %d, %d", bv, idx);
+               $display("sorter %d read_requests %d, %d", sorterID, bv, idx);
        end   
    endrule
 
@@ -509,20 +509,20 @@ module mkControl#(ExternalMemory extMem) (Control);
            eos_lefts.upd(idx,new_eos_left);
            base_ptrs.upd(idx,new_base_ptr);
            if(sorterDebug) 
-               $display("eos_requests %d is_last_eos %d", idx, is_fin_stage);
+               $display("sorter %d eos_requests %d is_last_eos %d", sorterID, idx, is_fin_stage);
        end
        else
        begin
            debug_read_requests <= debug_read_requests+1;
            extMem.read.readReq(req_addr);
            if(sorterDebug) 
-               $display("read_requests idx %d, addr %x", idx, req_addr);
+               $display("sorter %d read_requests idx %d, addr %x", sorterID, idx, req_addr);
        end
        rdfifo.enq(idx);
        req_offsets.upd(idx, new_req_offset);
        sort_tree.inStream.putDeqTok(idx,rs_toks);
        if(sorterDebug) 
-           $display("read_requests idx %d, new_req_offset %x, deqTok %d", idx, new_req_offset, rs_toks);
+           $display("sorter %d read_requests idx %d, new_req_offset %x, deqTok %d", sorterID, idx, new_req_offset, rs_toks);
    endrule
    
    rule read_resp (!done && iter > 0 && !set_next_stage);
@@ -543,14 +543,14 @@ module mkControl#(ExternalMemory extMem) (Control);
           debug_write_eos_second <= debug_write_eos_second + 1;
           put_rec_fifo.enq(tuple2(idx, tagged Invalid));
           if(sorterDebug)
-              $display("read_resps eos %x", idx);            
+              $display("sorter %d read_resps eos %x", sorterID, idx);            
       end
       else
       begin
           let val <- extMem.read.read();
           put_rec_fifo.enq(tuple2(idx, tagged Valid val));
           if(sorterDebug) 
-              $display("read_resps idx %x val %x", idx, val);            
+              $display("sorter %d read_resps idx %x val %x", sorterID, idx, val);            
       end
    endrule
    
@@ -566,7 +566,7 @@ module mkControl#(ExternalMemory extMem) (Control);
 
    
    method Action doSort(Bit#(5) len) if (done);
-       $display("doSort");
+       $display("sorter %d doSort", sorterID);
        RecAddr array_sz = 1<<len;
        let num_blocks = array_sz>>6;  // no. 64-record blocks we need for first stage = (2^len / 64)
        let block_sz = 63;             // 64 to go

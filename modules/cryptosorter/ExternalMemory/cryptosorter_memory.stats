@@ -1,0 +1,28 @@
+LEAP_SCRATCHPAD_1_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",3393564
+LEAP_SCRATCHPAD_1_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",3393564
+LEAP_SCRATCHPAD_1_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",5207710
+LEAP_SCRATCHPAD_2_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",3394446
+LEAP_SCRATCHPAD_2_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",3394446
+LEAP_SCRATCHPAD_2_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",5207957
+LEAP_SCRATCHPAD_3_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",3393801
+LEAP_SCRATCHPAD_3_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",3393801
+LEAP_SCRATCHPAD_3_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",5207807
+LEAP_SCRATCHPAD_4_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",3392260
+LEAP_SCRATCHPAD_4_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",3392260
+LEAP_SCRATCHPAD_4_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",5207850
+LEAP_SCRATCHPAD_5_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",3393564
+LEAP_SCRATCHPAD_5_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",3393564
+LEAP_SCRATCHPAD_5_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",5207710
+LEAP_SCRATCHPAD_6_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",3394446
+LEAP_SCRATCHPAD_6_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",3394446
+LEAP_SCRATCHPAD_6_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",5207957
+LEAP_SCRATCHPAD_7_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",3393801
+LEAP_SCRATCHPAD_7_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",3393801
+LEAP_SCRATCHPAD_7_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",5207807
+LEAP_SCRATCHPAD_8_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",3392260
+LEAP_SCRATCHPAD_8_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",3392260
+LEAP_SCRATCHPAD_8_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",5207850
+
+
+
+

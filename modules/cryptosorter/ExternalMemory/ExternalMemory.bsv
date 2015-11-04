@@ -54,16 +54,22 @@ import DefaultValue::*;
 `include "awb/provides/scratchpad_memory_common.bsh"
 `include "awb/dict/VDEV_SCRATCH.bsh"
 
-module [CONNECTED_MODULE] mkExternalMemory#(Integer memoryID) (ExternalMemory);
+module [CONNECTED_MODULE] mkExternalMemory#(Integer memoryIDLogical) (ExternalMemory);
 
-    let recordsPerMemRequest = fromInteger(valueof(RecordsPerMemRequest));
+//    let recordsPerMemRequest = fromInteger(valueof(RecordsPerMemRequest));
+    let recordsPerMemRequest = fromInteger(valueof(RecordsPerBlock));
 
     let sconf = defaultValue;
 
+    // need to convert into scratchpad space.
+    let memoryID = `VDEV_SCRATCH__BASE + memoryIDLogical;
+
+    messageM("sorter memoryID: " + integerToString(memoryID));
     sconf.enableStatistics = tagged Valid ("Sorter_" + integerToString(memoryID));
+    sconf.debugLogPath = tagged Valid ("Sorter_" + integerToString(memoryID));
 
     // we might want to partition this into two address spaces at some point ...
-    MEMORY_IFC#(Addr, Record) dataStore <- mkScratchpad(fromInteger(memoryID), defaultValue);
+    MEMORY_IFC#(Addr, Record) dataStore <- mkScratchpad(fromInteger(memoryID), sconf);
 
     Reg#(Bit#(TLog#(RecordsPerBlock))) readRespCount  <- mkReg(0);
     Reg#(Bit#(TAdd#(1,TLog#(RecordsPerBlock)))) writeCount <- mkReg(recordsPerMemRequest);
@@ -71,12 +77,36 @@ module [CONNECTED_MODULE] mkExternalMemory#(Integer memoryID) (ExternalMemory);
     Reg#(Addr) readAddr <- mkReg(0);
     Reg#(Addr) writeAddr <- mkReg(0);
 
-    // need some credit fifo for reads. 
-    FIFOF#(Record) readRespFIFO   <- mkSizedFIFOF(128);
-    FIFOF#(Addr) readAddrFIFO     <- mkSizedFIFOF(128);
-    FIFOF#(Record) writeDataFIFO  <- mkSizedFIFOF(128);
-    FIFOF#(Addr) writeAddrFIFO    <- mkSizedFIFOF(128/valueof(RecordsPerBlock));
-    FIFOF#(Addr) creditOutfifo    <- mkSizedFIFOF(128);
+    Reg#(Bit#(16)) cycleCount <- mkReg(0);
+
+    // need some credit fifo for reads.                   
+    FIFOF#(Record) readRespFIFO   <- mkSizedFIFOF(valueof(MaxOutstandingRequests));
+    FIFOF#(Addr) readAddrFIFO     <- mkSizedFIFOF(valueof(MaxOutstandingRequests));
+    FIFOF#(Record) writeDataFIFO  <- mkSizedFIFOF(valueof(MaxOutstandingRequests));
+    FIFOF#(Addr) writeAddrFIFO    <- mkSizedFIFOF(valueof(MaxOutstandingRequests));
+    FIFOF#(Addr) creditOutfifo    <- mkSizedFIFOF(valueof(MaxOutstandingRequests));
+
+    function Rules creditCheck(FIFOF#(fifo_t) fifof, String name);
+        return( rules 
+                    rule creditCheck (!fifof.notFull && cycleCount == 0);
+                        $display("sorter %d %s is full", memoryIDLogical, name);
+                    endrule
+                endrules);
+    endfunction
+
+    addRules(creditCheck(readRespFIFO, "readRespFIFO"));
+    addRules(creditCheck(readAddrFIFO, "readAddrFIFO"));
+    addRules(creditCheck(writeDataFIFO, "writeDataFIFO"));
+    addRules(creditCheck(writeAddrFIFO, "writeAddrFIFO"));
+    addRules(creditCheck(creditOutfifo, "creditOutfifo"));
+
+    rule dumpState;
+        cycleCount <= cycleCount + 1;
+        if(cycleCount == 0)
+        begin
+            $display("sorter %d write requests %d read requests %d", memoryIDLogical, writeCount, readRespCount);
+        end
+    endrule
 
     rule doReads(readRespCount > 0);
         let addr = readAddr + zeroExtend(readRespCount);
@@ -84,7 +114,7 @@ module [CONNECTED_MODULE] mkExternalMemory#(Integer memoryID) (ExternalMemory);
         dataStore.readReq(addr);
         creditOutfifo.enq(addr);
         if(sorterDebug) 
-            $display("Mem Read Request %h", addr);
+            $display("sorter %d Mem Read Request %h", memoryIDLogical, addr);
     endrule
 
     rule doResps;
@@ -97,7 +127,7 @@ module [CONNECTED_MODULE] mkExternalMemory#(Integer memoryID) (ExternalMemory);
         dataStore.write(writeAddr + zeroExtend(writeCount), writeDataFIFO.first);
         writeDataFIFO.deq;
         if(sorterDebug) 
-            $display("Mem Write Address %h %h", writeAddr + zeroExtend(writeCount), writeDataFIFO.first);
+            $display("sorter %d Mem Write Address %h %h, count %d", memoryIDLogical, writeAddr + zeroExtend(writeCount), writeDataFIFO.first, writeCount);
     endrule
 
     rule startWrite (writeCount == recordsPerMemRequest);
@@ -123,14 +153,14 @@ module [CONNECTED_MODULE] mkExternalMemory#(Integer memoryID) (ExternalMemory);
             creditOutfifo.enq(adjustedAddr);    
             readAddr <= adjustedAddr;
             if(sorterDebug) 
-                $display("Mem Read Request %h", adjustedAddr);
+                $display("sorter %d Mem Read Request %h", memoryIDLogical, adjustedAddr);
         endmethod 
 
         method ActionValue#(Record) read();
            creditOutfifo.deq;
            readRespFIFO.deq;
            if(sorterDebug) 
-               $display("Mem Read Response %h %h", creditOutfifo.first, readRespFIFO.first); 
+               $display("sorter %d Mem Read Response %h %h", memoryIDLogical, creditOutfifo.first, readRespFIFO.first); 
            return readRespFIFO.first;
         endmethod
     endinterface

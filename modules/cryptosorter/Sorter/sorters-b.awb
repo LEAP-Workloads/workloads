@@ -1,0 +1,11 @@
+%name Cryptosorters Partition B
+%desc A set of cryptosorters
+
+%attributes slave connected hybrid
+
+%provides cryptosorter_sorters_b
+
+%public  CryptoSortersB.bsv
+
+
+%param SYNTH_BOUNDARY mkCryptoSortersB "name of synthesis boundary"

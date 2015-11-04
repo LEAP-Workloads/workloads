@@ -76,5 +76,3 @@ Packagehint=leap-multifpga
 File=modules/cryptosorter/Sorter/sorter.awb
 Packagehint=leap-workloads
 
-[Cryptosorter application/Params]
-SORTERS=4

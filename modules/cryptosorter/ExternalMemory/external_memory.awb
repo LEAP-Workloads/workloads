@@ -5,7 +5,7 @@
 
 %public  ExternalMemory.bsv
 %public  memory.dic
-
+%sources -t SCRATCHPAD_STAT -v PRIVATE cryptosorter_memory.stats
 
 
 

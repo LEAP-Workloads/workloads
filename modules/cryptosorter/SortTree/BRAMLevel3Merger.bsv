@@ -37,7 +37,7 @@ import Vector::*;
 typedef 4 FIFO_SZ_3; 
 typedef TLog#(TAdd#(FIFO_SZ_3,1)) TOK_SZ_3;
 
-module mkBRAMLevel3MergerInstance (SortLevel#(8,4,Bit#(TOK_SZ_3),Bit#(TOK_SZ_3),Maybe#(Bit#(128))));
+module mkBRAMLevel3MergerInstance (SortLevel#(8,4,Bit#(TOK_SZ_3),Bit#(TOK_SZ_3),Maybe#(Bit#(RecordWidth))));
    Bit#(FIFO_SZ_3) dntCare = ?;
    let res <- mkBRAMOneLevelMerger(dntCare, notValid, fromMaybe(?), mkZeroCycleScheduler, mkDecrOneBRAMVLevelFIFO(False));
    return res;

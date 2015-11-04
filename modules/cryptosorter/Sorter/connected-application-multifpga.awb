@@ -10,6 +10,9 @@
 %requires cryptosorter_sort_tree
 %requires cryptosorter_sorter
 %requires cryptosorter_memory_wrapper
+%requires cryptosorter_sorters_a
+%requires cryptosorter_sorters_b
+
 
 %public  CryptoSorter.bsv
 %public  connected-application-test.h
@@ -22,6 +25,6 @@
 %library librt.a
 
 %param SYNTH_BOUNDARY mkConnectedApplication "name of synthesis boundary"
-%param SORTERS 1 "number of sorters to instantiate"
+
 
 

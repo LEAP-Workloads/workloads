@@ -39,7 +39,7 @@ typedef TLog#(TAdd#(FIFO_SZ_6,1)) TOK_SZ_6;
 typedef 4 NEXT_FIFO_SZ_6; 
 typedef TLog#(TAdd#(NEXT_FIFO_SZ_6,1)) NEXT_TOK_SZ_6;
 
-module mkBRAMLevel6MergerInstance (SortLevel#(64,32,Bit#(TOK_SZ_6),Bit#(NEXT_TOK_SZ_6),Maybe#(Bit#(128))));
+module mkBRAMLevel6MergerInstance (SortLevel#(64,32,Bit#(TOK_SZ_6),Bit#(NEXT_TOK_SZ_6),Maybe#(Bit#(RecordWidth))));
    Bit#(FIFO_SZ_6) dntCare = ?;
    let res <- mkBRAMOneLevelMerger(dntCare, notValid, fromMaybe(?), mkOneCycleScheduler2, mkBRAMVLevelFIFO(False));
    return res;

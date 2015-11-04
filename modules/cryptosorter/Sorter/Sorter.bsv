@@ -55,7 +55,7 @@ module [CONNECTED_MODULE] mkSorter#(Integer sorterID) (Empty);
   CONNECTION_SEND#(Bool)                    doneOut   <- mkConnectionSend("doneOut_" + integerToString(sorterID));
 
   ExternalMemory extMem <- mkExternalMemory(sorterID);
-  Control  controller <- mkControl(extMem);
+  Control  controller <- mkControl(extMem, sorterID);
   Reg#(Bit#(2)) style <- mkReg(0);  
   Reg#(Bit#(5)) size <- mkReg(0);
   Reg#(Bit#(3)) passes <- mkReg(1);
@@ -68,6 +68,7 @@ module [CONNECTED_MODULE] mkSorter#(Integer sorterID) (Empty);
   rule getfinished((state == Waiting) && controller.finished);
     state <= Idle;
     doneOut.send(True);
+    $display("mkSorter %d done", sorterID);
   endrule
 
   rule countUp(state == Waiting);
@@ -119,9 +120,11 @@ module [CONNECTED_MODULE] mkSorter#(Integer sorterID) (Empty);
 
      state <= Waiting;
      controller.doSort(size);
+     $display("mkSorter %d starting sort", sorterID);
   endrule
 
   rule returnPass;
+    $display("mkSorter %d got message", sorterID);
     let msg <- controller.msgs.get;
     passes <= passes + 1;
   endrule  

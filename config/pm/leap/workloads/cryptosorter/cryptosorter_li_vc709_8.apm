@@ -2,7 +2,7 @@
 [Global]
 SaveParameters=0
 Description=Traffic Light from Bluespec Tutorial for ACP w. synthesis boundary
-File=cryptosorter_li_exe
+File=cryptosorter_li_vc709_8
 Version=2.2
 Name=Traffic Light Model - ACP with synthesis boundary
 DefaultBenchmark=config/bm/leap/demos.cfx/benchmarks/null.cfg
@@ -28,7 +28,7 @@ Packagehint=leap-workloads
 connected_application=Cryptosorter application (multifpga)
 fpga_mapping=Null FPGA Mapping
 build_pipeline=LIM Compiler Pipeline
-environment_description=Simulation HW/SW Environment
+environment_description=VC709 HW/SW Environment
 
 [HW/SW Hybrid Multifpga Project Foundation]
 File=modules/leap/build-support/project/project-multifpga.awb
@@ -66,13 +66,16 @@ Packagehint=leap-workloads
 File=modules/cryptosorter/Sorter/connected-application-multifpga.awb
 Packagehint=leap-workloads
 
-[Simulation HW/SW Environment]
-File=modules/leap-platforms/fpga-environments/sim/sim_hwsw.awb
-Packagehint=leap-multifpga
-
 [Cryptosorter Memory Wrapper]
 File=modules/cryptosorter/ExternalMemory/external_memory.awb
 Packagehint=leap-workloads
+
+[VC709 HW/SW Environment]
+File=modules/leap-platforms/fpga-environments/vc709/vc709_hwsw.awb
+Packagehint=leap-multifpga
+
+[Cryptosorter common files/Params]
+SORTERS=8
 
 [Cryptosorters Partition A]
 File=modules/cryptosorter/Sorter/sorters-a.awb
