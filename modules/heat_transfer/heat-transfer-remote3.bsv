@@ -108,6 +108,7 @@ module [CONNECTED_MODULE] mkHeatTransferTestRemote3 ()
                 Integer scratchpadID = (`HEAT_TRANSFER_TEST_MULTI_CONTROLLER_ENABLE == 1)? `VDEV_SCRATCH_HEAT_DATA4 : `VDEV_SCRATCH_HEAT_DATA;
                 COH_SCRATCH_CLIENT_CONFIG client_conf = defaultValue;
                 client_conf.cacheMode = (`HEAT_TRANSFER_TEST_PVT_CACHE_ENABLE != 0) ? COH_SCRATCH_CACHED : COH_SCRATCH_UNCACHED;
+                client_conf.backingStore = (`HEAT_TRANSFER_TEST_PVT_CACHE_STORE_TYPE == 0)? SHARED_SCRATCH_CACHE_STORE_FLAT_BRAM : SHARED_SCRATCH_CACHE_STORE_BANKED_BRAM;
                 client_conf.multiController = (`HEAT_TRANSFER_TEST_MULTI_CONTROLLER_ENABLE == 1);
                 client_conf.requestMerging = (`HEAT_TRANSFER_TEST_REQ_MERGE_ENABLE == 1);
                 client_conf.debugLogPath = tagged Valid ("heat_engine_memory_" + integerToString(id + startEngineId) + ".out");

@@ -102,7 +102,7 @@ module [CONNECTED_MODULE] mkHeatTransferTestLocal ()
             begin
                 client_conf.cacheEntries = `HEAT_TRANSFER_TEST_PVT_CACHE_ENTRIES;
             end
-
+            client_conf.backingStore = (`HEAT_TRANSFER_TEST_PVT_CACHE_STORE_TYPE == 0)? SHARED_SCRATCH_CACHE_STORE_FLAT_BRAM : SHARED_SCRATCH_CACHE_STORE_BANKED_BRAM;
             client_conf.multiController = (`HEAT_TRANSFER_TEST_MULTI_CONTROLLER_ENABLE == 1);
             client_conf.requestMerging = (`HEAT_TRANSFER_TEST_REQ_MERGE_ENABLE == 1);
             client_conf.debugLogPath = tagged Valid ("heat_engine_memory_" + integerToString(id) + ".out");
@@ -148,7 +148,9 @@ module [CONNECTED_MODULE] mkHeatTransferTestLocal ()
             let initFileName <- getGlobalStringUID("input.dat");
             sconf.initFilePath = tagged Valid initFileName;
         end
-
+        
+        RL_CACHE_STORE_TYPE store_type = unpack(`HEAT_TRANSFER_TEST_PVT_CACHE_STORE_TYPE);
+        sconf.privateCacheImplementation = tagged Valid store_type;
         sconf.requestMerging = (`HEAT_TRANSFER_TEST_REQ_MERGE_ENABLE == 1);
         sconf.debugLogPath = tagged Valid "heat_engine_memory_0.out";
         sconf.enableStatistics = tagged Valid "heat_engine_memory_0_";
