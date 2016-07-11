@@ -113,6 +113,7 @@ module [CONNECTED_MODULE] mkHeatTransferTestRemote2 ()
                 client_conf.requestMerging = (`HEAT_TRANSFER_TEST_REQ_MERGE_ENABLE == 1);
                 client_conf.debugLogPath = tagged Valid ("heat_engine_memory_" + integerToString(id + startEngineId) + ".out");
                 client_conf.enableStatistics = tagged Valid ("heat_engine_memory_" + integerToString(id + startEngineId) + "_");
+                client_conf.enableDebugScan = tagged Valid ("Heat Engine Coherent Memory "+ integerToString(id + startEngineId));
                 let m <- mFunction(scratchpadID, client_conf);
                 return m;
             endactionvalue

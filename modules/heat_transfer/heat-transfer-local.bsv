@@ -107,6 +107,7 @@ module [CONNECTED_MODULE] mkHeatTransferTestLocal ()
             client_conf.requestMerging = (`HEAT_TRANSFER_TEST_REQ_MERGE_ENABLE == 1);
             client_conf.debugLogPath = tagged Valid ("heat_engine_memory_" + integerToString(id) + ".out");
             client_conf.enableStatistics = tagged Valid ("heat_engine_memory_" + integerToString(id) + "_");
+            client_conf.enableDebugScan = tagged Valid ("Heat Engine Coherent Memory "+ integerToString(id));
             let m <- mFunction(`VDEV_SCRATCH_HEAT_DATA, client_conf);
             return m;
         endactionvalue
