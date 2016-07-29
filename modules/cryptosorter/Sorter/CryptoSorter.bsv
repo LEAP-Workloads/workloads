@@ -36,21 +36,25 @@ import Vector::*;
 `include "awb/provides/soft_services.bsh"
 `include "awb/provides/soft_services_lib.bsh"
 `include "awb/provides/soft_services_deps.bsh"
+`include "awb/provides/common_services.bsh"
 `include "awb/provides/cryptosorter_common.bsh"
 `include "awb/provides/cryptosorter_control.bsh"
 `include "awb/provides/cryptosorter_sort_tree.bsh"
 `include "awb/provides/cryptosorter_sorter.bsh"
 `include "awb/provides/cryptosorter_memory_wrapper.bsh"
 `include "awb/rrr/remote_server_stub_CRYPTOSORTERCONTROLRRR.bsh"
+`include "awb/dict/PARAMS_CRYPTOSORTER_SORTER.bsh" 
 
+typedef 40 CYCLE_COUNTER_SZ;
 
 typedef enum {
-  Init, 
   Idle,
-  Waiting
+  Init, 
+  Waiting,
+  DumpCycle
 } TopState deriving (Bits,Eq);
 
-function Action recvDone(CONNECTION_RECV#(Bool) conn);
+function Action recvDone(CONNECTION_RECV#(Bit#(CYCLE_COUNTER_SZ)) conn);
   action
     conn.deq();
   endaction
@@ -62,12 +66,26 @@ function Action sendCommands(Instruction inst, CONNECTION_SEND#(Instruction) con
   endaction
 endfunction
 
+function Action sendStart(CONNECTION_SEND#(Bool) conn);
+  action
+    conn.send(True);
+  endaction
+endfunction
+
+function Bit#(CYCLE_COUNTER_SZ) getDoneCycle(CONNECTION_RECV#(Bit#(CYCLE_COUNTER_SZ)) conn);
+  return conn.receive();
+endfunction
+
 function String getDoneString(Integer id);
-  return "doneOut_" + integerToString(id);
+  return "sorter_doneOut_" + integerToString(id);
 endfunction
 
 function String getCommandString(Integer id);
-  return "commandIn_" + integerToString(id);
+  return "sorter_commandIn_" + integerToString(id);
+endfunction
+
+function String getStartString(Integer id);
+  return "sorter_startIn_" + integerToString(id);
 endfunction
 
 `ifdef TOP_LEVEL_SORTERS
@@ -83,14 +101,53 @@ module [CONNECTED_MODULE] mkConnectedApplication (Empty);
 `endif
 
   Vector#(`SORTERS, CONNECTION_SEND#(Instruction)) commands <- mapM(mkConnectionSend, genWith(getCommandString));
-  Vector#(`SORTERS, CONNECTION_RECV#(Bool)) dones <- mapM(mkConnectionRecv, genWith(getDoneString));
+  Vector#(`SORTERS, CONNECTION_SEND#(Bool)) starts <- mapM(mkConnectionSend, genWith(getStartString));
+  Vector#(`SORTERS, CONNECTION_RECV#(Bit#(CYCLE_COUNTER_SZ))) dones <- mapM(mkConnectionRecv, genWith(getDoneString));
 
-  Reg#(Bit#(40)) counter <- mkReg(0);
+  Reg#(Bit#(CYCLE_COUNTER_SZ)) counter <- mkReg(0);
   Reg#(TopState) state <- mkReg(Idle);
+  Reg#(Bit#(2)) instStyle <- mkReg(0);  
+  Reg#(Bit#(5)) instSize <- mkReg(0);
+  Reg#(Vector#(`SORTERS, Bit#(CYCLE_COUNTER_SZ))) doneCycles <- mkReg(unpack(0));
+
+
+  // Dump execution cycles for each sorter
+
+  PARAMETER_NODE paramNode     <- mkDynamicParameterNode();
+  Param#(1) param_dump_cycle  <- mkDynamicParameter(`PARAMS_CRYPTOSORTER_SORTER_SORTER_INDIVIDUAL_CYCLE_EN, paramNode);
+  let dumpCycle = (param_dump_cycle == 1);
+    
+  STDIO#(Bit#(64))  stdio <- mkStdIO();
+  let doneMsg  <- getGlobalStringUID("%d:%d:%llu\n");
+  Reg#(Bit#(TLog#(`SORTERS))) sorterCnt <- mkReg(0);
+
+  rule dumpDoneCycle(state == DumpCycle);
+    stdio.printf(doneMsg, list3(1<<instSize,
+                                zeroExtend(instStyle),
+                                zeroExtend(doneCycles[sorterCnt])));
+    if (sorterCnt == fromInteger(`SORTERS -1))
+    begin
+        sorterCnt <= 0;
+        state <= Idle;
+    end
+    else
+    begin
+        sorterCnt <= sorterCnt + 1;
+    end 
+  endrule
 
   rule getfinished((state == Waiting));
-    state <= Idle;
+    let cycles = map(getDoneCycle, dones);
+    doneCycles <= cycles;
     joinActions(map(recvDone, dones));
+    if (dumpCycle)
+    begin
+        state <= DumpCycle;
+    end
+    else
+    begin
+        state <= Idle;
+    end
   endrule
 
   rule countUp(state == Waiting);
@@ -110,9 +167,18 @@ module [CONNECTED_MODULE] mkConnectedApplication (Empty);
   rule sendCommand(state == Idle);    
     let inst <- serverStub.acceptRequest_PutInstruction();
     joinActions(map(sendCommands(Instruction{size: inst.size, style: inst.style, seed: inst.seed}),commands));       
+    instSize  <= truncate(pack(inst.size));
+    instStyle <= truncate(pack(inst.style));
     serverStub.sendResponse_PutInstruction(?);
-    state <= Waiting;
+    state   <= Init;
   endrule
 
+  rule waitForInitDone(state == Init);
+    state <= Waiting;
+    counter <= 0;
+    joinActions(map(recvDone, dones));
+    joinActions(map(sendStart,starts));       
+  endrule
 
 endmodule
+

@@ -59,21 +59,38 @@ typedef enum {
     BANK_B
 } Bank deriving (Bits, Eq); 
 
+function Integer getMemoryID (Integer memoryIDLogical, Integer bankID);
+    let memory_id =  case (memoryIDLogical) matches 
+                         0:  return (bankID == 0)? `VDEV_SCRATCH_SORTER_BANK_0  : `VDEV_SCRATCH_SORTER_BANK_1;
+                         1:  return (bankID == 0)? `VDEV_SCRATCH_SORTER_BANK_2  : `VDEV_SCRATCH_SORTER_BANK_3; 
+                         2:  return (bankID == 0)? `VDEV_SCRATCH_SORTER_BANK_4  : `VDEV_SCRATCH_SORTER_BANK_5;
+                         3:  return (bankID == 0)? `VDEV_SCRATCH_SORTER_BANK_6  : `VDEV_SCRATCH_SORTER_BANK_7;
+                         4:  return (bankID == 0)? `VDEV_SCRATCH_SORTER_BANK_8  : `VDEV_SCRATCH_SORTER_BANK_9;
+                         5:  return (bankID == 0)? `VDEV_SCRATCH_SORTER_BANK_10 : `VDEV_SCRATCH_SORTER_BANK_11;
+                         6:  return (bankID == 0)? `VDEV_SCRATCH_SORTER_BANK_12 : `VDEV_SCRATCH_SORTER_BANK_13;
+                         7:  return (bankID == 0)? `VDEV_SCRATCH_SORTER_BANK_14 : `VDEV_SCRATCH_SORTER_BANK_15;
+                     endcase;
+   return memory_id;
+endfunction    
+
 module [CONNECTED_MODULE] mkExternalMemory#(Integer memoryIDLogical) (ExternalMemory);
 
     let recordsPerMemRequest = fromInteger(valueof(RecordsPerMemRequest));
-
-    let memoryID = `VDEV_SCRATCH__BASE + memoryIDLogical;
+    
+    if (memoryIDLogical > 7)
+    begin
+        error("Sorter ID " + integerToString(memoryIDLogical) + " too large. (Need to register more scratchpad IDs.)");
+    end
 
     let sconfA = defaultValue;
-    sconfA.enableStatistics = tagged Valid ("Sorter_" + integerToString(memoryID) + "_bankA");
+    sconfA.enableStatistics = tagged Valid ("Sorter_" + integerToString(memoryIDLogical) + "_bankA");
 
     let sconfB = defaultValue;
-    sconfB.enableStatistics = tagged Valid ("Sorter_" + integerToString(memoryID) + "_bankB");
+    sconfB.enableStatistics = tagged Valid ("Sorter_" + integerToString(memoryIDLogical) + "_bankB");
 
     // we might want to partition this into two address spaces at some point ...
-    MEMORY_IFC#(Addr, Record) dataStoreA <- mkScratchpad(fromInteger(2 * memoryID + 1), sconfA);
-    MEMORY_IFC#(Addr, Record) dataStoreB <- mkScratchpad(fromInteger(2 * memoryID), sconfB);
+    MEMORY_IFC#(Addr, Record) dataStoreA <- mkScratchpad(fromInteger(getMemoryID(memoryIDLogical,0)), sconfA);
+    MEMORY_IFC#(Addr, Record) dataStoreB <- mkScratchpad(fromInteger(getMemoryID(memoryIDLogical,1)), sconfB);
 
     Reg#(Bit#(TLog#(RecordsPerBlock))) readRespCount  <- mkReg(0);
     Reg#(Bit#(TAdd#(1,TLog#(RecordsPerBlock)))) writeCount <- mkReg(recordsPerMemRequest);

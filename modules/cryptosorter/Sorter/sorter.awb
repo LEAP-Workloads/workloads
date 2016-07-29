@@ -11,4 +11,5 @@
 %library libgthread-2.0.a
 %library librt.a
 
+%param --dynamic SORTER_INDIVIDUAL_CYCLE_EN   0  "0: Output the largest cycle count, 1: Enable dumping cycle counts for each sorter"
 

@@ -54,19 +54,48 @@ import DefaultValue::*;
 `include "awb/provides/scratchpad_memory_common.bsh"
 `include "awb/dict/VDEV_SCRATCH.bsh"
 
+
+function Integer getMemoryID (Integer memoryIDLogical);
+    let memory_id =  case (memoryIDLogical) matches 
+                         0:  return `VDEV_SCRATCH_SORTER_BANK_0;
+                         1:  return `VDEV_SCRATCH_SORTER_BANK_1; 
+                         2:  return `VDEV_SCRATCH_SORTER_BANK_2;
+                         3:  return `VDEV_SCRATCH_SORTER_BANK_3; 
+                         4:  return `VDEV_SCRATCH_SORTER_BANK_4; 
+                         5:  return `VDEV_SCRATCH_SORTER_BANK_5; 
+                         6:  return `VDEV_SCRATCH_SORTER_BANK_6; 
+                         7:  return `VDEV_SCRATCH_SORTER_BANK_7; 
+                         8:  return `VDEV_SCRATCH_SORTER_BANK_8; 
+                         9:  return `VDEV_SCRATCH_SORTER_BANK_9; 
+                         10: return `VDEV_SCRATCH_SORTER_BANK_10; 
+                         11: return `VDEV_SCRATCH_SORTER_BANK_11; 
+                         12: return `VDEV_SCRATCH_SORTER_BANK_12; 
+                         13: return `VDEV_SCRATCH_SORTER_BANK_13; 
+                         14: return `VDEV_SCRATCH_SORTER_BANK_14; 
+                         15: return `VDEV_SCRATCH_SORTER_BANK_15; 
+                     endcase;
+   return memory_id;
+endfunction    
+
+
 module [CONNECTED_MODULE] mkExternalMemory#(Integer memoryIDLogical) (ExternalMemory);
 
 //    let recordsPerMemRequest = fromInteger(valueof(RecordsPerMemRequest));
     let recordsPerMemRequest = fromInteger(valueof(RecordsPerBlock));
 
     let sconf = defaultValue;
+    
+    if (memoryIDLogical > 15)
+    begin
+        error("Sorter ID " + integerToString(memoryIDLogical) + " too large. (Need to register more scratchpad IDs.)");
+    end
 
     // need to convert into scratchpad space.
-    let memoryID = `VDEV_SCRATCH__BASE + memoryIDLogical;
+    let memoryID = getMemoryID(memoryIDLogical);
 
-    messageM("sorter memoryID: " + integerToString(memoryID));
-    sconf.enableStatistics = tagged Valid ("Sorter_" + integerToString(memoryID));
-    sconf.debugLogPath = tagged Valid ("Sorter_" + integerToString(memoryID));
+    messageM("Sorter ID: " + integerToString(memoryIDLogical) + " memoryID: " + integerToString(memoryID));
+    sconf.enableStatistics = tagged Valid ("Sorter_" + integerToString(memoryIDLogical));
+    sconf.debugLogPath = tagged Valid ("Sorter_" + integerToString(memoryIDLogical));
 
     // we might want to partition this into two address spaces at some point ...
     MEMORY_IFC#(Addr, Record) dataStore <- mkScratchpad(fromInteger(memoryID), sconf);
@@ -171,8 +200,5 @@ module [CONNECTED_MODULE] mkExternalMemory#(Integer memoryIDLogical) (ExternalMe
     endinterface
 
 endmodule
-
-
-
 
 

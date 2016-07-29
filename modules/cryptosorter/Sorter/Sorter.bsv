@@ -44,15 +44,17 @@ import Vector::*;
 
 
 typedef enum {
-  Init, 
   Idle,
-  Waiting
+  Init, 
+  InitDone,
+  Processing
 } SorterState deriving (Bits,Eq);
 
 module [CONNECTED_MODULE] mkSorter#(Integer sorterID) (Empty);
 
-  CONNECTION_RECV#(Instruction) commandIn <- mkConnectionRecv("commandIn_" + integerToString(sorterID));
-  CONNECTION_SEND#(Bool)                    doneOut   <- mkConnectionSend("doneOut_" + integerToString(sorterID));
+  CONNECTION_RECV#(Instruction) commandIn <- mkConnectionRecv("sorter_commandIn_" + integerToString(sorterID));
+  CONNECTION_RECV#(Bool)        startIn   <- mkConnectionRecv("sorter_startIn_" + integerToString(sorterID));
+  CONNECTION_SEND#(Bit#(40))    doneOut   <- mkConnectionSend("sorter_doneOut_" + integerToString(sorterID));
 
   ExternalMemory extMem <- mkExternalMemory(sorterID);
   Control  controller <- mkControl(extMem, sorterID);
@@ -65,22 +67,19 @@ module [CONNECTED_MODULE] mkSorter#(Integer sorterID) (Empty);
   Reg#(Bit#(32)) initData    <- mkReg(0);
   LFSR#(Bit#(32)) lfsr <- mkLFSR_32(); 
 
-  rule getfinished((state == Waiting) && controller.finished);
+  rule getfinished(state == Processing && controller.finished);
     state <= Idle;
-    doneOut.send(True);
+    doneOut.send(counter);
     $display("mkSorter %d done", sorterID);
   endrule
 
-  rule countUp(state == Waiting);
+  rule countUp(state == Processing);
     counter <= counter + 1;
   endrule
 
-
-  rule sendCommand(controller.finished && (state == Idle));    
-    
+  rule getCommand(state == Idle);    
     Instruction inst = commandIn.receive();
     commandIn.deq();       
-
     size <= truncate(pack(inst.size));
     style <= truncate(pack(inst.style));
     state <= Init;
@@ -92,35 +91,37 @@ module [CONNECTED_MODULE] mkSorter#(Integer sorterID) (Empty);
   endrule
 
   rule doInitCtrl(state == Init && initCtrl < 1<<size);
-     initCtrl <= initCtrl + 1;
-     Bit#(TLog#(RecordsPerBlock)) burstCount = truncate(initCtrl);
-     if(burstCount == 0)
-     begin
-        extMem.write.writeReq(truncate(initCtrl << 2)); // This shift comes because of the interface expected by the sort tree.
-     end
+    initCtrl <= initCtrl + 1;
+    Bit#(TLog#(RecordsPerBlock)) burstCount = truncate(initCtrl);
+    if(burstCount == 0)
+    begin
+       extMem.write.writeReq(truncate(initCtrl << 2)); // This shift comes because of the interface expected by the sort tree.
+    end
   endrule      
 
   rule doInitData(state == Init && initData < 1<<size);
-     initData <= initData + 1;
-
-     let data =   case (style) matches 
-                      0: return 0;
-		      1: return initData;
-		      2: return maxBound - initData;
-		      3: return lfsr.value();     
-     endcase;
-
-     lfsr.next;
-
-     extMem.write.write(pack(replicate(data)));
+    initData <= initData + 1;
+    let data =  case (style) matches 
+                    0: return 0;
+                    1: return initData;
+                    2: return maxBound - initData;
+                    3: return lfsr.value();     
+                endcase;
+    lfsr.next;
+    extMem.write.write(pack(replicate(data)));
   endrule      
+  
+  rule initDone(state == Init && initData == 1 << size && initCtrl == 1<<size && !extMem.writesPending());
+    state <= InitDone;
+    doneOut.send(0);
+  endrule
 
-  rule start(state == Init && initData == 1 << size && 
-             initCtrl == 1<<size && !extMem.writesPending());
-
-     state <= Waiting;
-     controller.doSort(size);
-     $display("mkSorter %d starting sort", sorterID);
+  rule start(state == InitDone);
+    let start = startIn.receive();
+    startIn.deq();
+    state <= Processing;
+    controller.doSort(size);
+    $display("mkSorter %d starting sort", sorterID);
   endrule
 
   rule returnPass;
@@ -130,3 +131,4 @@ module [CONNECTED_MODULE] mkSorter#(Integer sorterID) (Empty);
   endrule  
 
 endmodule
+

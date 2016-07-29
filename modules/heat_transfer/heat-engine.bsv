@@ -571,7 +571,7 @@ module [CONNECTED_MODULE] mkHeatEngine#(MEMORY_WITH_FENCE_IFC#(t_ADDR, t_DATA) c
 
     method Action setIter(Bit#(16) num);
         maxIter <= num - 1;
-        debugLog.record($format("setTestIter: numItern = %08d", num));
+        debugLog.record($format("setTestIter: numIter = %08d", num));
     endmethod
     
     method Action setFrameSize(t_ADDR x, t_ADDR y);

@@ -19,6 +19,7 @@
 %public  connected-application-test.cpp
 %public  SimpleController.rrr
 %sources -t LOG -v PUBLIC     SimpleController.log
+%sources -t SCRATCHPAD_STAT -v PRIVATE cryptosorter_scratchpad.stats
 
 %library libglib-2.0.a
 %library libgthread-2.0.a

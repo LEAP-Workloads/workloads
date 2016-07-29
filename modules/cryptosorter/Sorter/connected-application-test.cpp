@@ -4,6 +4,7 @@
 #include "awb/provides/stats_service.h"
 #include "awb/rrr/client_stub_CRYPTOSORTERCONTROLRRR.h"
 #include "awb/provides/connected_application.h"
+#include "awb/provides/cryptosorter_sorter.h"
 
 using namespace std;
 
@@ -55,8 +56,11 @@ CONNECTED_APPLICATION_CLASS::Main()
                 sleep(1);
             }while(!result.done);
 
-            printf("%d:%d:%llu\n", 1 << logSize, style, result.cycleCount); 
-            filename << "sorter_" << logSize << "_" << style << ".stats";
+            if (SORTER_INDIVIDUAL_CYCLE_EN == 0)
+            {
+                printf("%d:%d:%llu\n", 1 << logSize, style, result.cycleCount); 
+            }
+            //filename << "sorter_" << logSize << "_" << style << ".stats";
             //STATS_SERVER_CLASS::GetInstance()->DumpStats();
             //STATS_SERVER_CLASS::GetInstance()->EmitFile(filename.str()); 
             //STATS_SERVER_CLASS::GetInstance()->ResetStatValues();
