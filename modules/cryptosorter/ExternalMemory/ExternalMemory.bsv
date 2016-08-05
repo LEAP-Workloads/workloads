@@ -94,8 +94,8 @@ module [CONNECTED_MODULE] mkExternalMemory#(Integer memoryIDLogical) (ExternalMe
     let memoryID = getMemoryID(memoryIDLogical);
 
     messageM("Sorter ID: " + integerToString(memoryIDLogical) + " memoryID: " + integerToString(memoryID));
-    sconf.enableStatistics = tagged Valid ("Sorter_" + integerToString(memoryIDLogical));
-    sconf.debugLogPath = tagged Valid ("Sorter_" + integerToString(memoryIDLogical));
+    sconf.enableStatistics = tagged Valid ("Sorter_" + integerToString(memoryIDLogical) + "_memory_");
+    sconf.debugLogPath = tagged Valid ("Sorter_" + integerToString(memoryIDLogical) + "_memory.out");
 
     // we might want to partition this into two address spaces at some point ...
     MEMORY_IFC#(Addr, Record) dataStore <- mkScratchpad(fromInteger(memoryID), sconf);

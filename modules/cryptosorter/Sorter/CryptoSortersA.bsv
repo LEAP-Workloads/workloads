@@ -41,7 +41,6 @@ import Vector::*;
 `include "awb/provides/cryptosorter_sort_tree.bsh"
 `include "awb/provides/cryptosorter_sorter.bsh"
 `include "awb/provides/cryptosorter_memory_wrapper.bsh"
-`include "awb/rrr/remote_server_stub_CRYPTOSORTERCONTROLRRR.bsh"
 
 
 module [CONNECTED_MODULE] mkCryptoSortersA (Empty);

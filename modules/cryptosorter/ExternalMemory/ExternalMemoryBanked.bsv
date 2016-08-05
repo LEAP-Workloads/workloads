@@ -83,10 +83,12 @@ module [CONNECTED_MODULE] mkExternalMemory#(Integer memoryIDLogical) (ExternalMe
     end
 
     let sconfA = defaultValue;
-    sconfA.enableStatistics = tagged Valid ("Sorter_" + integerToString(memoryIDLogical) + "_bankA");
+    sconfA.enableStatistics = tagged Valid ("Sorter_" + integerToString(memoryIDLogical) + "_bankA_memory_");
+    sconfA.debugLogPath = tagged Valid ("Sorter_" + integerToString(memoryIDLogical) + "_bankA_memory.out");
 
     let sconfB = defaultValue;
-    sconfB.enableStatistics = tagged Valid ("Sorter_" + integerToString(memoryIDLogical) + "_bankB");
+    sconfB.enableStatistics = tagged Valid ("Sorter_" + integerToString(memoryIDLogical) + "_bankB_memory_");
+    sconfB.debugLogPath = tagged Valid ("Sorter_" + integerToString(memoryIDLogical) + "_bankB_memory.out");
 
     // we might want to partition this into two address spaces at some point ...
     MEMORY_IFC#(Addr, Record) dataStoreA <- mkScratchpad(fromInteger(getMemoryID(memoryIDLogical,0)), sconfA);

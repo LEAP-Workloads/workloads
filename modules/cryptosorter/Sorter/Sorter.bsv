@@ -40,8 +40,7 @@ import Vector::*;
 `include "awb/provides/cryptosorter_control.bsh"
 `include "awb/provides/cryptosorter_sort_tree.bsh"
 `include "awb/provides/cryptosorter_memory_wrapper.bsh"
-`include "awb/rrr/remote_server_stub_CRYPTOSORTERCONTROLRRR.bsh"
-
+`include "awb/provides/common_services.bsh"
 
 typedef enum {
   Idle,
@@ -66,6 +65,10 @@ module [CONNECTED_MODULE] mkSorter#(Integer sorterID) (Empty);
   Reg#(Bit#(32)) initCtrl <- mkReg(0);
   Reg#(Bit#(32)) initData    <- mkReg(0);
   LFSR#(Bit#(32)) lfsr <- mkLFSR_32(); 
+
+  DEBUG_SCAN_FIELD_LIST dbg_list = List::nil;
+  dbg_list <- addDebugScanField(dbg_list, "state", state);
+  let dbgNode <- mkDebugScanNode("Cryptosorter " + integerToString(sorterID) + " (mkSorter.bsv)", dbg_list);
 
   rule getfinished(state == Processing && controller.finished);
     state <= Idle;
