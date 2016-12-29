@@ -49,7 +49,8 @@ typedef 40 CYCLE_COUNTER_SZ;
 
 typedef enum {
   Idle,
-  Init, 
+  Init,
+  InitDone,
   Waiting,
   DumpCycle
 } TopState deriving (Bits,Eq);
@@ -108,6 +109,8 @@ module [CONNECTED_MODULE] mkConnectedApplication (Empty);
   Reg#(TopState) state <- mkReg(Idle);
   Reg#(Bit#(2)) instStyle <- mkReg(0);  
   Reg#(Bit#(5)) instSize <- mkReg(0);
+  // Wait for start signal from host after initialization is done
+  Reg#(Bool) waitForStart <- mkReg(False);
   Reg#(Vector#(`SORTERS, Bit#(CYCLE_COUNTER_SZ))) doneCycles <- mkReg(unpack(0));
 
 
@@ -154,12 +157,7 @@ module [CONNECTED_MODULE] mkConnectedApplication (Empty);
     counter <= counter + 1;
   endrule
 
-  rule dropCountReq(state != Idle);
-     let inst <- serverStub.acceptRequest_ReadCycleCount();       
-     serverStub.sendResponse_ReadCycleCount(0,?);
-  endrule
-
-  rule readCount(state == Idle);
+  rule readCount(state == Idle || state == InitDone);
      let inst <- serverStub.acceptRequest_ReadCycleCount();       
      serverStub.sendResponse_ReadCycleCount(1,zeroExtend(counter));
   endrule
@@ -170,14 +168,30 @@ module [CONNECTED_MODULE] mkConnectedApplication (Empty);
     instSize  <= truncate(pack(inst.size));
     instStyle <= truncate(pack(inst.style));
     serverStub.sendResponse_PutInstruction(?);
-    state   <= Init;
+    state <= Init;
+    waitForStart <= (pack(inst.command) != 0);
   endrule
 
   rule waitForInitDone(state == Init);
-    state <= Waiting;
-    counter <= 0;
     joinActions(map(recvDone, dones));
-    joinActions(map(sendStart,starts));       
+    if (!waitForStart)
+    begin
+      state <= Waiting;
+      counter <= 0;
+      joinActions(map(sendStart,starts));       
+    end
+    else
+    begin
+      state <= InitDone;
+    end
+  endrule
+  
+  rule startProcess(state == InitDone);
+      let inst <- serverStub.acceptRequest_PutInstruction();
+      serverStub.sendResponse_PutInstruction(?);
+      state <= Waiting;
+      counter <= 0;
+      joinActions(map(sendStart,starts));       
   endrule
 
 endmodule

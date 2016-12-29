@@ -27,5 +27,9 @@
 
 %param SYNTH_BOUNDARY mkConnectedApplication "name of synthesis boundary"
 
+%param --dynamic SORTER_TEST_SWEEP              1  "Run sorter sweep tests"
+%param --dynamic SORTER_TEST_INIT_STATS         0  "Separate stats for initialization"
+%param --dynamic SORTER_TEST_SORTING_SIZE_LOG   9  "Number of sorting items (in log)"
+%param --dynamic SORTER_TEST_SORTING_STYLE      3  "0: constant, 1: ascending order, 2: descending order, 3: random"
 
 

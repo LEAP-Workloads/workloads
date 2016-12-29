@@ -1,28 +1,50 @@
-LEAP_SCRATCHPAD_1_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",3393564
-LEAP_SCRATCHPAD_1_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",3393564
-LEAP_SCRATCHPAD_1_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",5207710
-LEAP_SCRATCHPAD_2_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",3394446
-LEAP_SCRATCHPAD_2_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",3394446
-LEAP_SCRATCHPAD_2_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",5207957
-LEAP_SCRATCHPAD_3_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",3393801
-LEAP_SCRATCHPAD_3_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",3393801
-LEAP_SCRATCHPAD_3_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",5207807
-LEAP_SCRATCHPAD_4_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",3392260
-LEAP_SCRATCHPAD_4_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",3392260
-LEAP_SCRATCHPAD_4_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",5207850
-LEAP_SCRATCHPAD_5_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",3393564
-LEAP_SCRATCHPAD_5_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",3393564
-LEAP_SCRATCHPAD_5_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",5207710
-LEAP_SCRATCHPAD_6_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",3394446
-LEAP_SCRATCHPAD_6_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",3394446
-LEAP_SCRATCHPAD_6_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",5207957
-LEAP_SCRATCHPAD_7_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",3393801
-LEAP_SCRATCHPAD_7_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",3393801
-LEAP_SCRATCHPAD_7_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",5207807
-LEAP_SCRATCHPAD_8_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the ring",3392260
-LEAP_SCRATCHPAD_8_PLATFORM_0_RESPONSES,"Scratchpad responses received from the ring",3392260
-LEAP_SCRATCHPAD_8_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the ring",5207850
+LEAP_SCRATCHPAD_1_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the network",470215
+LEAP_SCRATCHPAD_1_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the network",396165
+LEAP_SCRATCHPAD_2_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the network",471690
+LEAP_SCRATCHPAD_2_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the network",396487
+LEAP_SCRATCHPAD_3_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the network",470215
+LEAP_SCRATCHPAD_3_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the network",396165
+LEAP_SCRATCHPAD_4_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the network",471690
+LEAP_SCRATCHPAD_4_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the network",396487
+LEAP_SCRATCHPAD_5_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the network",470676
+LEAP_SCRATCHPAD_5_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the network",396008
+LEAP_SCRATCHPAD_6_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the network",470771
+LEAP_SCRATCHPAD_6_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the network",396242
+LEAP_SCRATCHPAD_7_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the network",471760
+LEAP_SCRATCHPAD_7_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the network",396260
+LEAP_SCRATCHPAD_8_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the network",470031
+LEAP_SCRATCHPAD_8_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the network",396413
+LEAP_SCRATCHPAD_9_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the network",470676
+LEAP_SCRATCHPAD_9_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the network",396008
+LEAP_SCRATCHPAD_10_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the network",470771
+LEAP_SCRATCHPAD_10_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the network",396242
+LEAP_SCRATCHPAD_11_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the network",471760
+LEAP_SCRATCHPAD_11_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the network",396260
+LEAP_SCRATCHPAD_12_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the network",470031
+LEAP_SCRATCHPAD_12_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the network",396413
+LEAP_SCRATCHPAD_13_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the network",470808
+LEAP_SCRATCHPAD_13_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the network",396172
+LEAP_SCRATCHPAD_14_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the network",470166
+LEAP_SCRATCHPAD_14_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the network",396375
+LEAP_SCRATCHPAD_15_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the network",470166
+LEAP_SCRATCHPAD_15_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the network",396375
+LEAP_SCRATCHPAD_16_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the network",470808
+LEAP_SCRATCHPAD_16_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the network",396172
 
-
-
+Scratchpad bandwidth partition: ID: 1,  Ratio: 1:1
+Scratchpad bandwidth partition: ID: 2,  Ratio: 1:1
+Scratchpad bandwidth partition: ID: 3,  Ratio: 1:1
+Scratchpad bandwidth partition: ID: 4,  Ratio: 1:1
+Scratchpad bandwidth partition: ID: 5,  Ratio: 1:1
+Scratchpad bandwidth partition: ID: 6,  Ratio: 1:1
+Scratchpad bandwidth partition: ID: 7,  Ratio: 1:1
+Scratchpad bandwidth partition: ID: 8,  Ratio: 1:1
+Scratchpad bandwidth partition: ID: 9,  Ratio: 1:1
+Scratchpad bandwidth partition: ID: 10, Ratio: 1:1
+Scratchpad bandwidth partition: ID: 11, Ratio: 1:1
+Scratchpad bandwidth partition: ID: 12, Ratio: 1:1
+Scratchpad bandwidth partition: ID: 13, Ratio: 1:1
+Scratchpad bandwidth partition: ID: 14, Ratio: 1:1
+Scratchpad bandwidth partition: ID: 15, Ratio: 1:1
+Scratchpad bandwidth partition: ID: 16, Ratio: 1:1
 

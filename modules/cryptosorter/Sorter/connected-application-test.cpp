@@ -41,30 +41,60 @@ CONNECTED_APPLICATION_CLASS::Main()
     // 2 - descending order
     // 3 - random
     // Third - a seed for random generation of lists 
-    int logSize = 7;
-    int style = 2;
+    
+    int logSize = SORTER_TEST_SORTING_SIZE_LOG;
+    int style = SORTER_TEST_SORTING_STYLE;
     int seed = 1;
 
-    for(int logSize = 7; logSize < 19; logSize++) {
-        for(int style = 0; style < 4; style++) {
-  	    stringstream filename;
+    if (SORTER_TEST_SWEEP == 1)
+    {
+        for(logSize = 7; logSize < 19; logSize++) {
+            for(style = 0; style < 4; style++) {
 
-            clientStub->PutInstruction(logSize,style,seed);
-
-            do {
+                clientStub->PutInstruction(logSize,style,seed,0);
+                // Wait for done
                 result = clientStub->ReadCycleCount(0);
-                sleep(1);
-            }while(!result.done);
 
-            if (SORTER_INDIVIDUAL_CYCLE_EN == 0)
-            {
-                printf("%d:%d:%llu\n", 1 << logSize, style, result.cycleCount); 
-            }
-            //filename << "sorter_" << logSize << "_" << style << ".stats";
-            //STATS_SERVER_CLASS::GetInstance()->DumpStats();
-            //STATS_SERVER_CLASS::GetInstance()->EmitFile(filename.str()); 
-            //STATS_SERVER_CLASS::GetInstance()->ResetStatValues();
-	}
+                if (SORTER_INDIVIDUAL_CYCLE_EN == 0)
+                {
+                    printf("%d:%d:%llu\n", 1 << logSize, style, result.cycleCount); 
+                }
+	        }
+        }
+    }
+    else
+    {
+        // Run style 0 (constant) sorting first to warm up the cache
+        clientStub->PutInstruction(logSize,0,seed,0);
+        
+        // Wait for done
+        result = clientStub->ReadCycleCount(0);
+        
+        // Initialize the sorting test data
+        clientStub->PutInstruction(logSize,style,seed,1);
+        
+        // Wait for initialization done
+        result = clientStub->ReadCycleCount(0);
+        printf("sorter test initialization done\n"); 
+    
+        if (SORTER_TEST_INIT_STATS == 1)
+        {
+            stringstream filename;
+            filename << "sorter_test_init.stats";
+            STATS_SERVER_CLASS::GetInstance()->DumpStats();
+            STATS_SERVER_CLASS::GetInstance()->EmitFile(filename.str());
+            STATS_SERVER_CLASS::GetInstance()->ResetStatValues();
+        }
+        
+        // Start main processing
+        clientStub->PutInstruction(logSize,style,seed,1);
+        // Wait for done
+        result = clientStub->ReadCycleCount(0);
+                
+        if (SORTER_INDIVIDUAL_CYCLE_EN == 0)
+        {
+            printf("%d:%d:%llu\n", 1 << logSize, style, result.cycleCount); 
+        }
     }
 
     STARTER_SERVICE_SERVER_CLASS::GetInstance()->End(0);
