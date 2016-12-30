@@ -31,20 +31,20 @@ LEAP_SCRATCHPAD_15_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to 
 LEAP_SCRATCHPAD_16_PLATFORM_0_READ_REQUESTS,"Scratchpad read requests sent to the network",470808
 LEAP_SCRATCHPAD_16_PLATFORM_0_WRITE_REQUESTS,"Scratchpad write requests sent to the network",396172
 
-Scratchpad bandwidth partition: ID: 1,  Ratio: 1:1
-Scratchpad bandwidth partition: ID: 2,  Ratio: 1:1
-Scratchpad bandwidth partition: ID: 3,  Ratio: 1:1
-Scratchpad bandwidth partition: ID: 4,  Ratio: 1:1
-Scratchpad bandwidth partition: ID: 5,  Ratio: 1:1
-Scratchpad bandwidth partition: ID: 6,  Ratio: 1:1
-Scratchpad bandwidth partition: ID: 7,  Ratio: 1:1
-Scratchpad bandwidth partition: ID: 8,  Ratio: 1:1
-Scratchpad bandwidth partition: ID: 9,  Ratio: 1:1
-Scratchpad bandwidth partition: ID: 10, Ratio: 1:1
-Scratchpad bandwidth partition: ID: 11, Ratio: 1:1
-Scratchpad bandwidth partition: ID: 12, Ratio: 1:1
-Scratchpad bandwidth partition: ID: 13, Ratio: 1:1
-Scratchpad bandwidth partition: ID: 14, Ratio: 1:1
-Scratchpad bandwidth partition: ID: 15, Ratio: 1:1
-Scratchpad bandwidth partition: ID: 16, Ratio: 1:1
+// Scratchpad bandwidth partition: ID: 1,  Ratio: 1:1
+// Scratchpad bandwidth partition: ID: 2,  Ratio: 1:1
+// Scratchpad bandwidth partition: ID: 3,  Ratio: 1:1
+// Scratchpad bandwidth partition: ID: 4,  Ratio: 1:1
+// Scratchpad bandwidth partition: ID: 5,  Ratio: 1:1
+// Scratchpad bandwidth partition: ID: 6,  Ratio: 1:1
+// Scratchpad bandwidth partition: ID: 7,  Ratio: 1:1
+// Scratchpad bandwidth partition: ID: 8,  Ratio: 1:1
+// Scratchpad bandwidth partition: ID: 9,  Ratio: 1:1
+// Scratchpad bandwidth partition: ID: 10, Ratio: 1:1
+// Scratchpad bandwidth partition: ID: 11, Ratio: 1:1
+// Scratchpad bandwidth partition: ID: 12, Ratio: 1:1
+// Scratchpad bandwidth partition: ID: 13, Ratio: 1:1
+// Scratchpad bandwidth partition: ID: 14, Ratio: 1:1
+// Scratchpad bandwidth partition: ID: 15, Ratio: 1:1
+// Scratchpad bandwidth partition: ID: 16, Ratio: 1:1
 
